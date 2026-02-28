@@ -1,9 +1,12 @@
-const CACHE_NAME = 'talleres-lista-v1';
+const CACHE_NAME = 'talleres-lista-v2';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icono.png'
+  './icono.png',
+  './icono-180.png',
+  './icono-192.png',
+  './icono-512.png'
 ];
 
 self.addEventListener('install', (event) => {
