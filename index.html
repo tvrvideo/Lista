@@ -1,18 +1,18 @@
 <!doctype html>
-<html lang="es">
+<html lang="es-ES">
 <head>
 <meta charset="utf-8"/>
+<meta http-equiv="Content-Language" content="es-ES">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Talleres Lista</title>
-
 <link rel="manifest" href="manifest.json?v=2">
 <meta name="theme-color" content="#0E4C92">
 <meta name="apple-mobile-web-app-title" content="Talleres Lista">
 <link rel="apple-touch-icon" sizes="180x180" href="icono-180.png">
 <link rel="apple-touch-icon" sizes="192x192" href="icono-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icono-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icono-512.png">
+
 <style>
 :root{
   --bg:#0b1220;
@@ -20,12 +20,15 @@
   --text:#eaf0ff;
   --muted:#93a7c7;
   --line:rgba(255,255,255,.12);
-  --ral5010:#0E4C92;
-  --ral5010-dark:#083a73;
+  --primary:#0E4C92;
+  --primary:#0E4C92;
+  --primaryDark:#083a73;
+  --primaryDark:#083a73;
   --danger:#c62828;
 
   --headerH: 72px;
   --barH: 72px;
+  --fontScale: 1.15;
 }
 *{box-sizing:border-box;}
 html,body{height:100%;}
@@ -36,6 +39,7 @@ body{
   color:var(--text);
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  font-size: calc(16px * var(--fontScale));
 }
 
 /* Fixed header */
@@ -52,8 +56,8 @@ header{
   z-index:50;
   padding-top: calc(12px + env(safe-area-inset-top));
 }
-.titleblock h1{margin:0;font-size:18px;font-weight:900;line-height:1.1;}
-.titleblock .ver{font-size:12px;color:var(--muted);font-weight:700;margin-top:3px;}
+.titleblock h1{margin:0;font-size: calc(22px * var(--fontScale));font-weight:900;line-height:1.1;}
+.titleblock .ver{font-size: calc(13px * var(--fontScale));color:var(--muted);font-weight:700;margin-top:3px;}
 
 .logoBox{
   width:240px;
@@ -88,7 +92,7 @@ main{
   margin-bottom:14px;
 }
 
-/* Fixed action bars (always visible while scrolling) */
+/* Fixed action bars */
 .actionBar{
   position:fixed;
   left:0; right:0;
@@ -107,6 +111,7 @@ main{
   align-items:center;
   justify-content:space-between;
   gap: 12px;
+  overflow:hidden;
 }
 
 /* Buttons */
@@ -119,24 +124,40 @@ button{
   cursor:pointer;
   background: rgba(255,255,255,.10);
   touch-action: manipulation;
+  font-size: calc(16px * var(--fontScale));
 }
-button.primary{background:var(--ral5010);}
-button.primary:active{background:var(--ral5010-dark);}
+button.primary{background:var(--primary);}
+button.primary:active{background:var(--primaryDark);}
 button.danger{background:var(--danger);}
 
 .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;}
 .field{flex:1 1 200px;}
 .small{flex:0 0 150px;}
 
-label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px;}
-input, textarea{
+label{line-height:1.2;font-size: calc(14px * var(--fontScale));color:var(--muted);display:block;margin-bottom:6px;}
+
+select{
   width:100%;
   padding:12px;
+  min-height:48px;
   border-radius:14px;
   border:1px solid var(--line);
   background: rgba(255,255,255,.05);
   color:var(--text);
-  font-size:15px;
+  font-size: calc(16px * var(--fontScale));
+  outline:none;
+  touch-action: manipulation;
+}
+
+input, textarea{
+  width:100%;
+  padding:12px;
+  min-height:48px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background: rgba(255,255,255,.05);
+  color:var(--text);
+  font-size: calc(16px * var(--fontScale));
   outline:none;
   touch-action: manipulation;
 }
@@ -145,17 +166,254 @@ textarea{min-height:70px; resize:vertical;}
 .view{display:none;}
 .view.active{display:block;}
 
-details{
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:14px;
-  background: rgba(255,255,255,.03);
-  margin-bottom:14px;
+.hint{color:var(--muted);font-size: calc(13px * var(--fontScale));margin:10px 0 0 0;}
+
+/* Home buttons in one line */
+.homeRow{
+  width:100%;
+  display:grid;
+  grid-template-columns: minmax(0,1fr) auto auto;
+  gap:10px;
+  align-items:center;
+  overflow:hidden;
 }
-summary{font-weight:900;cursor:pointer;margin-bottom:12px;font-size:15px;}
-.sectionTitle{margin-top:18px;font-weight:900;font-size:18px;}
-.actions{margin-top:14px;display:flex;gap:10px;justify-content:flex-end;}
-.hint{color:var(--muted);font-size:12px;margin:10px 0 0 0;}
+#btnAdd{width:100%; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+#btnList{white-space:nowrap;}
+#btnSettings{
+  min-width:52px;width:52px;
+  padding-left:0;padding-right:0;
+  display:flex;align-items:center;justify-content:center;
+}
+
+
+#listSearch{
+  width:100%;
+  padding:10px 12px;
+  min-height:40px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  font-size: calc(14px * var(--fontScale));
+}
+#listSearch::placeholder{ color: rgba(255,255,255,.55); }
+body.theme-beige #listSearch{
+  border-color: rgba(0,0,0,.18);
+  background: rgba(0,0,0,.04);
+  color: var(--text);
+}
+body.theme-beige #listSearch::placeholder{ color: rgba(0,0,0,.45); }
+
+
+
+.vehicleCard.matchTop{
+  border-color: rgba(14,76,146,.85);
+  box-shadow: 0 12px 28px rgba(14,76,146,.25);
+  background: rgba(14,76,146,.12);
+}
+/* matchTopFallback (si el navegador soporta color-mix, sobrescribe) */
+.vehicleCard.matchTop{
+  border-color: color-mix(in srgb, var(--primary) 85%, transparent);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--primary) 25%, transparent);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+body.theme-beige .vehicleCard.matchTop{
+  border-color: rgba(14,76,146,.55);
+  background: rgba(14,76,146,.10);
+}
+
+/* Vehicle list cards */
+.vehicleCard{
+  border: 1.5px solid rgba(255,255,255,.18);
+  border-radius: 16px;
+  padding: 16px;
+  background: rgba(0,0,0,.18);
+  margin-top: 12px;
+}
+.vehicleCardTitle{
+  font-weight: 700;
+  font-size: calc(17px * var(--fontScale));
+}
+
+/* Works cards like sketch */
+.workCard{
+border: 1.5px solid rgba(255,255,255,.18);
+  border-radius: 16px;
+  padding: 14px;
+  background: rgba(245, 233, 200, .12);
+margin-top: 14px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.25);
+}
+.workTitle{
+  font-weight: 900;
+  font-size: calc(18px * var(--fontScale));
+  margin: 0 0 10px 0;
+}
+.workTop{
+  display:grid;
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+  gap:10px;
+}
+.notesBox{ margin-top: 12px; }
+.notesBox textarea{
+  width:100%;
+  background: rgba(255, 214, 10, .26);
+  border: 1.5px solid rgba(255, 214, 10, .45);
+  color: var(--text);
+  min-height: 90px;
+}
+.notesBox textarea::placeholder{ color: rgba(255,255,255,.65); }
+
+
+/* Papelera eliminar trabajo */
+.workCard{ position: relative; }
+.trashBtn{
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:30px;
+  height:30px;
+  border-radius:10px;
+  border:1px solid rgba(198,40,40,.55);
+  background: rgba(198,40,40,.22);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 16px;
+  padding:0;
+  opacity: .9;
+}
+.trashBtn:active{ background: rgba(198,40,40,.35); opacity:1; }
+
+.sectionTitle{margin-top:18px;font-weight:900;font-size: calc(22px * var(--fontScale));}
+
+/* === THEMES === */
+body.theme-default{
+  --bg:#0b1220;
+  --card:#121b2f;
+}
+
+body.theme-green{
+  --bg:#0b1a12;
+  --card:#102517;
+}
+
+body.theme-custom{
+  /* bg/card se aplican por JS */
+}
+
+body.theme-beige{
+  --bg:#f5efe3;
+  --card:#ffffff;
+  --text:#1a1a1a;
+  --muted:#555;
+}
+
+body.theme-gray{
+  --bg:#2c2c2c;
+  --card:#3a3a3a;
+}
+
+
+/* Estados de revisión */
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.06);
+  font-weight:800;
+  font-size: calc(13px * var(--fontScale));
+  color: var(--text);
+}
+.badge.overdue{
+  border-color: rgba(198,40,40,.7);
+  background: rgba(198,40,40,.20);
+}
+.badge.soon{
+  border-color: rgba(245,158,11,.75);
+  background: rgba(245,158,11,.18);
+}
+.vehicleCard.overdue{ border-color: rgba(198,40,40,.75); }
+.vehicleCard.soon{ border-color: rgba(245,158,11,.75); }
+
+.workCard.overdue{ border-color: rgba(198,40,40,.75); }
+.workCard.soon{ border-color: rgba(245,158,11,.75); }
+
+.nextInput.overdue{
+  border-color: rgba(198,40,40,.75) !important;
+  background: rgba(198,40,40,.10) !important;
+}
+.nextInput.soon{
+  border-color: rgba(245,158,11,.75) !important;
+  background: rgba(245,158,11,.10) !important;
+}
+
+/* Lista avisos home */
+.alertItem{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.10);
+  margin-top:10px;
+}
+.alertLeft{ min-width:0; }
+.alertTitle{
+  font-weight:900;
+  font-size: calc(16px * var(--fontScale));
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.alertSub{
+  margin-top:4px;
+  color: var(--muted);
+  font-size: calc(13px * var(--fontScale));
+}
+.alertActions{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:8px;
+  flex:0 0 auto;
+}
+.miniBtn{
+  border:1px solid rgba(255,255,255,.22);
+  background: rgba(255,255,255,.10);
+  color: var(--text);
+  padding:7px 10px;
+  border-radius:10px;
+  font-weight:900;
+  font-size: calc(12px * var(--fontScale));
+  line-height:1;
+  cursor:pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.miniBtn:active{ transform: translateY(1px); }
+
+/* Botón "Ver" en verde (pantalla principal) */
+.miniBtn.viewBtn{
+  background: rgba(25,135,84,.85);
+  border-color: rgba(25,135,84,.95);
+  color:#fff;
+}
+.miniBtn.viewBtn:active{ background: rgba(25,135,84,1); }
+
+
+.alertItem.overdue{ border-color: rgba(198,40,40,.6); background: rgba(198,40,40,.08); }
+.alertItem.soon{ border-color: rgba(245,158,11,.6); background: rgba(245,158,11,.07); }
+
+.alertItem.overdue .alertTitle{ color: rgba(198,40,40,1); }
+.alertItem.overdue .alertSub{ color: rgba(198,40,40,.88); }
+
 </style>
 </head>
 
@@ -164,7 +422,7 @@ summary{font-weight:900;cursor:pointer;margin-bottom:12px;font-size:15px;}
 <header id="appHeader">
   <div class="titleblock">
     <h1>Revisiones</h1>
-    <div class="ver">v1.0</div>
+    <div class="ver">v1.9.3</div>
   </div>
 
   <div class="logoBox" id="logoBox" title="Pulsa para cambiar el logo">
@@ -173,40 +431,48 @@ summary{font-weight:900;cursor:pointer;margin-bottom:12px;font-size:15px;}
   <input type="file" id="logoPicker" accept="image/*">
 </header>
 
-<!-- HOME fixed bar -->
 <div class="actionBar" id="barHome" aria-label="Acciones inicio">
   <div class="inner">
-    <div style="display:flex; gap:12px; flex-wrap:wrap;">
-      <button class="primary" id="btnAdd">+ Introducir vehículo</button>
+    <div class="homeRow">
+      <button class="primary" id="btnAdd">+ Vehículo</button>
       <button class="primary" id="btnList">Ver lista</button>
+      <button class="primary" id="btnSettings" aria-label="Configuración" title="Configuración">⚙️</button>
     </div>
-    <button class="primary" id="btnSettings" aria-label="Configuración" title="Configuración" style="padding:12px 14px; min-width:52px;">
-      ⚙️
-    </button>
   </div>
 </div>
 
-<!-- LIST fixed bar -->
 <div class="actionBar" id="barList" style="display:none" aria-label="Acciones lista">
   <div class="inner">
-    <button class="primary" id="backFromList">← Volver</button>
-    <div></div>
+    <button class="primary" id="backFromList" style="min-width:110px;">Volver</button>
+
+    <div style="flex:1; display:flex; align-items:center; min-width:0;">
+      <input id="listSearch" placeholder="Buscar" autocomplete="off" style="min-width:0;">
+    </div>
+<div style="width:110px;"></div>
   </div>
 </div>
 
-<!-- ADD fixed bar -->
+<div class="actionBar" id="barDetail" style="display:none" aria-label="Acciones vehículo">
+  <div class="inner">
+    <button class="primary" id="backFromDetail" style="min-width:110px;">Volver</button>
+    <div style="font-weight:900; font-size: calc(18px * var(--fontScale));">Vehículo</div>
+    <button class="danger" id="btnDeleteVehicle" style="min-width:110px;">Eliminar</button>
+  </div>
+</div>
+
 <div class="actionBar" id="barAdd" style="display:none" aria-label="Acciones añadir">
   <div class="inner">
-    <button class="primary" id="backFromAdd">← Volver</button>
-    <button class="primary" id="saveVehicleTop">Guardar</button>
+    <button class="primary" id="backFromAdd" style="min-width:110px;">Volver</button>
+    <div style="font-weight:900; font-size: calc(18px * var(--fontScale));">Añadir vehículo</div>
+    <button class="primary" id="saveVehicleTop" style="min-width:110px;">Guardar</button>
   </div>
 </div>
 
-<!-- SETTINGS fixed bar -->
 <div class="actionBar" id="barSettings" style="display:none" aria-label="Acciones configuración">
   <div class="inner">
-    <button class="primary" id="backFromSettings">← Volver</button>
-    <div></div>
+    <button class="primary" id="backFromSettings" style="min-width:110px;">Volver</button>
+    <div style="font-weight:900; font-size: calc(18px * var(--fontScale));">Configuración</div>
+    <div style="width:110px;"></div>
   </div>
 </div>
 
@@ -215,24 +481,62 @@ summary{font-weight:900;cursor:pointer;margin-bottom:12px;font-size:15px;}
     <div class="card">
       <p class="hint">Usa los botones de arriba (quedan fijos al hacer scroll).</p>
     </div>
+    <div class="card">
+      <h3 style="margin:0 0 10px 0;">Avisos</h3>
+      <div id="homeAlerts"></div>
+      <p class="hint" style="margin-top:10px;">Se muestran revisiones vencidas (rojo) y próximas en 15 días (naranja).</p>
+    </div>
   </section>
 
   <section id="listView" class="view">
     <div class="card">
-      <h3 style="margin:0 0 10px 0;">Lista de vehículos</h3>
-      <p class="hint" style="margin-top:0;">Toca un vehículo para desplegar y editar. Se guarda automáticamente.</p>
-      <div id="vehicleList" style="margin-top:12px;"></div>
+      <div id="vehicleList"></div>
+      <p class="hint">Toca un vehículo para entrar.</p>
+    </div>
+  </section>
+
+  <section id="detailView" class="view">
+    <div class="card">
+      <h3 style="margin:0 0 10px 0;">Datos vehículo</h3>
+      <div class="row">
+        <div class="field small">
+          <label>Fecha alta</label>
+          <input type="date" lang="es-ES" id="dCreated">
+        </div>
+        <div class="field small">
+          <label>Matrícula</label>
+          <input id="dPlate" autocomplete="off" autocapitalize="characters">
+        </div>
+        <div class="field">
+          <label>Vehículo</label>
+          <input id="dVehicle" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>Propietario</label>
+          <input id="dOwner" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>Teléfono</label>
+          <input id="dPhone" inputmode="tel" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="sectionTitle">Trabajos</div>
+      <div id="detailWorks"></div>
+
+      <div style="margin-top:16px;">
+        <button class="primary" id="btnAddWork">+ Añadir trabajo</button>
+      </div>
+      <p class="hint">Los cambios se guardan automáticamente.</p>
     </div>
   </section>
 
   <section id="addView" class="view">
     <div class="card">
-      <h3 style="margin:0;">Añadir vehículo</h3>
-
       <div class="row">
         <div class="field small">
           <label>Fecha alta</label>
-          <input type="date" id="aCreated">
+          <input type="date" lang="es-ES" id="aCreated">
         </div>
         <div class="field small">
           <label>Matrícula</label>
@@ -254,66 +558,116 @@ summary{font-weight:900;cursor:pointer;margin-bottom:12px;font-size:15px;}
 
       <div class="sectionTitle">Trabajos</div>
       <div id="addWorks"></div>
-
-      <p class="hint">Pulsa “Guardar” (arriba a la derecha).</p>
+      <div style="margin-top:16px;">
+        <button class="primary" id="btnAddWorkAdd">+ Añadir trabajo</button>
+      </div>
+      <p class="hint">Pulsa “Guardar” arriba.</p>
     </div>
   </section>
 
   <section id="settingsView" class="view">
     <div class="card">
-      <h3 style="margin:0 0 10px 0;">Configuración</h3>
       <p class="hint" style="margin-top:0;">Copia de seguridad en formato <b>.json</b>.</p>
-
       <div class="row">
         <button class="primary" id="btnExport">Exportar copia de seguridad</button>
         <button class="primary" id="btnRestore">Restaurar copia de seguridad</button>
       </div>
-
       <input type="file" id="restorePicker" accept="application/json,.json">
       <p class="hint">Al restaurar se reemplazarán los datos actuales por los del archivo.</p>
     </div>
-  </section>
+  
+      <hr style="margin:20px 0; opacity:.2;">
+      <h3 style="margin-top:0;">Personalización</h3>
+      
+      <div class="row">
+        <div class="field">
+          <label>Tema</label>
+          <select id="themeSelect">
+            <option value="default">Azul</option>
+            <option value="green">Verde claro</option>
+            <option value="beige">Beige claro</option>
+            <option value="gray">Gris</option>
+            <option value="custom">Personalizado</option>
+          </select>
+          <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
+            <input type="color" id="themePicker" value="#0b1220" style="width:56px; height:44px; padding:0; border-radius:12px; opacity:.55; display:none;">
+          </div>
+        </div>
+        
+        <div class="field">
+          <label>Tamaño de texto</label>
+          <select id="fontSelect">
+            <option value="1">Normal</option>
+            <option value="1.1">Medio</option>
+            <option value="1.2">Grande</option>
+          </select>
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px;">
+        <div class="field">
+          <label>Color principal</label>
+          <select id="primarySelect">
+            <option value="ral5010">Azul (RAL 5010)</option>
+            <option value="green">Verde</option>
+            <option value="red">Rojo</option>
+            <option value="gray">Gris</option>
+            <option value="custom">Personalizado</option>
+          </select>
+          <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
+            <input type="color" id="primaryPicker" value="#0E4C92" style="width:56px; height:44px; padding:0; border-radius:12px;">
+
+      <div class="row" style="margin-top:12px;">
+        <button class="primary" id="btnSetDefaults" type="button">Restaurar</button>
+      </div>
+</div>
+        </div>
+      </div>
+
+</section>
 </main>
 
 <script>
 (function(){
   'use strict';
 
-  const STORAGE = 'revisiones_v13_db';
-  const LOGO_KEY = 'revisiones_logo_v13';
-  const WORKS = [
-    'Neumáticos','Aceite','Filtro aceite','Filtro aire',
-    'Filtro combustible','Filtro habitáculo','Aceite caja cambios','Distribución'
+  const STORAGE = 'talleres_lista_db_v28';
+  const LOGO_KEY = 'talleres_lista_logo_v28';
+  const SAMPLE_FLAG = 'talleres_lista_sample_created_v1';
+
+  const DEFAULT_WORKS = [
+    'Aceite','Filtro aceite','Filtro aire','Filtro combustible',
+    'Filtro habitáculo','Aceite caja cambios','Distribución'
   ];
 
   const $ = (id) => document.getElementById(id);
 
   const header = $('appHeader');
-
-  const barHome = $('barHome');
-  const barList = $('barList');
-  const barAdd  = $('barAdd');
-  const barSettings = $('barSettings');
-
   const home = $('home');
   const listView = $('listView');
   const addView = $('addView');
   const settingsView = $('settingsView');
+  const detailView = $('detailView');
+
+  const barHome = $('barHome');
+  const barList = $('barList');
+  const barAdd = $('barAdd');
+  const barSettings = $('barSettings');
+  const barDetail = $('barDetail');
 
   const btnAdd = $('btnAdd');
   const btnList = $('btnList');
   const btnSettings = $('btnSettings');
 
   const backFromList = $('backFromList');
+  const listSearch = document.getElementById('listSearch');
   const backFromAdd = $('backFromAdd');
   const backFromSettings = $('backFromSettings');
+  const backFromDetail = $('backFromDetail');
+
   const saveVehicleTop = $('saveVehicleTop');
 
-  const btnExport = $('btnExport');
-  const btnRestore = $('btnRestore');
-  const restorePicker = $('restorePicker');
-
   const vehicleList = $('vehicleList');
+  const homeAlerts = document.getElementById('homeAlerts');
 
   const aCreated = $('aCreated');
   const aPlate = $('aPlate');
@@ -321,18 +675,130 @@ summary{font-weight:900;cursor:pointer;margin-bottom:12px;font-size:15px;}
   const aOwner = $('aOwner');
   const aPhone = $('aPhone');
   const addWorks = $('addWorks');
+  const btnAddWorkAdd = $('btnAddWorkAdd');
 
-  // iOS-safe tap helper
-  const onTap = (el, fn) => {
+  const dCreated = $('dCreated');
+  const dPlate = $('dPlate');
+  const dVehicle = $('dVehicle');
+  const dOwner = $('dOwner');
+  const dPhone = $('dPhone');
+  const detailWorks = $('detailWorks');
+  const btnAddWork = $('btnAddWork');
+  const btnDeleteVehicle = $('btnDeleteVehicle');
+
+  const btnExport = $('btnExport');
+  const btnRestore = $('btnRestore');
+  const restorePicker = $('restorePicker');
+
+  const logoBox = $('logoBox');
+  const logoImg = $('logoImg');
+  const logoPicker = $('logoPicker');
+
+  // Tap/click helper robusto para iPhone/iOS:
+  // - Usa touchend (con preventDefault) para evitar "ghost clicks" y asegurar gesto de usuario (confirm, etc.)
+  // - Mantiene debounce para evitar doble disparo (touchend + click)
+  const onTap = (el, fn, opts = {}) => {
+    if(!el) return;
+
+    // Por defecto, comportamiento "botón" (fiable en iOS)
+    const preventDefault = (opts.preventDefault !== undefined) ? !!opts.preventDefault : true;
+    const stopPropagation = (opts.stopPropagation !== undefined) ? !!opts.stopPropagation : true;
+    const moveThreshold = (typeof opts.moveThreshold === 'number') ? opts.moveThreshold : 10;
+
     let last = 0;
-    const handler = (ev) => {
+
+    // Tap vs scroll detection
+    let startX = 0, startY = 0;
+    let moved = false;
+
+    const run = () => {
       const now = Date.now();
-      if(now - last < 250) return;
+      if(now - last < 350) return; // debounce: touchend + click / pointerup
       last = now;
-      fn(ev);
+      try{ fn(); }catch(e){ console.error(e); }
     };
-    el.addEventListener('pointerup', handler, {passive:true});
-    el.addEventListener('click', handler, {passive:true});
+
+    const markStart = (x, y) => { startX = x; startY = y; moved = false; };
+    const markMove = (x, y) => {
+      if(moved) return;
+      const dx = Math.abs(x - startX);
+      const dy = Math.abs(y - startY);
+      if(dx > moveThreshold || dy > moveThreshold) moved = true;
+    };
+
+    // Touch (iOS)
+    // Para botones, hacemos preventDefault ya en touchstart (mejora fiabilidad en WebView iOS)
+    if(preventDefault){
+      el.addEventListener('touchstart', (e) => {
+        const t = e.touches && e.touches[0];
+        if(t) markStart(t.clientX, t.clientY);
+        try{ e.preventDefault(); }catch(_){}
+        if(stopPropagation){
+          try{ e.stopPropagation(); }catch(_){}
+        }
+      }, {passive:false});
+    }else{
+      el.addEventListener('touchstart', (e) => {
+        const t = e.touches && e.touches[0];
+        if(t) markStart(t.clientX, t.clientY);
+      }, {passive:true});
+    }
+
+    el.addEventListener('touchmove', (e) => {
+      const t = e.touches && e.touches[0];
+      if(t) markMove(t.clientX, t.clientY);
+      // NO preventDefault aquí: el scroll debe ser fluido
+    }, {passive:true});
+
+    el.addEventListener('touchend', (e) => {
+      if(moved) return; // era scroll
+
+      if(preventDefault){
+        try{ e.preventDefault(); }catch(_){}
+      }
+      if(stopPropagation){
+        try{ e.stopPropagation(); }catch(_){}
+      }
+      run();
+    }, {passive:false});
+
+    // Pointer (Android/desktop + iOS modernos)
+    el.addEventListener('pointerdown', (e) => {
+      if(e.isPrimary === false) return;
+      markStart(e.clientX, e.clientY);
+      if(preventDefault){
+        // En iOS a veces ayuda a evitar selección/gestos raros
+        try{ e.preventDefault(); }catch(_){}
+      }
+      if(stopPropagation){
+        try{ e.stopPropagation(); }catch(_){}
+      }
+    }, {passive:false});
+
+    el.addEventListener('pointermove', (e) => {
+      if(e.isPrimary === false) return;
+      markMove(e.clientX, e.clientY);
+    }, {passive:true});
+
+    el.addEventListener('pointerup', (e) => {
+      if(e.isPrimary === false) return;
+      if(moved) return;
+      if(stopPropagation){
+        try{ e.stopPropagation(); }catch(_){}
+      }
+      run();
+    }, {passive:true});
+
+    // Click fallback
+    el.addEventListener('click', (e) => {
+      if(preventDefault){
+        try{ e.preventDefault(); }catch(_){}
+      }
+      if(stopPropagation){
+        try{ e.stopPropagation(); }catch(_){}
+      }
+      run();
+    }, {passive:false});
   };
 
   const todayISO = () => {
@@ -341,9 +807,163 @@ summary{font-weight:900;cursor:pointer;margin-bottom:12px;font-size:15px;}
     return new Date(d - tz).toISOString().slice(0,10);
   };
 
-  const emptyWorks = () => {
+
+  const parseISODate = (s) => {
+    if(!s || typeof s !== 'string') return null;
+    // Expect YYYY-MM-DD
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
+    const [y,mo,d] = s.split('-').map(Number);
+    const dt = new Date(Date.UTC(y, mo-1, d));
+    if(isNaN(dt.getTime())) return null;
+    return dt;
+  };
+
+  
+  const fmtISO_ES = (iso) => {
+    // Convierte YYYY-MM-DD -> DD/MM/YYYY (formato habitual ES)
+    if(!iso || typeof iso !== 'string') return '—';
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
+    const [y, m, d] = iso.split('-');
+    return `${d}/${m}/${y}`;
+  };
+
+const daysUntil = (isoDate) => {
+    const dt = parseISODate(isoDate);
+    if(!dt) return null;
+    const now = new Date();
+    const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const diffMs = dt.getTime() - today.getTime();
+    return Math.floor(diffMs / 86400000);
+  };
+
+  const vehicleAlerts = (v) => {
+    const items = [];
+    const works = v.works || {};
+    Object.keys(works).forEach((wname) => {
+      const next = works[wname] && works[wname].next ? works[wname].next : '';
+      const du = daysUntil(next);
+      if(du === null) return;
+      if(du < 0 || du <= 30){
+        items.push({ work:wname, next:next, days:du });
+      }
+    });
+    const overdue = items.filter(x => x.days < 0);
+    const soon = items.filter(x => x.days >= 0 && x.days <= 30);
+    items.sort((a,b) => a.days - b.days);
+    return { overdueCount: overdue.length, soonCount: soon.length, items };
+  };
+
+
+  const fmtDays = (d) => {
+    if(d === null || typeof d !== 'number' || isNaN(d)) return '';
+    if(d < 0) return `Hace ${Math.abs(d)} día${Math.abs(d)===1?'':'s'}`;
+    if(d === 0) return 'Hoy';
+    return `En ${d} día${d===1?'':'s'}`;
+  };
+
+  // Avisos en pantalla principal:
+  // - Lista en ROJO solo con revisiones VENCIDAS (días < 0)
+  // - Al tocar un aviso, abre el vehículo directamente
+  const renderHomeAlerts = () => {
+    if(!homeAlerts) return;
+
+    const overdueEntries = [];
+    const soon15Entries = [];
+
+    (db.vehicles || []).forEach((v) => {
+      const a = vehicleAlerts(v); // incluye vencidas y próximas (hasta 30 días)
+      const title = `${(v.plate || '(sin matrícula)')} - ${(v.vehicle || '')} - ${(v.owner || '')}`.trim();
+      (a.items || []).forEach((it) => {
+        const row = { vehicleId: v.id, title, work: it.work, next: it.next, days: it.days };
+        if(it.days < 0) overdueEntries.push(row);
+        else if(it.days <= 15) soon15Entries.push(row);
+      });
+    });
+
+    overdueEntries.sort((a,b) => a.days - b.days);
+    soon15Entries.sort((a,b) => a.days - b.days);
+
+    const makeItem = (row, kind) => {
+      const div = document.createElement('div');
+      div.className = 'alertItem ' + kind;
+      div.innerHTML = `
+        <div class="alertLeft">
+          <div class="alertTitle">${row.title}</div>
+          <div class="alertSub"><b>${row.work}</b> · Próxima: ${row.next ? fmtISO_ES(row.next) : '—'} · ${fmtDays(row.days)}</div>
+        </div>
+        <div class="alertActions">
+          <button class="miniBtn viewBtn" type="button">Ver</button>
+          <div class="badge ${kind}">${kind === 'overdue' ? 'Vencida' : '≤ 15 días'}</div>
+        </div>
+      `;
+      const vb = div.querySelector('.viewBtn');
+      if(vb){
+        onTap(vb, () => openDetail(row.vehicleId));
+      }
+      // Nota: NO hacemos tap en toda la fila para permitir scroll en iPhone.
+      return div;
+    };
+
+    homeAlerts.innerHTML = '';
+
+    if(overdueEntries.length){
+      const h = document.createElement('div');
+      h.style.fontWeight = '900';
+      h.style.marginTop = '2px';
+      h.style.color = 'rgba(198,40,40,1)';
+      h.textContent = `Vencidas (${overdueEntries.length})`;
+      homeAlerts.appendChild(h);
+
+      overdueEntries.slice(0, 50).forEach((row) => homeAlerts.appendChild(makeItem(row, 'overdue')));
+
+      if(overdueEntries.length > 50){
+        const more = document.createElement('p');
+        more.className = 'hint';
+        more.style.marginTop = '10px';
+        more.textContent = `Mostrando 50 de ${overdueEntries.length}. Usa "Ver lista" para verlas todas.`;
+        homeAlerts.appendChild(more);
+      }
+    }
+
+    if(soon15Entries.length){
+      const h2 = document.createElement('div');
+      h2.style.fontWeight = '900';
+      h2.style.marginTop = overdueEntries.length ? '14px' : '2px';
+      h2.style.color = 'rgba(245,158,11,1)';
+      h2.textContent = `Próximas (15 días) (${soon15Entries.length})`;
+      homeAlerts.appendChild(h2);
+
+      soon15Entries.slice(0, 50).forEach((row) => homeAlerts.appendChild(makeItem(row, 'soon')));
+
+      if(soon15Entries.length > 50){
+        const more2 = document.createElement('p');
+        more2.className = 'hint';
+        more2.style.marginTop = '10px';
+        more2.textContent = `Mostrando 50 de ${soon15Entries.length}. Usa "Ver lista" para verlas todas.`;
+        homeAlerts.appendChild(more2);
+      }
+    }
+
+    if(!overdueEntries.length && !soon15Entries.length){
+      const ok = document.createElement('div');
+      ok.className = 'alertItem';
+      ok.style.borderColor = 'rgba(25,135,84,.35)';
+      ok.style.background = 'rgba(25,135,84,.06)';
+      ok.innerHTML = `
+        <div class="alertLeft">
+          <div class="alertTitle">Sin revisiones urgentes ✅</div>
+          <div class="alertSub">Aquí aparecerán en rojo las vencidas y en naranja las que vencen en 15 días.</div>
+        </div>
+      `;
+      homeAlerts.appendChild(ok);
+    }
+  };
+
+
+
+  const emptyWorksFromList = (names) => {
     const w = {};
-    WORKS.forEach(name => w[name] = { done:'', next:'' });
+    names.forEach(name => w[name] = { done:'', next:'', notes:'' });
     return w;
   };
 
@@ -354,7 +974,7 @@ summary{font-weight:900;cursor:pointer;margin-bottom:12px;font-size:15px;}
     vehicle: example ? 'Audi A3' : '',
     owner: example ? 'Pepe' : '',
     phone: '',
-    works: emptyWorks()
+    works: emptyWorksFromList(DEFAULT_WORKS)
   });
 
   const loadDB = () => {
@@ -368,22 +988,20 @@ summary{font-weight:900;cursor:pointer;margin-bottom:12px;font-size:15px;}
     }
   };
 
-  const saveDB = (db) => localStorage.setItem(STORAGE, JSON.stringify(db));
-
   const db = loadDB();
-  // Crea un vehículo de ejemplo SOLO la primera vez
-  const SAMPLE_FLAG = 'revisiones_sample_created_v1';
+  const saveDB = () => localStorage.setItem(STORAGE, JSON.stringify(db));
+
   try{
     const already = localStorage.getItem(SAMPLE_FLAG) === '1';
     if(db.vehicles.length === 0 && !already){
       db.vehicles.push(createVehicle(true));
       localStorage.setItem(SAMPLE_FLAG,'1');
-      saveDB(db);
+      saveDB();
     }
   }catch(e){
     if(db.vehicles.length === 0){
       db.vehicles.push(createVehicle(true));
-      saveDB(db);
+      saveDB();
     }
   }
 
@@ -395,51 +1013,497 @@ summary{font-weight:900;cursor:pointer;margin-bottom:12px;font-size:15px;}
     if(barList.style.display !== 'none') bar = barList;
     if(barAdd.style.display !== 'none') bar = barAdd;
     if(barSettings.style.display !== 'none') bar = barSettings;
+    if(barDetail.style.display !== 'none') bar = barDetail;
 
     const barH = bar.getBoundingClientRect().height;
     document.documentElement.style.setProperty('--barH', barH + 'px');
   };
-
   window.addEventListener('resize', setHeights, {passive:true});
 
   const showView = (which) => {
-    [home, listView, addView, settingsView].forEach(v => v.classList.remove('active'));
+    [home, listView, addView, settingsView, detailView].forEach(v => v.classList.remove('active'));
     which.classList.add('active');
 
     barHome.style.display = (which === home) ? '' : 'none';
     barList.style.display = (which === listView) ? '' : 'none';
-    barAdd.style.display  = (which === addView) ? '' : 'none';
+    barAdd.style.display = (which === addView) ? '' : 'none';
     barSettings.style.display = (which === settingsView) ? '' : 'none';
+    barDetail.style.display = (which === detailView) ? '' : 'none';
 
-    setHeights();
-    window.scrollTo(0,0);
+    
+  // === Personalización (Tema + Tamaño texto + Color principal) ===
+  const themeSelect = document.getElementById('themeSelect');
+    const themePicker = document.getElementById('themePicker');
+const fontSelect = document.getElementById('fontSelect');
+  const primarySelect = document.getElementById('primarySelect');
+  const primaryPicker = document.getElementById('primaryPicker');
+
+    const btnSetDefaults = document.getElementById('btnSetDefaults');
+const PREF_KEY = 'talleres_lista_prefs_v1_6';
+  const PREF_KEYS_OLD = ['talleres_lista_prefs_v1_5','talleres_lista_prefs_v1_4','talleres_lista_prefs_v1_3'];
+
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const hexToRgb = (hex) => {
+    const h = String(hex || '').replace('#','').trim();
+    if(h.length !== 6) return null;
+    const r = parseInt(h.slice(0,2), 16);
+    const g = parseInt(h.slice(2,4), 16);
+    const b = parseInt(h.slice(4,6), 16);
+    if([r,g,b].some(x => isNaN(x))) return null;
+    return {r,g,b};
+  };
+  const rgbToHex = (r,g,b) => {
+    const to = (x) => clamp(Math.round(x),0,255).toString(16).padStart(2,'0');
+    return '#' + to(r) + to(g) + to(b);
+  };
+  const darkenHex = (hex, amt=0.22) => {
+    const c = hexToRgb(hex);
+    if(!c) return hex;
+    return rgbToHex(c.r*(1-amt), c.g*(1-amt), c.b*(1-amt));
+  };
+  const setPrimary = (hex) => {
+    if(!hex || typeof hex !== 'string') return;
+    document.documentElement.style.setProperty('--primary', hex);
+    document.documentElement.style.setProperty('--primaryDark', darkenHex(hex, 0.22));
   };
 
-  const renderWorksFields = (container, worksObj, onChange) => {
+
+  // === Tema personalizado: solo bg/card (como los temas por defecto) ===
+  const mix = (a,b,t) => Math.round(a + (b-a)*t);
+  const mixHex = (hexA, hexB, t) => {
+    const a = hexToRgb(hexA), b = hexToRgb(hexB);
+    if(!a || !b) return hexA;
+    return rgbToHex(mix(a.r,b.r,t), mix(a.g,b.g,t), mix(a.b,b.b,t));
+  };
+  const clearThemeCustom = () => {
+    try{
+      if(document.body){
+        document.body.style.removeProperty('--bg');
+        document.body.style.removeProperty('--card');
+        document.body.style.removeProperty('--text');
+        document.body.style.removeProperty('--muted');
+      }
+    }catch(e){}
+  };
+  const setThemeCustom = (baseHex) => {
+    const base = (typeof baseHex === 'string' && baseHex.trim()) ? baseHex.trim() : '#0b1220';
+
+    const rgb = hexToRgb(base) || {r:11,g:18,b:32};
+
+    // Mezcla suave para card
+    const mix = (a,b,t) => Math.round(a + (b-a)*t);
+    const mixHex = (hexA, hexB, t) => {
+      const a = hexToRgb(hexA), b = hexToRgb(hexB);
+      if(!a || !b) return hexA;
+      return rgbToHex(mix(a.r,b.r,t), mix(a.g,b.g,t), mix(a.b,b.b,t));
+    };
+
+    const card = mixHex(base, '#ffffff', 0.08);
+
+    // ---- cálculo luminancia para decidir texto claro/oscuro ----
+    const srgbToLin = (c) => {
+      c = c/255;
+      return (c <= 0.04045) ? (c/12.92) : Math.pow((c+0.055)/1.055, 2.4);
+    };
+    const L = 0.2126*srgbToLin(rgb.r) + 0.7152*srgbToLin(rgb.g) + 0.0722*srgbToLin(rgb.b);
+
+    // Si fondo claro -> texto oscuro; si fondo oscuro -> texto claro
+    const text = (L > 0.55) ? '#0b1220' : '#eaf0ff';
+    const muted = (L > 0.55) ? '#3d4a63' : '#93a7c7';
+
+    try{
+      if(document.body){
+        document.body.style.setProperty('--bg', base);
+        document.body.style.setProperty('--card', card);
+        document.body.style.setProperty('--text', text);
+        document.body.style.setProperty('--muted', muted);
+      }
+    }catch(e){}
+  };
+
+
+  const PRESET_PRIMARY = {
+    ral5010: '#0E4C92',
+    green:  '#198754',
+    red:    '#c62828',
+    gray:   '#6b7280'
+  };
+
+  const applyPrefs = (prefs) => {
+    try{
+      const theme = (prefs && prefs.theme) ? prefs.theme : 'default';
+      document.body.classList.remove('theme-default','theme-dark','theme-green','theme-beige','theme-gray','theme-custom');
+      if(theme === 'custom'){
+        document.body.classList.add('theme-custom');
+      }else{
+        document.body.classList.add('theme-' + theme);
+      }
+      if(themeSelect) themeSelect.value = theme;
+
+      // themePicker UI + aplicar/limpiar
+      try{
+        if(themePicker){
+          const thx = (prefs && prefs.themeHex) ? String(prefs.themeHex) : (themePicker.value || '#0b1220');
+          themePicker.value = thx;
+          const isCustom = (themeSelect && themeSelect.value === 'custom');
+          themePicker.style.display = isCustom ? '' : 'none';
+          themePicker.style.opacity = isCustom ? '1' : '.55';
+        }
+      }catch(e){}
+
+      if(theme === 'custom'){
+        const thx = (prefs && prefs.themeHex) ? String(prefs.themeHex) : (themePicker ? themePicker.value : '#0b1220');
+        try{ setThemeCustom(thx); }catch(e){}
+      }else{
+        try{ clearThemeCustom(); }catch(e){}
+      }
+
+      const fs = (prefs && prefs.fontScale) ? String(prefs.fontScale) : (getComputedStyle(document.documentElement).getPropertyValue('--fontScale').trim() || '1.15');
+      document.documentElement.style.setProperty('--fontScale', fs);
+      if(fontSelect) fontSelect.value = fs;
+
+      const mode = (prefs && prefs.primaryMode) ? prefs.primaryMode : 'ral5010';
+      const hex = (prefs && prefs.primaryHex) ? String(prefs.primaryHex) : (PRESET_PRIMARY[mode] || PRESET_PRIMARY.ral5010);
+
+      if(primarySelect) primarySelect.value = mode;
+      if(primaryPicker) primaryPicker.value = hex;
+
+      if(mode === 'custom'){
+        setPrimary(hex);
+      }else{
+        setPrimary(PRESET_PRIMARY[mode] || PRESET_PRIMARY.ral5010);
+      }
+
+      if(primaryPicker){
+        primaryPicker.style.opacity = (primarySelect && primarySelect.value === 'custom') ? '1' : '.55';
+      }
+
+      
+  if(themePicker){
+    themePicker.addEventListener('input', () => {
+      if(themeSelect && themeSelect.value !== 'custom') return;
+      const p = buildPrefsFromUI();
+      savePrefs(p);
+      applyPrefs(p);
+    }, {passive:true});
+  }
+// por si cambia el tamaño de texto
+      try{ setHeights(); }catch(e){}
+    }catch(e){}
+  };
+
+  const readStoredPrefs = () => {
+    try{
+      const raw = localStorage.getItem(PREF_KEY);
+      if(raw) return JSON.parse(raw);
+      for(const k of PREF_KEYS_OLD){
+        const r = localStorage.getItem(k);
+        if(r) return JSON.parse(r);
+      }
+    }catch(e){}
+    return null;
+  };
+
+  const savePrefs = (prefs) => {
+    try{ localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); }catch(e){}
+  };
+
+  const buildPrefsFromUI = () => ({
+    theme: themeSelect ? themeSelect.value : 'default',
+    themeHex: themePicker ? themePicker.value : '#0b1220',
+    fontScale: fontSelect ? fontSelect.value : (getComputedStyle(document.documentElement).getPropertyValue('--fontScale').trim() || '1.15'),
+    primaryMode: primarySelect ? primarySelect.value : 'ral5010',
+    primaryHex: primaryPicker ? primaryPicker.value : PRESET_PRIMARY.ral5010
+  });
+
+  const loadPrefs = () => {
+    const prefs = readStoredPrefs() || {
+      theme:'default',
+      fontScale:(getComputedStyle(document.documentElement).getPropertyValue('--fontScale').trim() || '1.15'),
+      primaryMode:'ral5010',
+      primaryHex: PRESET_PRIMARY.ral5010
+    };
+    // migrar a la key nueva
+    savePrefs(prefs);
+    applyPrefs(prefs);
+  };
+
+  if(themeSelect){
+    themeSelect.addEventListener('change', () => {
+      const p = buildPrefsFromUI();
+      savePrefs(p);
+      applyPrefs(p);
+    }, {passive:true});
+  }
+  if(fontSelect){
+    fontSelect.addEventListener('change', () => {
+      const p = buildPrefsFromUI();
+      savePrefs(p);
+      applyPrefs(p);
+    }, {passive:true});
+  }
+  if(primarySelect){
+    primarySelect.addEventListener('change', () => {
+      const p = buildPrefsFromUI();
+      // si no es custom, fijamos hex al preset para que sea consistente
+      if(p.primaryMode !== 'custom'){
+        p.primaryHex = PRESET_PRIMARY[p.primaryMode] || PRESET_PRIMARY.ral5010;
+        if(primaryPicker) primaryPicker.value = p.primaryHex;
+      }
+      savePrefs(p);
+      applyPrefs(p);
+    }, {passive:true});
+  }
+  if(primaryPicker){
+    primaryPicker.addEventListener('input', () => {
+      if(primarySelect && primarySelect.value !== 'custom') return;
+      const p = buildPrefsFromUI();
+      savePrefs(p);
+      applyPrefs(p);
+    }, {passive:true});
+  }
+
+
+  // Botón: Restaurar (Azul / Texto normal / Azul RAL 5010)
+  if(btnSetDefaults){
+    onTap(btnSetDefaults, () => {
+      if(themeSelect) themeSelect.value = 'default';
+      try{ if(themePicker){ themePicker.value = '#0b1220'; themePicker.style.display='none'; themePicker.style.opacity='.55'; } }catch(e){}
+      if(fontSelect){
+        try{
+          const exists = Array.from(fontSelect.options).some(o => o.value === '1');
+          if(!exists){
+            const opt = document.createElement('option');
+            opt.value='1'; opt.textContent='1';
+            fontSelect.appendChild(opt);
+          }
+        }catch(e){}
+        fontSelect.value = '1';
+      }
+      if(primarySelect) primarySelect.value = 'ral5010';
+      if(primaryPicker) primaryPicker.value = (PRESET_PRIMARY.ral5010 || '#0E4C92');
+
+      // guardar/aplicar como si el usuario cambiara manualmente
+      const p = buildPrefsFromUI();
+      if(p.primaryMode !== 'custom'){
+        p.primaryHex = PRESET_PRIMARY[p.primaryMode] || PRESET_PRIMARY.ral5010;
+      }
+      savePrefs(p);
+      applyPrefs(p);
+    });
+  }
+
+  loadPrefs();
+
+
+  setHeights();
+    window.scrollTo(0,0);
+    if(which === home) renderHomeAlerts();
+  };
+
+  const renderWorksCards = (container, worksObj, onChange) => {
     container.innerHTML = '';
-    WORKS.forEach(name => {
-      const row = document.createElement('div');
-      row.className = 'row';
-      row.innerHTML = `
-        <div class="field">
-          <label>${name} - Fecha cambio</label>
-          <input type="date" data-name="${name}" data-k="done" value="${(worksObj[name] && worksObj[name].done) ? worksObj[name].done : ''}">
+    Object.keys(worksObj).forEach((name) => {
+      const w = worksObj[name] || {done:'', next:'', notes:''};
+      const duNext = daysUntil(w.next || '');
+      const status = (duNext !== null && duNext < 0) ? 'overdue' : (duNext !== null && duNext <= 30 ? 'soon' : '');
+      const card = document.createElement('div');
+      card.className = 'workCard' + (status ? (' ' + status) : '');
+      card.innerHTML = `
+        <button class="trashBtn" type="button" data-del="${name}" aria-label="Eliminar ${name}" title="Eliminar">🗑️</button>
+        <div class="workTitle">${name}</div>
+
+        <div class="workTop">
+          <div class="field">
+            <label>Fecha</label>
+            <input type="date" lang="es-ES" data-name="${name}" data-k="done" value="${w.done || ''}">
+          </div>
+          <div class="field">
+            <label>Próxima revisión</label>
+            <input type="date" lang="es-ES" data-name="${name}" data-k="next" value="${w.next || ''}">
+          </div>
         </div>
-        <div class="field">
-          <label>${name} - Próxima fecha</label>
-          <input type="date" data-name="${name}" data-k="next" value="${(worksObj[name] && worksObj[name].next) ? worksObj[name].next : ''}">
+
+        <div class="notesBox">
+          <label>Notas</label>
+          <textarea data-name="${name}" data-k="notes" placeholder="Buscar">${w.notes || ''}</textarea>
         </div>
       `;
-      row.querySelectorAll('input').forEach(inp => {
+      const ni = card.querySelector('.nextInput');
+      if(ni && status) ni.classList.add(status);
+      card.querySelectorAll('input, textarea').forEach(inp => {
         inp.addEventListener('input', () => {
           const n = inp.getAttribute('data-name');
           const k = inp.getAttribute('data-k');
           onChange(n, k, inp.value);
         }, {passive:true});
       });
-      container.appendChild(row);
+
+      const delBtn = card.querySelector('.trashBtn');
+      if(delBtn){
+        onTap(delBtn, () => {
+          const delName = delBtn.getAttribute('data-del');
+          if(!delName) return;
+          if(!confirm('¿Eliminar el trabajo "' + delName + '"?')) return;
+          delete worksObj[delName];
+          try{ saveDB(); }catch(e){}
+          try{ renderHomeAlerts(); }catch(e){}
+          // Re-render after deletion
+          container.innerHTML = '';
+          renderWorksCards(container, worksObj, onChange);
+        });
+      }
+
+      container.appendChild(card);
     });
   };
+
+  const addCustomWorkTo = (vehicleOrWorksObj) => {
+    const name = prompt('Nombre del trabajo (ej: Pastillas freno)');
+    if(!name) return;
+    const trimmed = name.trim();
+    if(!trimmed) return;
+
+    const worksObj = vehicleOrWorksObj.works ? vehicleOrWorksObj.works : vehicleOrWorksObj;
+    if(worksObj[trimmed]) { alert('Ese trabajo ya existe.'); return; }
+    worksObj[trimmed] = { done:'', next:'', notes:'' };
+  };
+
+  const renderList = () => {
+    vehicleList.innerHTML = '';
+
+    const q = (listSearch && listSearch.value ? listSearch.value : '').trim().toLowerCase();
+
+    const decorated = db.vehicles.map(v => {
+      const a = vehicleAlerts(v);
+      const status = a.overdueCount > 0 ? 'overdue' : (a.soonCount > 0 ? 'soon' : '');
+      const key = status === 'overdue' ? 0 : (status === 'soon' ? 1 : 2);
+      const urgency = (a.items && a.items.length) ? a.items[0].days : 9999;
+
+      const plate = (v.plate || '').toLowerCase();
+      const veh = (v.vehicle || '').toLowerCase();
+      const own = (v.owner || '').toLowerCase();
+      const hay = (plate + ' ' + veh + ' ' + own).trim();
+
+      let matchScore = 0;
+      if(q){
+        if(plate === q) matchScore = 1000;
+        else if(plate.startsWith(q)) matchScore = 800;
+        else if(plate.includes(q)) matchScore = 600;
+        else if(veh.startsWith(q) || own.startsWith(q)) matchScore = 450;
+        else if(veh.includes(q) || own.includes(q)) matchScore = 300;
+      }
+
+      return { v, a, status, key, urgency, hay, matchScore };
+    });
+
+    let list = decorated;
+    if(q){
+      list = decorated.filter(d => d.hay.includes(q));
+    }
+
+    list.sort((x,y) => {
+      if(q && (y.matchScore || 0) !== (x.matchScore || 0)){
+        return (y.matchScore || 0) - (x.matchScore || 0);
+      }
+      if(x.key !== y.key) return x.key - y.key;
+      return x.urgency - y.urgency;
+    });
+
+    const topId = (q && list.length) ? list[0].v.id : null;
+
+    list.forEach(({v, a, status}) => {
+      const card = document.createElement('div');
+      card.className = 'vehicleCard' + (status ? (' ' + status) : '') + ((topId && v.id === topId) ? ' matchTop' : '');
+
+      const title = `${(v.plate || '(sin matrícula)')} - ${(v.vehicle || '')} - ${(v.owner || '')}`;
+
+      const badgeParts = [];
+      if(a.overdueCount) badgeParts.push(`<span class="badge overdue">Vencidas: ${a.overdueCount}</span>`);
+      if(a.soonCount) badgeParts.push(`<span class="badge soon">Próximas: ${a.soonCount}</span>`);
+      const badges = badgeParts.length
+        ? `<div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">${badgeParts.join('')}</div>`
+        : '';
+
+      card.innerHTML = `<div class="vehicleCardTitle">${title}</div>${badges}`;
+      onTap(card, () => openDetail(v.id), {preventDefault:false, stopPropagation:false});
+      vehicleList.appendChild(card);
+    });
+
+    if(db.vehicles.length === 0){
+      vehicleList.innerHTML = '<p class="hint">No hay vehículos. Pulsa + Vehículo para añadir.</p>';
+    } else if(q && list.length === 0){
+      vehicleList.innerHTML = '<p class="hint">No hay resultados para la búsqueda.</p>';
+    }
+  };
+
+  let currentVehicleId = null;
+  const getCurrentVehicle = () => db.vehicles.find(x => x.id === currentVehicleId);
+
+  const openDetail = (id) => {
+    currentVehicleId = id;
+    const v = getCurrentVehicle();
+    if(!v) return;
+    if(!v.works) v.works = emptyWorksFromList(DEFAULT_WORKS);
+
+    dCreated.value = v.created || '';
+    dPlate.value = v.plate || '';
+    dVehicle.value = v.vehicle || '';
+    dOwner.value = v.owner || '';
+    dPhone.value = v.phone || '';
+
+    renderWorksCards(detailWorks, v.works, (name, k, val) => {
+      if(!v.works[name]) v.works[name] = {done:'', next:'', notes:''};
+      v.works[name][k] = val;
+      saveDB();
+    });
+
+    showView(detailView);
+  };
+
+  const bindDetailAutosave = () => {
+    const saveField = () => {
+      const v = getCurrentVehicle();
+      if(!v) return;
+      v.created = dCreated.value || '';
+      v.plate = (dPlate.value || '').toUpperCase();
+      v.vehicle = dVehicle.value || '';
+      v.owner = dOwner.value || '';
+      v.phone = dPhone.value || '';
+      saveDB();
+      renderList();
+      renderHomeAlerts();
+    };
+    [dCreated, dPlate, dVehicle, dOwner, dPhone].forEach(inp => inp.addEventListener('input', saveField, {passive:true}));
+  };
+  bindDetailAutosave();
+
+  onTap(btnAddWork, () => {
+    const v = getCurrentVehicle();
+    if(!v) return;
+    addCustomWorkTo(v);
+    saveDB();
+    renderHomeAlerts();
+    renderWorksCards(detailWorks, v.works, (name, k, val) => {
+      if(!v.works[name]) v.works[name] = {done:'', next:'', notes:''};
+      v.works[name][k] = val;
+      saveDB();
+    });
+  });
+
+  onTap(btnDeleteVehicle, () => {
+    const v = getCurrentVehicle();
+    if(!v) return;
+    if(!confirm('¿Eliminar este vehículo?')) return;
+    db.vehicles = db.vehicles.filter(x => x.id !== currentVehicleId);
+    currentVehicleId = null;
+    saveDB();
+    renderList();
+    renderHomeAlerts();
+    showView(listView);
+  });
+
+  let addWorksObj = emptyWorksFromList(DEFAULT_WORKS);
 
   const prepAddForm = () => {
     aCreated.value = todayISO();
@@ -447,93 +1511,20 @@ summary{font-weight:900;cursor:pointer;margin-bottom:12px;font-size:15px;}
     aVehicle.value = '';
     aOwner.value = '';
     aPhone.value = '';
-    renderWorksFields(addWorks, emptyWorks(), () => {});
-  };
-
-  const renderList = () => {
-    vehicleList.innerHTML = '';
-    db.vehicles.forEach((v, idx) => {
-      if(!v.works) v.works = emptyWorks();
-
-      const det = document.createElement('details');
-
-      const sum = document.createElement('summary');
-      const sumText = () => `${v.plate || '(sin matrícula)'} - ${v.vehicle || ''} - ${v.owner || ''}`;
-      sum.textContent = sumText();
-      det.appendChild(sum);
-
-      const mainRow = document.createElement('div');
-      mainRow.className = 'row';
-
-      const mkField = (labelText, value, onSet, extraAttrs={}) => {
-        const wrap = document.createElement('div');
-        wrap.className = 'field';
-        const lab = document.createElement('label');
-        lab.textContent = labelText;
-        const inp = document.createElement('input');
-        inp.value = value || '';
-        Object.keys(extraAttrs).forEach(k => inp.setAttribute(k, extraAttrs[k]));
-        inp.addEventListener('input', () => {
-          onSet(inp.value);
-          sum.textContent = sumText();
-          saveDB(db);
-        }, {passive:true});
-        wrap.appendChild(lab);
-        wrap.appendChild(inp);
-        return wrap;
-      };
-
-      mainRow.appendChild(mkField('Fecha alta', v.created, val => v.created = val, {type:'date'}));
-      mainRow.appendChild(mkField('Matrícula', v.plate, val => v.plate = String(val).toUpperCase(), {autocapitalize:'characters', autocomplete:'off'}));
-      mainRow.appendChild(mkField('Vehículo', v.vehicle, val => v.vehicle = val, {autocomplete:'off'}));
-      mainRow.appendChild(mkField('Propietario', v.owner, val => v.owner = val, {autocomplete:'off'}));
-      mainRow.appendChild(mkField('Teléfono', v.phone, val => v.phone = val, {inputmode:'tel', autocomplete:'off'}));
-      det.appendChild(mainRow);
-
-      const st = document.createElement('div');
-      st.className = 'sectionTitle';
-      st.textContent = 'Trabajos';
-      det.appendChild(st);
-
-      const worksContainer = document.createElement('div');
-      renderWorksFields(worksContainer, v.works, (name, k, val) => {
-        if(!v.works[name]) v.works[name] = {done:'', next:''};
-        v.works[name][k] = val;
-        saveDB(db);
-      });
-      det.appendChild(worksContainer);
-
-      const actions = document.createElement('div');
-      actions.className = 'actions';
-      const del = document.createElement('button');
-      del.className = 'danger';
-      del.type = 'button';
-      del.textContent = 'Eliminar vehículo';
-
-      const doDelete = () => {
-        if(!confirm('¿Eliminar este vehículo?')) return;
-        db.vehicles.splice(idx, 1);
-        /* si se queda vacío, lo dejamos vacío */
-        saveDB(db);
-        renderList();
-      };
-
-      // Bloquea la propagación dentro de <details> (iOS)
-      const stop = (e) => { e.preventDefault(); e.stopPropagation(); };
-      del.addEventListener('pointerdown', stop, {passive:false});
-      del.addEventListener('touchstart', stop, {passive:false});
-      del.addEventListener('mousedown', stop, {passive:false});
-
-      // Acción real
-      del.addEventListener('click', (e) => { stop(e); doDelete(); }, {passive:false});
-      del.addEventListener('touchend', (e) => { stop(e); doDelete(); }, {passive:false});
-
-      actions.appendChild(del);
-      det.appendChild(actions);
-
-      vehicleList.appendChild(det);
+    addWorksObj = emptyWorksFromList(DEFAULT_WORKS);
+    renderWorksCards(addWorks, addWorksObj, (name, k, val) => {
+      if(!addWorksObj[name]) addWorksObj[name] = {done:'', next:'', notes:''};
+      addWorksObj[name][k] = val;
     });
   };
+
+  onTap(btnAddWorkAdd, () => {
+    addCustomWorkTo(addWorksObj);
+    renderWorksCards(addWorks, addWorksObj, (name, k, val) => {
+      if(!addWorksObj[name]) addWorksObj[name] = {done:'', next:'', notes:''};
+      addWorksObj[name][k] = val;
+    });
+  });
 
   const saveVehicle = () => {
     const v = createVehicle(false);
@@ -542,22 +1533,15 @@ summary{font-weight:900;cursor:pointer;margin-bottom:12px;font-size:15px;}
     v.vehicle = (aVehicle.value || '').trim();
     v.owner = (aOwner.value || '').trim();
     v.phone = (aPhone.value || '').trim();
-
-    const w = emptyWorks();
-    addWorks.querySelectorAll('input[type="date"]').forEach(inp => {
-      const name = inp.getAttribute('data-name');
-      const k = inp.getAttribute('data-k');
-      if(w[name]) w[name][k] = inp.value || '';
-    });
-    v.works = w;
+    v.works = addWorksObj;
 
     db.vehicles.unshift(v);
-    saveDB(db);
+    saveDB();
     renderList();
+    renderHomeAlerts();
     showView(listView);
   };
 
-  // Backup export/restore
   const pad2 = (n) => String(n).padStart(2,'0');
   const filenameStamp = () => {
     const d = new Date();
@@ -565,52 +1549,34 @@ summary{font-weight:900;cursor:pointer;margin-bottom:12px;font-size:15px;}
   };
 
   const exportBackup = async () => {
-    try{
-      const payload = {
-        app: 'Revisiones',
-        version: '1.0',
-        exportedAt: new Date().toISOString(),
-        data: db,
-        logo: (function(){
-          try { return localStorage.getItem(LOGO_KEY) || null; } catch(e){ return null; }
-        })()
-      };
+    const payload = {
+      app: 'Talleres Lista',
+      version: '1.9.3',
+      exportedAt: new Date().toISOString(),
+      data: db,
+      prefs: (function(){ try { return JSON.parse(localStorage.getItem(PREF_KEY) || 'null'); } catch(e){ return null; } })(),
+      logo: (function(){ try { return localStorage.getItem(LOGO_KEY) || null; } catch(e){ return null; } })()
+    };
+    const jsonStr = JSON.stringify(payload, null, 2);
+    const fname = 'backup_talleres_lista_' + filenameStamp() + '.json';
 
-      const txt = JSON.stringify(payload, null, 2);
-      const filename = 'backup_revisiones_' + filenameStamp() + '.json';
+    try {
+      if(navigator.share && window.File) {
+        const file = new File([jsonStr], fname, {type:'application/json'});
+        await navigator.share({ files:[file], title:'Copia de seguridad', text:'Backup .json' });
+        return;
+      }
+    } catch(e) {}
 
-      // Preferir compartir como archivo (iOS/Android) cuando sea posible
-      try{
-        if(window.File){
-          const file = new File([txt], filename, { type: 'application/json' });
-          if(navigator.share && navigator.canShare && navigator.canShare({ files:[file] })){
-            navigator.share({
-              files: [file],
-              title: 'Copia de seguridad',
-              text: 'Copia de seguridad Revisiones'
-            }).catch(()=>{});
-            return;
-          }
-        }
-      }catch(_e){ /* fallback abajo */ }
-
-      // Fallback: descarga directa
-      const blob = new Blob([txt], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.rel = 'noopener';
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 900);
-
-      // En algunos iPhone puede abrir el JSON en vez de descargarlo:
-      // en ese caso usa el botón Compartir del navegador para “Guardar en Archivos”.
-    }catch(e){
-      alert('No se pudo exportar la copia.');
-    }
+    const blob = new Blob([jsonStr], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fname;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
   };
 
   const restoreBackup = async (file) => {
@@ -632,6 +1598,10 @@ summary{font-weight:900;cursor:pointer;margin-bottom:12px;font-size:15px;}
     }
 
     try {
+      if(payload && payload.prefs){
+        try{ localStorage.setItem(PREF_KEY, JSON.stringify(payload.prefs)); }catch(e){}
+        try{ applyPrefs(payload.prefs); }catch(e){}
+      }
       if(payload && payload.logo && String(payload.logo).startsWith('data:image/')){
         localStorage.setItem(LOGO_KEY, payload.logo);
         logoImg.src = payload.logo;
@@ -640,38 +1610,33 @@ summary{font-weight:900;cursor:pointer;margin-bottom:12px;font-size:15px;}
 
     const reloaded = loadDB();
     db.vehicles = reloaded.vehicles || [];
-    /* si se queda vacío, lo dejamos vacío */
-    saveDB(db);
-
+    saveDB();
     renderList();
     alert('Copia restaurada ✅');
     showView(listView);
   };
 
-  // Bind navigation
+  onTap(btnList, () => { if(listSearch) listSearch.value=''; renderList(); showView(listView); });
+  if(listSearch){
+    listSearch.addEventListener('input', () => { renderList(); }, {passive:true});
+  }
   onTap(btnAdd, () => { prepAddForm(); showView(addView); });
-  onTap(btnList, () => { renderList(); showView(listView); });
   onTap(btnSettings, () => showView(settingsView));
 
   onTap(backFromList, () => showView(home));
   onTap(backFromAdd, () => showView(home));
   onTap(backFromSettings, () => showView(home));
+  onTap(backFromDetail, () => showView(listView));
 
   onTap(saveVehicleTop, saveVehicle);
 
   onTap(btnExport, exportBackup);
   onTap(btnRestore, () => { restorePicker.value=''; restorePicker.click(); });
-
   restorePicker.addEventListener('change', async () => {
     const f = restorePicker.files && restorePicker.files[0];
     if(!f) return;
     await restoreBackup(f);
   }, {passive:true});
-
-  // Logo change + persistence
-  const logoBox = $('logoBox');
-  const logoImg = $('logoImg');
-  const logoPicker = $('logoPicker');
 
   try {
     const saved = localStorage.getItem(LOGO_KEY);
@@ -693,21 +1658,8 @@ summary{font-weight:900;cursor:pointer;margin-bottom:12px;font-size:15px;}
     reader.readAsDataURL(file);
   }, {passive:true});
 
-  // Init
-  prepAddForm();
-  showView(home);
   setHeights();
-})();
-</script>
-
-
-<script>
-(function(){
-  if('serviceWorker' in navigator){
-    window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js').catch(function(){});
-    });
-  }
+  showView(home);
 })();
 </script>
 
