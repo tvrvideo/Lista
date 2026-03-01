@@ -409,10 +409,9 @@ body.theme-gray{
 
 
 .alertItem.overdue{ border-color: rgba(198,40,40,.6); background: rgba(198,40,40,.08); }
+.alertItem.overdue .alertTitle{ color: var(--text); }
+.alertItem.overdue .alertSub{ color: var(--muted); }
 .alertItem.soon{ border-color: rgba(245,158,11,.6); background: rgba(245,158,11,.07); }
-
-.alertItem.overdue .alertTitle{ color: rgba(198,40,40,1); }
-.alertItem.overdue .alertSub{ color: rgba(198,40,40,.88); }
 
 </style>
 </head>
@@ -422,7 +421,7 @@ body.theme-gray{
 <header id="appHeader">
   <div class="titleblock">
     <h1>Revisiones</h1>
-    <div class="ver">v1.9.3</div>
+    <div class="ver">v2.0.1</div>
   </div>
 
   <div class="logoBox" id="logoBox" title="Pulsa para cambiar el logo">
@@ -1551,7 +1550,7 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
   const exportBackup = async () => {
     const payload = {
       app: 'Talleres Lista',
-      version: '1.9.3',
+      version: '2.0.1',
       exportedAt: new Date().toISOString(),
       data: db,
       prefs: (function(){ try { return JSON.parse(localStorage.getItem(PREF_KEY) || 'null'); } catch(e){ return null; } })(),
