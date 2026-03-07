@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Language" content="es-ES">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Talleres Lista</title>
+<title>Revisiones v3.1.5</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0E4C92">
 <meta name="apple-mobile-web-app-title" content="Talleres Lista">
@@ -116,7 +116,7 @@ main{
 
 /* Buttons */
 button{
-  padding:12px 16px;
+  padding:10px 14px;
   border-radius:14px;
   border:none;
   color:#fff;
@@ -172,17 +172,46 @@ textarea{min-height:70px; resize:vertical;}
 .homeRow{
   width:100%;
   display:grid;
-  grid-template-columns: minmax(0,1fr) auto auto;
+  grid-template-columns: minmax(0,1.2fr) repeat(2, minmax(0,.8fr)) 70px;
   gap:10px;
-  align-items:center;
+  align-items:stretch;
   overflow:hidden;
 }
-#btnAdd{width:100%; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-#btnList{white-space:nowrap;}
+.homeRow > button{
+  min-width:0;
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  line-height:1.05;
+}
+#btnAdd{
+  width:100%;
+  min-width:0;
+  white-space:normal;
+  overflow:hidden;
+  text-overflow:clip;
+  font-size: calc(15px * var(--fontScale));
+  padding:8px 10px;
+  text-wrap:balance;
+  word-break:keep-all;
+}
+#btnList,
+#btnNotes{
+  white-space:normal;
+  text-wrap:balance;
+  font-size: calc(15px * var(--fontScale));
+  padding:8px 10px;
+}
 #btnSettings{
-  min-width:52px;width:52px;
+  min-width:50px;width:100%;
   padding-left:0;padding-right:0;
   display:flex;align-items:center;justify-content:center;
+}
+@media (max-width:560px){
+  .homeRow{ grid-template-columns: minmax(0,1.15fr) repeat(2, minmax(0,.78fr)) 64px; }
+  #btnAdd, #btnList, #btnNotes{ font-size: calc(14px * var(--fontScale)); }
 }
 
 
@@ -413,6 +442,72 @@ body.theme-gray{
 .alertItem.overdue .alertSub{ color: var(--muted); }
 .alertItem.soon{ border-color: rgba(245,158,11,.6); background: rgba(245,158,11,.07); }
 
+
+.notesStandalone{
+  position:fixed;
+  inset:0;
+  z-index:120;
+  background:#f5f5f7;
+  display:none;
+  margin:0;
+  padding:0;
+}
+.notesStandalone.active{display:block;}
+#notesFrame{
+  display:block;
+  width:100%;
+  height:100%;
+  border:0;
+  background:#f5f5f7;
+}
+body.notes-mode header,
+body.notes-mode .actionBar{ display:none !important; }
+body.notes-mode main{
+  max-width:none;
+  margin:0;
+  padding:0;
+}
+body.notes-mode main > .view:not(#notesView){ display:none !important; }
+
+.transferModal{
+  position:fixed;
+  inset:0;
+  z-index:140;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.56);
+}
+.transferModal.open{ display:flex; }
+.transferCard{
+  width:min(680px, 100%);
+  max-height:min(90vh, 900px);
+  overflow:auto;
+  background:var(--card);
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:18px;
+}
+.transferTitle{
+  font-size:calc(20px * var(--fontScale));
+  font-weight:900;
+  margin:0 0 14px 0;
+}
+.transferRow{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+.transferActions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  margin-top:10px;
+}
+.transferActions button{ min-width:120px; }
+.homeRow{
+  grid-template-columns: minmax(0,1fr) auto auto auto;
+}
+#btnNotes{white-space:nowrap;}
+
 </style>
 </head>
 
@@ -421,7 +516,7 @@ body.theme-gray{
 <header id="appHeader">
   <div class="titleblock">
     <h1>Revisiones</h1>
-    <div class="ver">v2.0.1</div>
+    <div class="ver">v3.1.5</div>
   </div>
 
   <div class="logoBox" id="logoBox" title="Pulsa para cambiar el logo">
@@ -434,7 +529,8 @@ body.theme-gray{
   <div class="inner">
     <div class="homeRow">
       <button class="primary" id="btnAdd">+ Vehículo</button>
-      <button class="primary" id="btnList">Ver lista</button>
+      <button class="primary" id="btnList">Lista</button>
+      <button class="primary" id="btnNotes">Notas</button>
       <button class="primary" id="btnSettings" aria-label="Configuración" title="Configuración">⚙️</button>
     </div>
   </div>
@@ -564,7 +660,1547 @@ body.theme-gray{
     </div>
   </section>
 
-  <section id="settingsView" class="view">
+
+  
+  <section id="notesView" class="view notesStandalone" aria-label="Notas">
+    <iframe id="notesFrame" title="Notas" loading="eager" referrerpolicy="no-referrer" srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;es-ES&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover&quot;&gt;
+    &lt;meta name=&quot;apple-mobile-web-app-capable&quot; content=&quot;yes&quot;&gt;
+    &lt;title&gt;iNote Pro v1.9.1&lt;/title&gt;
+&lt;style&gt;
+        :root { --blue: #54a0d9; --bg: #f5f5f7; --green: #2ecc71; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        
+        body { background: var(--bg); color: #333; -webkit-tap-highlight-color: transparent; padding-top: env(safe-area-inset-top); }
+        
+        /* HEADER FIJO */
+        header { 
+            background: var(--blue); color: white; height: 60px; 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 15px; position: sticky; top: 0; z-index: 1000;
+        }
+
+        .header-title { display: flex; align-items: baseline; gap: 8px; }
+        .version-text { font-size: 0.85em; opacity: 1; font-weight: bold; color: #fff; margin-left: 5px; }
+
+        .header-left-actions { display:flex; align-items:center; gap:10px; min-width:0; }
+        .menu-icon-btn {
+            appearance:none; border:none; background:transparent; color:#fff;
+            font-size: 1.4em; padding:0; width:32px; height:32px;
+            display:flex; align-items:center; justify-content:center; cursor:pointer;
+        }
+        .header-title {
+            display: flex; align-items: baseline; justify-content: flex-end;
+            gap: 8px; text-align:right; min-width:0; flex:1;
+        }
+        .header-title h2 {
+            margin:0; font-size:1.3em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+        }
+        .bridge-back-btn{
+            appearance:none; -webkit-appearance:none;
+            border:none;
+            border-radius:14px;
+            padding:12px 16px;
+            background:#0E4C92;
+            color:#fff;
+            font-weight:900;
+            font-size:.98em;
+            line-height:1;
+            min-height:44px;
+            cursor:pointer;
+            box-shadow: inset 0 -2px 0 rgba(0,0,0,.14);
+        }
+        .bridge-back-btn:active{ transform: scale(.98); background:#083a73; }
+        .notes-search-btn{
+            appearance:none; border:none; background:transparent; color:#fff;
+            font-size: 1.35em; padding:0; width:32px; height:32px;
+            display:flex; align-items:center; justify-content:center; cursor:pointer;
+            margin-left: 10px; flex: 0 0 auto;
+        }
+        .notes-search-btn:active{ transform: scale(.98); }
+        .bridge-actions, .bridge-btn { display:none !important; }
+
+
+        /* BUSCADOR - Ahora empuja el contenido hacia abajo */
+        .search-bar-container {
+            display: none; background: #fff; padding: 12px;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+            border-bottom: 2px solid var(--blue);
+            position: relative; /* Cambiado de fixed a relative para no tapar */
+            z-index: 999;
+        }
+        #searchInput {
+            width: 100%; padding: 12px; border-radius: 10px;
+            border: 2px solid #ddd; font-size: 17px; outline: none;
+            -webkit-appearance: none;
+        }
+
+        /* MENÚ LATERAL - Máxima prioridad */
+        #side-menu {
+            position: fixed; left: -280px; top: 0; width: 280px; height: 100%;
+            background: white; z-index: 2000; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 2px 0 15px rgba(0,0,0,0.2);
+        }
+        #side-menu.active { left: 0; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1500; }
+        
+        .menu-header { background: var(--blue); color: white; padding: 50px 20px 20px; font-weight: bold; font-size: 1.2em; }
+        .menu-item { padding: 18px 20px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; color: #444; font-size: 1.1em; }
+        .menu-item i { margin-right: 15px; width: 25px; color: var(--blue); font-size: 1.2em; }
+
+        /* CONTENIDO */
+        #main-content { padding: 10px 0; padding-bottom: 120px; position: relative; z-index: 1; }
+        
+        .note-card {
+            padding: 18px 15px; margin: 0 12px 12px 12px;
+            border-radius: 14px; cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .note-text-list { font-size: 1.15em; line-height: 1.4em; color: #000; font-weight: 500;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-break: break-word;
+        }
+
+        /* CALENDARIO */
+        #calendar-view { display: none; background: white; padding: 15px; border-radius: 0 0 15px 15px; margin-bottom: 10px; touch-action: pan-y; overscroll-behavior-x: contain; }
+        .cal-header { display: flex; gap: 8px; margin-bottom: 15px; align-items: center; }
+        .cal-header select { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ddd; font-size: 16px; background: #fff; font-weight: bold; }
+
+        .btn-today { background: var(--blue); color: white; border: none; padding: 12px 18px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 16px; }
+        .btn-today.different { background: var(--green) !important; }
+
+        .cal-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            margin: 8px 0 8px;
+        }
+        .cal-weekdays div {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 800;
+            color: #8c98ab;
+            padding: 8px 0;
+            user-select: none;
+        }
+        .cal-weekdays div.weekend { color: #b5bccb; }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #eee;
+            border: 1px solid #eee;
+            border-radius: 14px;
+            overflow: hidden;
+            touch-action: pan-y;
+            will-change: transform, opacity;
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .cal-swipe-hint { margin: 10px 0 14px; text-align: center; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; color: #8c98ab; user-select: none; }
+        .cal-day {
+            background: white;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            font-size: 1.05em;
+            font-weight: 700;
+            transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease, color 140ms ease;
+        }
+        .cal-day:active { transform: scale(0.98); }
+        .cal-day.empty {
+            background: #fafbfc;
+            pointer-events: none;
+        }
+        .cal-day.is-weekend {
+            color: #98a1b3;
+            background: #fcfcfd;
+        }
+        .cal-day.has-note {
+            border-radius: 10px;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.04);
+        }
+        .cal-day.selected {
+            font-weight: 900;
+            border-radius: 12px;
+            transform: translateY(-1px) scale(1.08);
+            outline: 4px solid rgba(84,160,217,1);
+            outline-offset: 2px;
+            z-index: 3;
+            box-shadow:
+                inset 0 0 0 2px rgba(255,255,255,0.98),
+                0 0 0 4px rgba(84,160,217,0.98),
+                0 14px 28px rgba(84,160,217,0.42),
+                0 4px 10px rgba(24,43,74,0.18);
+        }
+        .cal-day.is-today {
+            box-shadow: inset 0 0 0 2px rgba(84,160,217,0.45);
+        }
+        .cal-day.selected.is-today {
+            box-shadow:
+                inset 0 0 0 2px rgba(255,255,255,0.98),
+                0 0 0 3px rgba(84,160,217,1),
+                0 0 0 6px rgba(84,160,217,0.22),
+                0 10px 24px rgba(84,160,217,0.34),
+                0 2px 8px rgba(24,43,74,0.12);
+        }
+
+/* MODAL */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; width: 100%; max-width: 450px; padding: 20px; border-radius: 20px; max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        textarea { width: 100%; height: 160px; margin: 10px 0; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 18px; background: #f9f9f9; color: #000; }
+        
+        .color-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 10px; }
+        .color-opt { width: 100%; aspect-ratio: 1; border-radius: 50%; border: 2px solid #eee; cursor: pointer; }
+        .color-opt.active { border-color: #333; transform: scale(1.15); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+        .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 16px; border: none; border-radius: 12px; font-weight: bold; font-size: 17px; cursor: pointer; }
+        .btn-save { background: var(--blue); color: white; }
+        .btn-del { background: #fff0f0; color: #e53935; }
+
+        .fab { position: fixed; bottom: 30px; right: 25px; width: 75px; height: 75px; background: var(--blue); border-radius: 50%; color: white; font-size: 38px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 500; }
+    
+        /* v1.5 — Editor de nota refinado para iPhone */
+        .note-modal { background: #f4f6fb !important; padding: 0 !important; align-items: stretch !important; justify-content: stretch !important; }
+        .note-modal .note-editor {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(180deg, #f7f9fd 0%, #ffffff 24%);
+        }
+        .note-topbar {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: calc(env(safe-area-inset-top) + 8px) 12px 12px;
+            background: rgba(247,249,253,0.96);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(45, 74, 116, 0.08);
+            box-shadow: 0 8px 22px rgba(34, 52, 84, 0.05);
+        }
+        .date-row,
+        .action-row {
+            display: grid;
+            gap: 8px;
+        }
+        .date-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .action-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+        .control-btn {
+            min-width: 0;
+            border: none;
+            border-radius: 18px;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.1;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            box-shadow: 0 8px 18px rgba(35, 55, 88, 0.08), inset 0 1px 0 rgba(255,255,255,0.55);
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
+        }
+        .control-btn:active { transform: scale(0.985); }
+
+        .date-btn {
+            min-height: 64px;
+            padding: 10px 14px;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 5px;
+            background: #eef2ff;
+            color: #24324a;
+            border: 1px solid #d9e4ff;
+        }
+        .date-btn .btn-label {
+            font-size: 12px;
+            line-height: 1;
+            font-weight: 800;
+            color: #6d7a94;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .date-btn .btn-value {
+            display: block;
+            width: 100%;
+            font-size: 22px;
+            line-height: 1;
+            font-weight: 900;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .action-btn {
+            min-height: 46px;
+            padding: 0 8px;
+            font-size: clamp(13px, 3.8vw, 17px);
+            font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .color-btn {
+            background: #f1f4f9;
+            color: #22314b;
+            border: 1px solid rgba(34,49,75,0.08);
+        }
+        .save-btn {
+            background: var(--green);
+            color: #fff;
+        }
+        .cancel-btn {
+            background: var(--blue);
+            color: #fff;
+        }
+        .delete-btn {
+            background: #ffd9d9;
+            color: #c92525;
+        }
+        .date-sheet-grid{
+            display:flex;
+            flex-direction:column;
+            gap:14px;
+        }
+        .date-field { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+        .date-field span { font-size: 13px; font-weight: 900; color: #333; }
+        .date-field input {
+            width: 100%;
+            padding: 12px 12px;
+            border-radius: 14px;
+            border: 1px solid #d9deea;
+            font-size: 16px;
+            background: #f8fbff;
+            color: #123;
+        }
+        #noteText {
+            flex: 1;
+            width: 100%;
+            border: none;
+            outline: none;
+            resize: none;
+            font-size: 22px;
+            line-height: 1.48;
+            padding: 18px 18px calc(env(safe-area-inset-bottom) + 28px);
+            background: transparent;
+            color: #101418;
+        }
+        #noteText::placeholder { color: #9aa5b5; }
+
+        /* Bottom sheet de colores */
+        .sheet-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            display: none;
+            z-index: 4001;
+        }
+        .sheet {
+            position: fixed;
+            left: 0; right: 0; bottom: 0;
+            background: #fff;
+            border-top-left-radius: 18px;
+            border-top-right-radius: 18px;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.18);
+            transform: translateY(110%);
+            transition: transform 180ms ease;
+            z-index: 4002;
+            max-height: 62vh;
+            padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
+        }
+        .sheet.show { transform: translateY(0); }
+        .sheet-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 14px 14px 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .sheet-title { font-weight: 900; font-size: 16px; }
+        .sheet-close {
+            border: none;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-weight: 900;
+            font-size: 16px;
+            background: var(--blue);
+            color: #fff;
+        }
+        .sheet-body { padding: 12px 14px 8px; overflow: auto; -webkit-overflow-scrolling: touch; }
+
+    
+        .bridge-actions { display:flex; align-items:center; gap:8px; }
+        .bridge-btn {
+            appearance:none; -webkit-appearance:none;
+            border:none; border-radius:12px; padding:10px 12px;
+            background: rgba(255,255,255,0.18); color:#fff;
+            font-size: 14px; font-weight: 800; line-height:1;
+            min-height: 40px;
+        }
+        .bridge-btn:active { transform: scale(0.98); }
+
+    
+
+        :root{
+            --host-bg:#0b1220;
+            --host-card:#121b2f;
+            --host-surface:#18243c;
+            --host-text:#eaf0ff;
+            --host-muted:#93a7c7;
+            --host-line:rgba(255,255,255,.12);
+            --host-primary:#0E4C92;
+            --host-primary-dark:#083a73;
+            --host-font-scale:1.15;
+        }
+        html, body {
+            background: var(--host-bg) !important;
+            color: var(--host-text) !important;
+            font-size: calc(16px * var(--host-font-scale));
+        }
+        body { color: var(--host-text) !important; }
+        header {
+            background: rgba(18,27,47,.96) !important;
+            border-bottom: 1px solid var(--host-line) !important;
+            min-height: 60px;
+            height: auto !important;
+            padding: 10px 14px !important;
+            backdrop-filter: blur(6px);
+        }
+        .header-title h2, .version-text, .menu-icon-btn, .notes-search-btn { color:#fff !important; }
+        .bridge-back-btn,
+        .btn-today,
+        .btn-save,
+        .fab,
+        .bottom-sheet .sheet-action.primary {
+            background: var(--host-primary) !important;
+            color: #fff !important;
+            border-radius: 14px !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+        .bridge-back-btn:active,
+        .btn-today:active,
+        .btn-save:active,
+        .fab:active,
+        .bottom-sheet .sheet-action.primary:active { background: var(--host-primary-dark) !important; }
+        #main-content { background: transparent !important; }
+        .search-bar-container,
+        #calendar-view,
+        #side-menu,
+        .modal-content,
+        .note-modal .note-editor,
+        .bottom-sheet,
+        .date-sheet,
+        .date-sheet .sheet-card,
+        .bottom-sheet .sheet-card,
+        .note-topbar {
+            background: var(--host-card) !important;
+            color: var(--host-text) !important;
+            border-color: var(--host-line) !important;
+            box-shadow: none !important;
+        }
+        .search-bar-container { border-bottom: 1px solid var(--host-line) !important; }
+        #searchInput,
+        textarea,
+        input,
+        select,
+        .cal-header select,
+        .date-pill,
+        .picker-col select,
+        .search-row input,
+        .note-editor textarea {
+            background: rgba(255,255,255,.05) !important;
+            color: var(--host-text) !important;
+            border: 1px solid var(--host-line) !important;
+        }
+        #searchInput::placeholder,
+        textarea::placeholder,
+        input::placeholder { color: var(--host-muted) !important; }
+        .menu-header {
+            background: rgba(18,27,47,.96) !important;
+            border-bottom: 1px solid var(--host-line) !important;
+        }
+        .menu-item {
+            color: var(--host-text) !important;
+            border-bottom: 1px solid var(--host-line) !important;
+            background: transparent !important;
+        }
+        .menu-item i { color: var(--host-primary) !important; }
+        .note-card {
+            margin: 0 12px 12px 12px;
+            border: 1px solid var(--host-line) !important;
+            box-shadow: none !important;
+        }
+        .sheet-title,
+        .sheet-subtitle,
+        .date-range-text,
+        .picker-title,
+        .cal-weekdays div,
+        #day-notes h4,
+        .note-editor,
+        .modal-content h3,
+        .modal-content label,
+        .note-topbar h3,
+        .close-btn {
+            color: var(--host-text) !important;
+        }
+        .note-text-list,
+        .note-text-cal {
+            color: inherit;
+        }
+        .cal-swipe-hint,
+        .date-hint,
+        .picker-help,
+        .hint,
+        .sheet-muted,
+        .cal-weekdays div.weekend,
+        .date-summary,
+        .modal-content small {
+            color: var(--host-muted) !important;
+        }
+        .cal-grid {
+            background: var(--host-line) !important;
+            border: 1px solid var(--host-line) !important;
+        }
+        .cal-day {
+            background: rgba(255,255,255,.04) !important;
+            color: var(--host-text) !important;
+        }
+        .cal-day.has-note {
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+        }
+        .cal-day.has-note,
+        .cal-day.has-note.is-weekend {
+            color: inherit;
+            box-shadow:
+                inset 0 0 0 1px rgba(0,0,0,0.08),
+                0 1px 0 rgba(255,255,255,0.08);
+        }
+        .cal-day.empty { background: rgba(255,255,255,.02) !important; }
+        .cal-day.is-weekend { background: rgba(255,255,255,.03) !important; color: var(--host-muted) !important; }
+        .cal-day.selected {
+            transform: translateY(-1px) scale(1.02) !important;
+            outline: none !important;
+            z-index: 3 !important;
+            box-shadow:
+                inset 0 0 0 999px rgba(59,130,246,0.20),
+                inset 0 0 0 2px rgba(255,255,255,0.98),
+                0 0 0 2px var(--host-primary),
+                0 6px 14px rgba(0,0,0,0.18) !important;
+        }
+        .cal-day.is-today { box-shadow: inset 0 0 0 2px var(--host-primary) !important; }
+        .cal-day.selected.is-today {
+            box-shadow:
+                inset 0 0 0 999px rgba(59,130,246,0.20),
+                inset 0 0 0 2px rgba(255,255,255,0.98),
+                0 0 0 2px var(--host-primary),
+                0 6px 14px rgba(0,0,0,0.18) !important;
+        }
+        .overlay { background: rgba(0,0,0,.45) !important; }
+        .modal { background: rgba(0,0,0,.66) !important; }
+        .btn-del { background: rgba(198,40,40,.14) !important; color: #ffb4b4 !important; }
+
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;overlay&quot; id=&quot;overlay&quot; onclick=&quot;closeMenu()&quot;&gt;&lt;/div&gt;
+
+&lt;nav id=&quot;side-menu&quot;&gt;
+    &lt;div class=&quot;menu-header&quot;&gt;iNote Pro &lt;span class=&quot;version-text&quot;&gt;v1.9.1&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;menu-item&quot; onclick=&quot;switchView(&#x27;list&#x27;)&quot;&gt;&lt;i class=&quot;fas fa-list-ul&quot;&gt;&lt;/i&gt; Vista Lista&lt;/div&gt;
+    &lt;div class=&quot;menu-item&quot; onclick=&quot;switchView(&#x27;calendar&#x27;)&quot;&gt;&lt;i class=&quot;fas fa-calendar-alt&quot;&gt;&lt;/i&gt; Vista Calendario&lt;/div&gt;
+    &lt;div style=&quot;padding: 20px 20px 5px; font-size: 0.85em; color: #999; font-weight: bold; text-transform: uppercase;&quot;&gt;Ajustes&lt;/div&gt;
+    &lt;div class=&quot;menu-item&quot; id=&quot;btnExportMenu&quot;&gt;&lt;i class=&quot;fas fa-file-export&quot;&gt;&lt;/i&gt; Exportar Notas&lt;/div&gt;
+    &lt;div class=&quot;menu-item&quot; onclick=&quot;document.getElementById(&#x27;fileIn&#x27;).click()&quot;&gt;&lt;i class=&quot;fas fa-file-import&quot;&gt;&lt;/i&gt; Importar Notas&lt;/div&gt;
+    &lt;div class=&quot;menu-item&quot; onclick=&quot;openClearDataSheet()&quot;&gt;&lt;i class=&quot;fas fa-trash&quot;&gt;&lt;/i&gt; Borrar datos&lt;/div&gt;
+    &lt;input type=&quot;file&quot; id=&quot;fileIn&quot; accept=&quot;application/json,.json&quot; style=&quot;display:none&quot; onchange=&quot;importBackup(event)&quot;&gt;
+&lt;/nav&gt;
+
+&lt;header&gt;
+    &lt;div class=&quot;header-left-actions&quot;&gt;
+        &lt;button type=&quot;button&quot; class=&quot;menu-icon-btn&quot; onclick=&quot;openMenu()&quot; aria-label=&quot;Abrir menú&quot; title=&quot;Menú&quot;&gt;
+            &lt;span aria-hidden=&quot;true&quot; style=&quot;display:block;line-height:1;font-size:28px;font-weight:900;transform:translateY(-1px);&quot;&gt;☰&lt;/span&gt;
+        &lt;/button&gt;
+        &lt;button id=&quot;btnBridgeBack&quot; class=&quot;bridge-back-btn&quot; type=&quot;button&quot;&gt;Volver&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;header-title&quot;&gt;
+        &lt;h2 id=&quot;view-title-text&quot;&gt;Notas&lt;/h2&gt;
+        &lt;span class=&quot;version-text&quot;&gt;v1.9.1&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;button type=&quot;button&quot; class=&quot;notes-search-btn&quot; onclick=&quot;toggleSearch()&quot; aria-label=&quot;Buscar notas&quot; title=&quot;Buscar&quot;&gt;🔍&lt;/button&gt;
+&lt;/header&gt;
+
+&lt;div class=&quot;search-bar-container&quot; id=&quot;searchBar&quot;&gt;
+    &lt;input type=&quot;text&quot; id=&quot;searchInput&quot; placeholder=&quot;Escribe para buscar...&quot; oninput=&quot;filterNotes()&quot;&gt;
+&lt;/div&gt;
+
+&lt;main id=&quot;main-content&quot;&gt;
+    &lt;div id=&quot;list-view&quot;&gt;&lt;/div&gt;
+    &lt;div id=&quot;calendar-view&quot;&gt;
+        &lt;div class=&quot;cal-header&quot;&gt;
+            &lt;button class=&quot;btn-today&quot; id=&quot;btnToday&quot; onclick=&quot;goToToday()&quot;&gt;Hoy&lt;/button&gt;
+            &lt;select id=&quot;calM&quot; onchange=&quot;renderCal()&quot;&gt;&lt;/select&gt;
+            &lt;select id=&quot;calY&quot; onchange=&quot;renderCal()&quot;&gt;&lt;/select&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;cal-weekdays&quot;&gt;
+            &lt;div&gt;L&lt;/div&gt;&lt;div&gt;M&lt;/div&gt;&lt;div&gt;X&lt;/div&gt;&lt;div&gt;J&lt;/div&gt;&lt;div&gt;V&lt;/div&gt;&lt;div class=&quot;weekend&quot;&gt;S&lt;/div&gt;&lt;div class=&quot;weekend&quot;&gt;D&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;cal-grid&quot; id=&quot;cal-grid&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;cal-swipe-hint&quot;&gt;Desliza a izquierda o derecha para cambiar de mes&lt;/div&gt;
+        &lt;div id=&quot;day-notes&quot; style=&quot;padding: 15px;&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/main&gt;
+
+&lt;button class=&quot;fab&quot; onclick=&quot;showModal()&quot;&gt;+&lt;/button&gt;
+
+&lt;div class=&quot;modal note-modal&quot; id=&quot;noteModal&quot;&gt;
+    &lt;div class=&quot;note-editor&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot;&gt;
+        &lt;div class=&quot;note-topbar&quot;&gt;
+            &lt;div class=&quot;date-row&quot;&gt;
+                &lt;button type=&quot;button&quot; class=&quot;control-btn date-btn&quot; onclick=&quot;openDateSheetFor(&#x27;start&#x27;)&quot;&gt;
+                    &lt;span class=&quot;btn-label&quot;&gt;Inicio&lt;/span&gt;
+                    &lt;span id=&quot;startSummary&quot; class=&quot;btn-value&quot;&gt;--:--&lt;/span&gt;
+                &lt;/button&gt;
+                &lt;button type=&quot;button&quot; class=&quot;control-btn date-btn&quot; onclick=&quot;openDateSheetFor(&#x27;end&#x27;)&quot;&gt;
+                    &lt;span class=&quot;btn-label&quot;&gt;Final&lt;/span&gt;
+                    &lt;span id=&quot;endSummary&quot; class=&quot;btn-value&quot;&gt;--:--&lt;/span&gt;
+                &lt;/button&gt;
+            &lt;/div&gt;
+
+            &lt;div class=&quot;action-row&quot;&gt;
+                &lt;button type=&quot;button&quot; class=&quot;control-btn action-btn cancel-btn&quot; onclick=&quot;closeModal()&quot;&gt;Volver&lt;/button&gt;
+                &lt;button type=&quot;button&quot; id=&quot;colorButton&quot; class=&quot;control-btn action-btn color-btn&quot; onclick=&quot;toggleColorSheet(true)&quot;&gt;Color&lt;/button&gt;
+                &lt;button type=&quot;button&quot; class=&quot;control-btn action-btn save-btn&quot; onclick=&quot;saveNote()&quot;&gt;Guardar&lt;/button&gt;
+                &lt;button type=&quot;button&quot; id=&quot;btnDelete&quot; class=&quot;control-btn action-btn delete-btn&quot; onclick=&quot;deleteNoteAction()&quot;&gt;Eliminar&lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;textarea id=&quot;noteText&quot; placeholder=&quot;Escribe tu nota...&quot;&gt;&lt;/textarea&gt;
+    &lt;/div&gt;
+
+    &lt;div id=&quot;colorBackdrop&quot; class=&quot;sheet-backdrop&quot; onclick=&quot;toggleColorSheet(false)&quot;&gt;&lt;/div&gt;
+    &lt;div id=&quot;colorSheet&quot; class=&quot;sheet&quot; aria-label=&quot;Paleta de colores&quot;&gt;
+        &lt;div class=&quot;sheet-header&quot;&gt;
+            &lt;div class=&quot;sheet-title&quot;&gt;Elegir color&lt;/div&gt;
+            &lt;button type=&quot;button&quot; class=&quot;sheet-close&quot; onclick=&quot;toggleColorSheet(false)&quot;&gt;Listo&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;sheet-body&quot;&gt;
+            &lt;div class=&quot;color-grid&quot; id=&quot;colorPicker&quot;&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+
+
+
+    &lt;div id=&quot;dateBackdrop&quot; class=&quot;sheet-backdrop&quot; onclick=&quot;toggleDateSheet(false)&quot;&gt;&lt;/div&gt;
+    &lt;div id=&quot;dateSheet&quot; class=&quot;sheet&quot; aria-label=&quot;Selector de fechas&quot;&gt;
+        &lt;div class=&quot;sheet-header&quot;&gt;
+            &lt;div class=&quot;sheet-title&quot;&gt;Fechas&lt;/div&gt;
+            &lt;button type=&quot;button&quot; class=&quot;sheet-close&quot; onclick=&quot;toggleDateSheet(false)&quot;&gt;Listo&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;sheet-body&quot;&gt;
+            &lt;div class=&quot;date-sheet-grid&quot;&gt;
+                &lt;label class=&quot;date-field&quot;&gt;
+                    &lt;span&gt;Inicio&lt;/span&gt;
+                    &lt;input type=&quot;datetime-local&quot; id=&quot;dateStart&quot; inputmode=&quot;none&quot; onchange=&quot;updateDateSummary()&quot;&gt;
+                &lt;/label&gt;
+                &lt;label class=&quot;date-field&quot;&gt;
+                    &lt;span&gt;Fin&lt;/span&gt;
+                    &lt;input type=&quot;datetime-local&quot; id=&quot;dateEnd&quot; inputmode=&quot;none&quot; onchange=&quot;updateDateSummary()&quot;&gt;
+                &lt;/label&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+&lt;div class=&quot;modal&quot; id=&quot;confirmDeleteAllModal&quot; style=&quot;display:none;&quot;&gt;
+  &lt;div class=&quot;modal-content&quot; style=&quot;max-width: 420px; padding: 16px;&quot;&gt;
+    &lt;h3 style=&quot;color:#c0392b; margin-bottom: 8px;&quot;&gt;Confirmar borrado total&lt;/h3&gt;
+    &lt;p style=&quot;color:#555; line-height:1.3em; margin-bottom:12px;&quot;&gt;
+      Esto eliminará &lt;b&gt;TODAS&lt;/b&gt; las notas y ajustes guardados en este dispositivo.
+      Esta acción no se puede deshacer.
+    &lt;/p&gt;
+    &lt;div style=&quot;display:flex; gap:10px;&quot;&gt;
+      &lt;button type=&quot;button&quot; style=&quot;flex:1; background:#eee; padding:14px; border-radius:12px; border:none; font-weight:bold;&quot; onclick=&quot;closeConfirmDeleteAll();&quot;&gt;Cancelar&lt;/button&gt;
+      &lt;button type=&quot;button&quot; class=&quot;btn-del&quot; style=&quot;flex:1;&quot; onclick=&quot;doConfirmDeleteAll();&quot;&gt;Sí, borrar todo&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+    const STORAGE_KEY = &#x27;inote_pro_v1_0_final_stable&#x27;;
+    let notes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    // Normaliza IDs a string para evitar fallos al eliminar tras importaciones
+    notes = notes.map(n =&gt; ({ ...n, id: String(n.id) }));
+    let editingId = null;
+    let selectedDateStr = null; 
+    let selectedColor = &quot;#ffffff&quot;;
+    let currentView = &#x27;list&#x27;;
+
+    const vividColors = [
+        &quot;#ffffff&quot;, &quot;#fff176&quot;, &quot;#ffd54f&quot;, &quot;#ffb74d&quot;, &quot;#ff8a65&quot;, &quot;#e57373&quot;,
+        &quot;#f06292&quot;, &quot;#ba68c8&quot;, &quot;#9575cd&quot;, &quot;#7986cb&quot;, &quot;#64b5f6&quot;, &quot;#4fc3f7&quot;,
+        &quot;#4dd0e1&quot;, &quot;#4db6ac&quot;, &quot;#81c784&quot;, &quot;#aed581&quot;, &quot;#dce775&quot;, &quot;#cfd8dc&quot;
+    ];
+
+    const selM = document.getElementById(&#x27;calM&#x27;);
+    const selY = document.getElementById(&#x27;calY&#x27;);
+    const months = [&quot;Enero&quot;,&quot;Febrero&quot;,&quot;Marzo&quot;,&quot;Abril&quot;,&quot;Mayo&quot;,&quot;Junio&quot;,&quot;Julio&quot;,&quot;Agosto&quot;,&quot;Septiembre&quot;,&quot;Octubre&quot;,&quot;Noviembre&quot;,&quot;Diciembre&quot;];
+    
+    months.forEach((m, i) =&gt; selM.innerHTML += `&lt;option value=&quot;${i}&quot;&gt;${m}&lt;/option&gt;`);
+    const cy = new Date().getFullYear();
+    for(let y=cy-5; y&lt;=cy+10; y++) selY.innerHTML += `&lt;option value=&quot;${y}&quot;&gt;${y}&lt;/option&gt;`;
+    selM.value = new Date().getMonth();
+    selY.value = cy;
+
+    const cp = document.getElementById(&#x27;colorPicker&#x27;);
+    vividColors.forEach(c =&gt; {
+        const div = document.createElement(&#x27;div&#x27;);
+        div.className = &#x27;color-opt&#x27;;
+        div.style.backgroundColor = c;
+        div.onclick = () =&gt; selectColor(c);
+        cp.appendChild(div);
+    });
+
+    function selectColor(c) {
+        selectedColor = c;
+        document.querySelectorAll(&#x27;.color-opt&#x27;).forEach(opt =&gt; {
+            opt.classList.toggle(&#x27;active&#x27;, opt.style.backgroundColor === c);
+        });
+        updateColorSwatch();
+    }
+
+
+    function updateColorSwatch() {
+        const btn = document.getElementById(&#x27;colorButton&#x27;);
+        if (!btn) return;
+        const color = selectedColor || &quot;#f1f4f9&quot;;
+        btn.style.background = color;
+        btn.style.color = getContrastColor(color);
+        btn.style.boxShadow = &#x27;0 8px 18px rgba(35, 55, 88, 0.08), inset 0 1px 0 rgba(255,255,255,0.45)&#x27;;
+    }
+
+    function toggleColorSheet(show) {
+        const sheet = document.getElementById(&#x27;colorSheet&#x27;);
+        const backdrop = document.getElementById(&#x27;colorBackdrop&#x27;);
+        if (!sheet || !backdrop) return;
+
+        const wantShow = (show === undefined) ? !sheet.classList.contains(&#x27;show&#x27;) : !!show;
+
+        if (wantShow) {
+            backdrop.style.display = &#x27;block&#x27;;
+            // Forzar reflow para que la transición funcione en iOS
+            void sheet.offsetHeight;
+            sheet.classList.add(&#x27;show&#x27;);
+        } else {
+            sheet.classList.remove(&#x27;show&#x27;);
+            backdrop.style.display = &#x27;none&#x27;;
+        }
+    }
+
+    
+    let activeDateField = &#x27;start&#x27;;
+
+    function formatHourOnly(value) {
+        if (!value || typeof value !== &#x27;string&#x27;) return &#x27;--:--&#x27;;
+        const tIndex = value.indexOf(&#x27;T&#x27;);
+        if (tIndex !== -1 &amp;&amp; value.length &gt;= tIndex + 6) return value.slice(tIndex + 1, tIndex + 6);
+        const m = value.match(/(\d{2}:\d{2})/);
+        return m ? m[1] : &#x27;--:--&#x27;;
+    }
+
+    function updateDateSummary() {
+        const startEl = document.getElementById(&#x27;startSummary&#x27;);
+        const endEl = document.getElementById(&#x27;endSummary&#x27;);
+        const startValue = document.getElementById(&#x27;dateStart&#x27;)?.value || &#x27;&#x27;;
+        const endValue = document.getElementById(&#x27;dateEnd&#x27;)?.value || &#x27;&#x27;;
+        if (startEl) startEl.textContent = formatHourOnly(startValue);
+        if (endEl) endEl.textContent = formatHourOnly(endValue);
+    }
+
+    function openDateSheetFor(which) {
+        activeDateField = (which === &#x27;end&#x27;) ? &#x27;end&#x27; : &#x27;start&#x27;;
+        toggleDateSheet(true);
+        setTimeout(() =&gt; {
+            const target = document.getElementById(activeDateField === &#x27;end&#x27; ? &#x27;dateEnd&#x27; : &#x27;dateStart&#x27;);
+            if (target) {
+                try { target.focus(); } catch(e) {}
+                try { if (target.showPicker) target.showPicker(); } catch(e) {}
+            }
+        }, 60);
+    }
+
+    function toggleDateSheet(show) {
+        const sheet = document.getElementById(&#x27;dateSheet&#x27;);
+        const backdrop = document.getElementById(&#x27;dateBackdrop&#x27;);
+        if (!sheet || !backdrop) return;
+
+        const wantShow = (show === undefined) ? !sheet.classList.contains(&#x27;show&#x27;) : !!show;
+
+        if (wantShow) {
+            updateDateSummary();
+            backdrop.style.display = &#x27;block&#x27;;
+            void sheet.offsetHeight;
+            sheet.classList.add(&#x27;show&#x27;);
+        } else {
+            sheet.classList.remove(&#x27;show&#x27;);
+            backdrop.style.display = &#x27;none&#x27;;
+            updateDateSummary();
+        }
+    }
+
+    function getActiveFilter() {
+        const input = document.getElementById(&#x27;searchInput&#x27;);
+        return input ? input.value.toLowerCase() : &#x27;&#x27;;
+    }
+
+    function getContrastColor(color) {
+        if (!color) return &#x27;#22314b&#x27;;
+        const hex = String(color).trim();
+        if (!hex.startsWith(&#x27;#&#x27;)) return &#x27;#22314b&#x27;;
+        let raw = hex.slice(1);
+        if (raw.length === 3) raw = raw.split(&#x27;&#x27;).map(ch =&gt; ch + ch).join(&#x27;&#x27;);
+        if (raw.length !== 6) return &#x27;#22314b&#x27;;
+        const r = parseInt(raw.slice(0,2), 16);
+        const g = parseInt(raw.slice(2,4), 16);
+        const b = parseInt(raw.slice(4,6), 16);
+        const lum = (0.299 * r + 0.587 * g + 0.114 * b);
+        return lum &gt; 170 ? &#x27;#22314b&#x27; : &#x27;#ffffff&#x27;;
+    }
+
+function toggleSearch() {
+        const bar = document.getElementById(&#x27;searchBar&#x27;);
+        const isVisible = bar.style.display === &#x27;block&#x27;;
+        bar.style.display = isVisible ? &#x27;none&#x27; : &#x27;block&#x27;;
+        if (!isVisible) {
+            document.getElementById(&#x27;searchInput&#x27;).focus();
+        } else {
+            document.getElementById(&#x27;searchInput&#x27;).value = &#x27;&#x27;;
+            filterNotes();
+        }
+    }
+
+    function filterNotes() {
+        const query = document.getElementById(&#x27;searchInput&#x27;).value.toLowerCase().trim();
+        if (currentView === &#x27;list&#x27;) {
+            renderNotesList(query);
+        } else {
+            const matches = query ? notes.filter(n =&gt; (n.text || &#x27;&#x27;).toLowerCase().includes(query) &amp;&amp; n.start) : [];
+            if (matches.length) {
+                matches.sort((a,b) =&gt; new Date(a.start) - new Date(b.start));
+                const keepCurrent = selectedDateStr &amp;&amp; matches.some(n =&gt; n.start &amp;&amp; n.start.startsWith(selectedDateStr));
+                const targetDate = keepCurrent ? selectedDateStr : String(matches[0].start).slice(0,10);
+                if (targetDate) {
+                    selectedDateStr = targetDate;
+                    const dt = new Date(targetDate + &#x27;T12:00&#x27;);
+                    if (!isNaN(dt.getTime())) {
+                        selM.value = dt.getMonth();
+                        selY.value = dt.getFullYear();
+                    }
+                }
+            }
+            renderCal(query);
+            if (query) {
+                updateSearchResults(query);
+            } else if (selectedDateStr) {
+                updateDayDetail(selectedDateStr, &#x27;&#x27;);
+            }
+        }
+    }
+
+    function openMenu() { document.getElementById(&#x27;side-menu&#x27;).classList.add(&#x27;active&#x27;); document.getElementById(&#x27;overlay&#x27;).style.display=&#x27;block&#x27;; }
+    function closeMenu() { document.getElementById(&#x27;side-menu&#x27;).classList.remove(&#x27;active&#x27;); document.getElementById(&#x27;overlay&#x27;).style.display=&#x27;none&#x27;; }
+
+    function switchView(v) {
+        currentView = v;
+        document.getElementById(&#x27;list-view&#x27;).style.display = v === &#x27;list&#x27; ? &#x27;block&#x27; : &#x27;none&#x27;;
+        document.getElementById(&#x27;calendar-view&#x27;).style.display = v === &#x27;calendar&#x27; ? &#x27;block&#x27; : &#x27;none&#x27;;
+        document.getElementById(&#x27;view-title-text&#x27;).innerText = v === &#x27;list&#x27; ? &#x27;Notas&#x27; : &#x27;Calendario&#x27;;
+        if(v === &#x27;calendar&#x27;) {
+            if(!selectedDateStr) {
+                const d = new Date();
+                selectedDateStr = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,&#x27;0&#x27;)}-${d.getDate().toString().padStart(2,&#x27;0&#x27;)}`;
+            }
+            const activeFilter = getActiveFilter();
+            if (activeFilter) {
+                filterNotes();
+            } else {
+                renderCal(activeFilter);
+                updateDayDetail(selectedDateStr, activeFilter);
+            }
+        }
+        closeMenu();
+    }
+
+    function goToToday() {
+        const d = new Date();
+        selM.value = d.getMonth();
+        selY.value = d.getFullYear();
+        selectedDateStr = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,&#x27;0&#x27;)}-${d.getDate().toString().padStart(2,&#x27;0&#x27;)}`;
+        const activeFilter = getActiveFilter();
+        renderCal(activeFilter);
+        updateDayDetail(selectedDateStr, activeFilter);
+    }
+
+    function shiftCalendarMonth(delta, slideFrom) {
+        let m = parseInt(selM.value, 10);
+        let y = parseInt(selY.value, 10);
+        m += delta;
+        if (m &lt; 0) { m = 11; y -= 1; }
+        if (m &gt; 11) { m = 0; y += 1; }
+        selM.value = m;
+        selY.value = y;
+
+        const currentDay = selectedDateStr ? parseInt(selectedDateStr.slice(8, 10), 10) : 1;
+        const totalDays = new Date(y, m + 1, 0).getDate();
+        const safeDay = String(Math.min(currentDay, totalDays)).padStart(2, &#x27;0&#x27;);
+        selectedDateStr = `${y}-${String(m + 1).padStart(2, &#x27;0&#x27;)}-${safeDay}`;
+
+        renderCal(getActiveFilter(), slideFrom || 0);
+        updateDayDetail(selectedDateStr, getActiveFilter());
+    }
+
+    function setupCalendarSwipe() {
+        const area = document.getElementById(&#x27;calendar-view&#x27;);
+        const grid = document.getElementById(&#x27;cal-grid&#x27;);
+        if (!area || !grid || area.dataset.swipeReady === &#x27;1&#x27;) return;
+        area.dataset.swipeReady = &#x27;1&#x27;;
+
+        const swipe = {
+            startX: 0,
+            startY: 0,
+            dx: 0,
+            tracking: false,
+            horizontal: false,
+            animating: false
+        };
+
+        function resetGridPosition(animated) {
+            const g = document.getElementById(&#x27;cal-grid&#x27;);
+            if (!g) return;
+            g.style.transition = animated ? &#x27;transform 220ms ease, opacity 220ms ease&#x27; : &#x27;none&#x27;;
+            g.style.transform = &#x27;translateX(0px)&#x27;;
+            g.style.opacity = &#x27;1&#x27;;
+        }
+
+        function animateMonthChange(delta) {
+            if (swipe.animating) return;
+            const g = document.getElementById(&#x27;cal-grid&#x27;);
+            if (!g) return;
+            swipe.animating = true;
+
+            const width = g.offsetWidth || area.offsetWidth || 320;
+            const exitDir = delta &gt; 0 ? -1 : 1;   // next month exits to left
+            const enterFrom = delta &gt; 0 ? 1 : -1; // next month enters from right
+
+            g.style.transition = &#x27;transform 220ms ease, opacity 220ms ease&#x27;;
+            g.style.transform = `translateX(${exitDir * width * 0.88}px)`;
+            g.style.opacity = &#x27;0.18&#x27;;
+
+            window.setTimeout(function() {
+                shiftCalendarMonth(delta, enterFrom);
+                swipe.animating = false;
+            }, 230);
+        }
+
+        area.addEventListener(&#x27;touchstart&#x27;, function(e) {
+            if (swipe.animating) return;
+            if (!e.touches || e.touches.length !== 1) return;
+            if (e.target &amp;&amp; (e.target.tagName === &#x27;SELECT&#x27; || e.target.closest(&#x27;select&#x27;))) return;
+            const t = e.touches[0];
+            swipe.startX = t.clientX;
+            swipe.startY = t.clientY;
+            swipe.dx = 0;
+            swipe.tracking = true;
+            swipe.horizontal = false;
+        }, { passive: true });
+
+        area.addEventListener(&#x27;touchmove&#x27;, function(e) {
+            if (!swipe.tracking || swipe.animating || !e.touches || !e.touches.length) return;
+            const t = e.touches[0];
+            const dx = t.clientX - swipe.startX;
+            const dy = t.clientY - swipe.startY;
+            const absX = Math.abs(dx);
+            const absY = Math.abs(dy);
+
+            if (!swipe.horizontal) {
+                if (absX &lt; 8) return;
+                if (absX &lt;= absY) {
+                    swipe.tracking = false;
+                    return;
+                }
+                swipe.horizontal = true;
+            }
+
+            swipe.dx = dx;
+            const g = document.getElementById(&#x27;cal-grid&#x27;);
+            if (!g) return;
+            e.preventDefault();
+            g.style.transition = &#x27;none&#x27;;
+            g.style.transform = `translateX(${dx}px)`;
+            g.style.opacity = String(Math.max(0.5, 1 - Math.abs(dx) / 420));
+        }, { passive: false });
+
+        area.addEventListener(&#x27;touchend&#x27;, function() {
+            if (!swipe.tracking || swipe.animating) return;
+            const dx = swipe.dx;
+            swipe.tracking = false;
+
+            if (Math.abs(dx) &gt; 56) {
+                animateMonthChange(dx &lt; 0 ? 1 : -1);
+            } else {
+                resetGridPosition(true);
+            }
+        }, { passive: true });
+
+        area.addEventListener(&#x27;touchcancel&#x27;, function() {
+            swipe.tracking = false;
+            if (!swipe.animating) resetGridPosition(true);
+        }, { passive: true });
+    }
+
+    function refreshUI() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+        renderNotesList();
+        renderCal(); 
+        if (selectedDateStr) updateDayDetail(selectedDateStr);
+    }
+
+    function renderNotesList(filter = &#x27;&#x27;) {
+        const container = document.getElementById(&#x27;list-view&#x27;);
+        container.innerHTML = &#x27;&#x27;;
+        let filtered = notes.filter(n =&gt; n.text.toLowerCase().includes(filter));
+        filtered.sort((a,b) =&gt; new Date(b.start) - new Date(a.start));
+        filtered.forEach(n =&gt; {
+            const el = document.createElement(&#x27;div&#x27;);
+            el.className = &#x27;note-card&#x27;;
+            el.style.backgroundColor = n.color;
+            el.onclick = () =&gt; showModal(n.id);
+            el.innerHTML = `&lt;div class=&quot;note-text-list&quot; style=&quot;color:${getContrastColor(n.color || &#x27;#ffffff&#x27;)}&quot;&gt;${n.text}&lt;/div&gt;`;
+            container.appendChild(el);
+        });
+    }
+
+    function renderCal(filter = &#x27;&#x27;, slideFrom) {
+        const grid = document.getElementById(&#x27;cal-grid&#x27;);
+        if(!grid) return;
+        grid.innerHTML = &#x27;&#x27;;
+
+        const m = parseInt(selM.value, 10);
+        const y = parseInt(selY.value, 10);
+        const totalDays = new Date(y, m + 1, 0).getDate();
+
+        let firstDay = new Date(y, m, 1).getDay();
+        firstDay = (firstDay + 6) % 7; // lunes = 0
+
+        const dReal = new Date();
+        const todayStr = `${dReal.getFullYear()}-${(dReal.getMonth()+1).toString().padStart(2,&#x27;0&#x27;)}-${dReal.getDate().toString().padStart(2,&#x27;0&#x27;)}`;
+
+        const btnToday = document.getElementById(&#x27;btnToday&#x27;);
+        if (btnToday) btnToday.classList.toggle(&#x27;different&#x27;, selectedDateStr !== todayStr);
+
+        for (let i = 0; i &lt; firstDay; i++) {
+            const emptyEl = document.createElement(&#x27;div&#x27;);
+            emptyEl.className = &#x27;cal-day empty&#x27;;
+            emptyEl.setAttribute(&#x27;aria-hidden&#x27;, &#x27;true&#x27;);
+            grid.appendChild(emptyEl);
+        }
+
+        for (let d = 1; d &lt;= totalDays; d++) {
+            const dateStr = `${y}-${String(m + 1).padStart(2,&#x27;0&#x27;)}-${String(d).padStart(2,&#x27;0&#x27;)}`;
+            const dayNotes = notes.filter(n =&gt; n.start &amp;&amp; n.start.startsWith(dateStr) &amp;&amp; (!filter || n.text.toLowerCase().includes(filter)));
+            const hasNote = dayNotes.length &gt; 0;
+            const weekdayCol = (firstDay + d - 1) % 7;
+            const isWeekend = weekdayCol &gt;= 5;
+
+            const firstColorNote = dayNotes.find(n =&gt; n.color &amp;&amp; n.color !== &#x27;#ffffff&#x27;);
+            const noteColor = firstColorNote ? firstColorNote.color : (hasNote ? &#x27;#dfeeff&#x27; : &#x27;&#x27;);
+            const dayEl = document.createElement(&#x27;div&#x27;);
+            dayEl.className = `cal-day ${hasNote ? &#x27;has-note&#x27; : &#x27;&#x27;} ${isWeekend ? &#x27;is-weekend&#x27; : &#x27;&#x27;} ${selectedDateStr === dateStr ? &#x27;selected&#x27; : &#x27;&#x27;} ${todayStr === dateStr ? &#x27;is-today&#x27; : &#x27;&#x27;}`;
+            dayEl.textContent = d;
+
+            if (hasNote) {
+                dayEl.style.setProperty('background-color', noteColor, 'important');
+                dayEl.style.setProperty('color', getContrastColor(noteColor), 'important');
+                dayEl.style.setProperty('border-color', 'rgba(0,0,0,0.10)', 'important');
+                dayEl.style.setProperty('box-shadow', 'inset 0 0 0 1px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.10)', 'important');
+            }
+
+            if (selectedDateStr === dateStr) {
+                dayEl.style.setProperty('outline', 'none', 'important');
+                dayEl.style.setProperty('transform', 'translateY(-1px) scale(1.02)', 'important');
+                dayEl.style.setProperty('z-index', '3', 'important');
+                dayEl.style.setProperty('box-shadow', 'inset 0 0 0 999px rgba(59,130,246,0.20), inset 0 0 0 2px rgba(255,255,255,0.98), 0 0 0 2px var(--host-primary), 0 6px 14px rgba(0,0,0,0.18)', 'important');
+            }
+
+            dayEl.onclick = function() {
+                selectedDateStr = dateStr;
+                renderCal(filter, 0);
+                updateDayDetail(dateStr, filter);
+            };
+            grid.appendChild(dayEl);
+        }
+
+        if (slideFrom) {
+            grid.style.transition = &#x27;none&#x27;;
+            grid.style.opacity = &#x27;0.18&#x27;;
+            grid.style.transform = `translateX(${slideFrom &gt; 0 ? 46 : -46}px)`;
+            void grid.offsetHeight;
+            requestAnimationFrame(function() {
+                grid.style.transition = &#x27;transform 220ms ease, opacity 220ms ease&#x27;;
+                grid.style.transform = &#x27;translateX(0px)&#x27;;
+                grid.style.opacity = &#x27;1&#x27;;
+            });
+        } else {
+            grid.style.transition = &#x27;none&#x27;;
+            grid.style.transform = &#x27;translateX(0px)&#x27;;
+            grid.style.opacity = &#x27;1&#x27;;
+        }
+    }
+
+
+function renderNoteResultItem(container, dn, withDate) {
+        const item = document.createElement(&#x27;div&#x27;);
+        item.style = `background:${dn.color}; padding:14px; border-radius:12px; margin-bottom:10px; cursor:pointer; border:1px solid rgba(0,0,0,0.1);`;
+        const dateLabel = withDate &amp;&amp; dn.start ? formatCalendarSearchDate(dn.start) : &#x27;&#x27;;
+        item.innerHTML = `${dateLabel ? `&lt;div style=&quot;font-size:12px;font-weight:700;opacity:.8;margin-bottom:6px;color:${getContrastColor(dn.color || &#x27;#ffffff&#x27;)}&quot;&gt;${dateLabel}&lt;/div&gt;` : &#x27;&#x27;}&lt;div class=&quot;note-text-cal&quot; style=&quot;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;color:${getContrastColor(dn.color || &#x27;#ffffff&#x27;)}&quot;&gt;${dn.text}&lt;/div&gt;`;
+        item.onclick = () =&gt; showModal(dn.id);
+        container.appendChild(item);
+    }
+
+    function formatCalendarSearchDate(dateTimeStr) {
+        if (!dateTimeStr) return &#x27;&#x27;;
+        const dateStr = String(dateTimeStr).slice(0,10);
+        const parts = dateStr.split(&#x27;-&#x27;);
+        if (parts.length !== 3) return dateStr;
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10);
+        const d = parseInt(parts[2], 10);
+        if (!y || !m || !d) return dateStr;
+        return `${d} de ${months[m-1]} ${y}`;
+    }
+
+    function updateSearchResults(filter) {
+        const res = document.getElementById(&#x27;day-notes&#x27;);
+        if(!res) return;
+        const query = (filter || &#x27;&#x27;).toLowerCase().trim();
+        const matched = query ? notes.filter(n =&gt; (n.text || &#x27;&#x27;).toLowerCase().includes(query)) : [];
+        matched.sort((a,b) =&gt; new Date(a.start) - new Date(b.start));
+        res.innerHTML = `&lt;h4 style=&quot;margin-bottom: 12px; color:#555; border-bottom: 1px solid #ddd; padding-bottom: 5px;&quot;&gt;Resultados: ${matched.length}&lt;/h4&gt;`;
+        if (!matched.length) {
+            res.innerHTML += `&lt;div style=&quot;padding:12px 0;color:#6b7280;&quot;&gt;No hay notas que coincidan con la búsqueda.&lt;/div&gt;`;
+            return;
+        }
+        matched.forEach(dn =&gt; renderNoteResultItem(res, dn, true));
+    }
+
+function updateDayDetail(dateStr, filter = &#x27;&#x27;) {
+        const res = document.getElementById(&#x27;day-notes&#x27;);
+        if(!res) return;
+        const query = (filter || &#x27;&#x27;).toLowerCase().trim();
+        if (query) {
+            updateSearchResults(query);
+            return;
+        }
+        const dayNotes = notes.filter(n =&gt; n.start.startsWith(dateStr));
+        const [y, m, d] = dateStr.split(&#x27;-&#x27;);
+        res.innerHTML = `&lt;h4 style=&quot;margin-bottom: 12px; color:#555; border-bottom: 1px solid #ddd; padding-bottom: 5px;&quot;&gt;${parseInt(d)} de ${months[parseInt(m)-1]}&lt;/h4&gt;`;
+        dayNotes.forEach(dn =&gt; renderNoteResultItem(res, dn, false));
+    }
+
+    function showModal(id = null) {
+        editingId = (id !== null &amp;&amp; id !== undefined) ? String(id) : null;
+        document.getElementById(&#x27;noteModal&#x27;).style.display = &#x27;flex&#x27;;
+        document.getElementById(&#x27;btnDelete&#x27;).style.display = id ? &#x27;block&#x27; : &#x27;none&#x27;;
+        
+        if(id) {
+            const sid = String(id);
+            const n = notes.find(x =&gt; String(x.id) === sid);
+            if(!n) { alert(&#x27;No se encontró la nota.&#x27;); closeModal(); return; }
+            document.getElementById(&#x27;noteText&#x27;).value = n.text;
+            document.getElementById(&#x27;dateStart&#x27;).value = n.start;
+            document.getElementById(&#x27;dateEnd&#x27;).value = n.end;
+            selectColor(n.color || &quot;#ffffff&quot;);
+        } else {
+            document.getElementById(&#x27;noteText&#x27;).value = &#x27;&#x27;;
+            let targetDate;
+            if (currentView === &#x27;calendar&#x27; &amp;&amp; selectedDateStr) {
+                targetDate = selectedDateStr + &quot;T&quot; + new Date().toLocaleTimeString(&#x27;it-IT&#x27;).slice(0,5);
+            } else {
+                targetDate = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0,16);
+            }
+            document.getElementById(&#x27;dateStart&#x27;).value = targetDate;
+            document.getElementById(&#x27;dateEnd&#x27;).value = targetDate;
+            selectColor(&quot;#ffffff&quot;);
+        }
+        updateDateSummary();
+
+    }
+
+    function closeModal() {
+        toggleColorSheet(false);
+        toggleDateSheet(false);
+        document.getElementById(&#x27;noteModal&#x27;).style.display = &#x27;none&#x27;;
+    }
+
+    function saveNote() {
+        const text = document.getElementById(&#x27;noteText&#x27;).value;
+        const start = document.getElementById(&#x27;dateStart&#x27;).value;
+        const end = document.getElementById(&#x27;dateEnd&#x27;).value;
+        if(!text.trim()) return;
+        if(editingId) {
+            const idx = notes.findIndex(x =&gt; x.id === editingId);
+            notes[idx] = { ...notes[idx], text, start, end, color: selectedColor };
+        } else {
+            notes.push({ id: String(Date.now()), text, start, end, color: selectedColor });
+        }
+        refreshUI();
+        closeModal();
+    }
+
+    function deleteNoteAction() {
+        if(!editingId) return;
+        // Eliminado directo (más fiable en iPhone/local). Si quieres confirmación, la hacemos con un modal propio.
+        notes = notes.filter(x =&gt; String(x.id) !== String(editingId));
+        editingId = null;
+        refreshUI();
+        closeModal();
+    }
+
+    function generateBackupFilename() {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, &#x27;0&#x27;);
+        const d = String(now.getDate()).padStart(2, &#x27;0&#x27;);
+        const hh = String(now.getHours()).padStart(2, &#x27;0&#x27;);
+        const mm = String(now.getMinutes()).padStart(2, &#x27;0&#x27;);
+        return `Notas_${y}-${m}-${d}_${hh}-${mm}.json`;
+    }
+
+    async function exportBackup() {
+        if(!notes.length) { closeMenu(); return; }
+
+        const dataStr = JSON.stringify(notes, null, 2);
+        const fileName = generateBackupFilename();
+        const mimeType = &quot;application/json&quot;;
+
+        try {
+            // 1) iOS: Web Share API (permite &quot;Guardar en Archivos&quot;, AirDrop, etc.)
+            const file = new File([dataStr], fileName, { type: mimeType });
+
+            if (navigator.canShare &amp;&amp; navigator.canShare({ files: [file] }) &amp;&amp; navigator.share) {
+                await navigator.share({
+                    files: [file],
+                    title: &#x27;Exportar Notas&#x27;,
+                    text: &#x27;Copia de seguridad de iNote Pro&#x27;
+                });
+                closeMenu();
+                return;
+            }
+
+            // 2) Fallback: data: URI (en iPhone puede abrir texto; en escritorio suele descargar)
+            const dataURI = `data:${mimeType};charset=utf-8,${encodeURIComponent(dataStr)}`;
+            const a = document.createElement(&#x27;a&#x27;);
+            a.href = dataURI;
+            a.download = fileName;
+            a.style.position = &#x27;fixed&#x27;;
+            a.style.top = &#x27;-100px&#x27;;
+            a.style.left = &#x27;-100px&#x27;;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            closeMenu();
+        } catch (err) {
+            console.error(&#x27;Export error:&#x27;, err);
+            // Si el usuario cancela el share, no mostramos error
+            if (err &amp;&amp; err.name !== &#x27;AbortError&#x27;) alert(&quot;No se pudo exportar. Prueba de nuevo.&quot;);
+            closeMenu();
+        }
+    }
+
+    function normalizeImportedNote(raw, idx) {
+        if (!raw || typeof raw !== &#x27;object&#x27;) return null;
+
+        const text = (typeof raw.text === &#x27;string&#x27;) ? raw.text : &#x27;&#x27;;
+        const color = (typeof raw.color === &#x27;string&#x27; &amp;&amp; /^#[0-9a-fA-F]{6}$/.test(raw.color)) ? raw.color : &#x27;#ffffff&#x27;;
+
+        const startRaw = (typeof raw.start === &#x27;string&#x27;) ? raw.start.trim() : &#x27;&#x27;;
+        const endRaw = (typeof raw.end === &#x27;string&#x27;) ? raw.end.trim() : &#x27;&#x27;;
+
+        const dtPattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+        const todayLocal = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0,16);
+        const start = dtPattern.test(startRaw) ? startRaw : todayLocal;
+        const end = dtPattern.test(endRaw) ? endRaw : start;
+
+        return {
+            id: String(raw.id != null ? raw.id : (Date.now() + idx)),
+            text,
+            start,
+            end,
+            color
+        };
+    }
+
+    function importBackup(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) =&gt; {
+            let parsed;
+            try {
+                parsed = JSON.parse(ev.target.result);
+            } catch(err) {
+                console.error(&#x27;Import JSON parse error:&#x27;, err);
+                alert(&#x27;Archivo no válido: el JSON no se pudo leer.&#x27;);
+                return;
+            }
+
+            if (!Array.isArray(parsed)) {
+                alert(&#x27;Archivo no válido: no contiene una lista de notas.&#x27;);
+                return;
+            }
+
+            try {
+                const normalized = parsed.map(normalizeImportedNote).filter(Boolean);
+                notes = normalized;
+                refreshUI();
+                alert(&#x27;Importado: &#x27; + normalized.length + &#x27; notas.&#x27;);
+            } catch(err) {
+                console.error(&#x27;Import render/refresh error:&#x27;, err);
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+                } catch(e2) {}
+                alert(&#x27;Importación realizada, pero hubo un fallo al refrescar la vista. Cierra y abre la app.&#x27;);
+            } finally {
+                try { e.target.value = &#x27;&#x27;; } catch(_) {}
+            }
+        };
+        reader.readAsText(file);
+        closeMenu();
+    }
+
+    
+    function openClearDataSheet() {
+        closeMenu();
+        const sheet = document.getElementById(&#x27;clearDataSheet&#x27;);
+        if(sheet) sheet.style.display = &#x27;flex&#x27;;
+    }
+
+    function closeClearDataSheet() {
+        const sheet = document.getElementById(&#x27;clearDataSheet&#x27;);
+        if(sheet) sheet.style.display = &#x27;none&#x27;;
+    }
+
+    
+    function looksLikeNotesArray(val) {
+        if (!val) return false;
+        try {
+            const data = JSON.parse(val);
+            if (!Array.isArray(data)) return false;
+            return data.length === 0 || data.every(function(n) {
+                return n &amp;&amp; typeof n === &#x27;object&#x27; &amp;&amp;
+                    (&#x27;text&#x27; in n) &amp;&amp; (&#x27;start&#x27; in n) &amp;&amp; (&#x27;end&#x27; in n) &amp;&amp; (&#x27;color&#x27; in n);
+            });
+        } catch(e) { return false; }
+    }
+
+        function clearAllDataNow() {
+        // Reset estado en memoria
+        notes = [];
+        editingId = null;
+        selectedDateStr = null;
+        selectedColor = &#x27;#ffffff&#x27;;
+        currentView = &#x27;list&#x27;;
+
+        // Borrado duro de almacenamiento (más fiable en iOS/WKWebView)
+        let cleared = false;
+        try {
+            localStorage.clear();
+            cleared = true;
+        } catch(e) {}
+
+        // Fallback: borrar clave por clave si clear() falla
+        if (!cleared) {
+            try {
+                const keys = [];
+                for (let i = 0; i &lt; localStorage.length; i++) keys.push(localStorage.key(i));
+                for (let j = 0; j &lt; keys.length; j++) {
+                    try { localStorage.removeItem(keys[j]); } catch(e) {}
+                }
+            } catch(e) {}
+        }
+
+        // Deja el storage en un estado estable para el arranque
+        try { localStorage.setItem(STORAGE_KEY, &#x27;[]&#x27;); } catch(e) {}
+
+        // Limpia UI
+        var lv = document.getElementById(&#x27;list-view&#x27;);
+        if (lv) lv.innerHTML = &#x27;&#x27;;
+        var dn = document.getElementById(&#x27;day-notes&#x27;);
+        if (dn) dn.innerHTML = &#x27;&#x27;;
+        var grid = document.getElementById(&#x27;cal-grid&#x27;);
+        if (grid) grid.innerHTML = &#x27;&#x27;;
+        var si = document.getElementById(&#x27;searchInput&#x27;);
+        if (si) si.value = &#x27;&#x27;;
+        var sb = document.getElementById(&#x27;searchBar&#x27;);
+        if (sb) sb.style.display = &#x27;none&#x27;;
+
+        document.getElementById(&#x27;list-view&#x27;).style.display = &#x27;block&#x27;;
+        document.getElementById(&#x27;calendar-view&#x27;).style.display = &#x27;none&#x27;;
+        document.getElementById(&#x27;view-title-text&#x27;).innerText = &#x27;Notas&#x27;;
+
+        refreshUI();
+        closeClearDataSheet();
+        closeConfirmDeleteAll();
+        closeMenu();
+
+        // Evita depender de confirm/alert del sistema para el flujo crítico,
+        // pero dejamos el aviso final porque suele funcionar bien.
+        alert(&#x27;Datos eliminados. La app queda limpia.&#x27;);
+    }
+
+
+        function openConfirmDeleteAll() {
+        const m = document.getElementById(&#x27;confirmDeleteAllModal&#x27;);
+        if (m) m.style.display = &#x27;flex&#x27;;
+    }
+    function closeConfirmDeleteAll() {
+        const m = document.getElementById(&#x27;confirmDeleteAllModal&#x27;);
+        if (m) m.style.display = &#x27;none&#x27;;
+    }
+    function doConfirmDeleteAll() {
+        // Cierra primero para evitar glitches visuales en iOS
+        closeConfirmDeleteAll();
+        setTimeout(function() {
+            clearAllDataNow();
+        }, 80);
+    }
+
+    function confirmDeleteAllData() {
+        // Ya no usamos window.confirm (a veces falla en iOS / webview local)
+        closeClearDataSheet();
+        setTimeout(function() {
+            openConfirmDeleteAll();
+        }, 60);
+    }
+
+document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&#x27;, exportBackup);
+    setupCalendarSwipe();
+    renderNotesList();
+
+    function bridgeBackToRevisiones() {
+        try { parent.postMessage({ type: &#x27;notes-back&#x27; }, &#x27;*&#x27;); } catch(e) {}
+    }
+
+
+    function hostThemePalette(theme, themeHex) {
+        const t = String(theme || &#x27;default&#x27;);
+        if (t === &#x27;green&#x27;) return { bg:&#x27;#102016&#x27;, card:&#x27;#16281d&#x27;, text:&#x27;#eaf7ef&#x27;, muted:&#x27;#9cc7aa&#x27; };
+        if (t === &#x27;beige&#x27;) return { bg:&#x27;#f5efe3&#x27;, card:&#x27;#fffaf1&#x27;, text:&#x27;#1f2937&#x27;, muted:&#x27;#6b7280&#x27; };
+        if (t === &#x27;gray&#x27;) return { bg:&#x27;#1f2937&#x27;, card:&#x27;#374151&#x27;, text:&#x27;#f3f4f6&#x27;, muted:&#x27;#cbd5e1&#x27; };
+        if (t === &#x27;custom&#x27; &amp;&amp; themeHex) {
+            const base = String(themeHex);
+            return { bg: base, card: mixHex(base, &#x27;#ffffff&#x27;, 0.08), text: readableText(base), muted: readableMuted(base) };
+        }
+        return { bg:&#x27;#0b1220&#x27;, card:&#x27;#121b2f&#x27;, text:&#x27;#eaf0ff&#x27;, muted:&#x27;#93a7c7&#x27; };
+    }
+
+    function hexToRgbHost(hex) {
+        const h = String(hex || &#x27;&#x27;).replace(&#x27;#&#x27;,&#x27;&#x27;).trim();
+        if (h.length !== 6) return null;
+        const r = parseInt(h.slice(0,2), 16), g = parseInt(h.slice(2,4), 16), b = parseInt(h.slice(4,6), 16);
+        if ([r,g,b].some(v =&gt; isNaN(v))) return null;
+        return { r:r, g:g, b:b };
+    }
+    function rgbToHexHost(r,g,b) {
+        const to = (x) =&gt; Math.max(0, Math.min(255, Math.round(x))).toString(16).padStart(2,&#x27;0&#x27;);
+        return &#x27;#&#x27; + to(r) + to(g) + to(b);
+    }
+    function mixHex(a, b, t) {
+        const ca = hexToRgbHost(a), cb = hexToRgbHost(b);
+        if (!ca || !cb) return a;
+        return rgbToHexHost(ca.r + (cb.r - ca.r) * t, ca.g + (cb.g - ca.g) * t, ca.b + (cb.b - ca.b) * t);
+    }
+    function darkenHost(hex, amt) {
+        const c = hexToRgbHost(hex);
+        if (!c) return hex;
+        const k = 1 - (amt || 0.22);
+        return rgbToHexHost(c.r * k, c.g * k, c.b * k);
+    }
+    function readableText(hex) {
+        const c = hexToRgbHost(hex);
+        if (!c) return &#x27;#eaf0ff&#x27;;
+        const srgb = (v) =&gt; { v = v / 255; return v &lt;= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+        const L = 0.2126 * srgb(c.r) + 0.7152 * srgb(c.g) + 0.0722 * srgb(c.b);
+        return L &gt; 0.55 ? &#x27;#0b1220&#x27; : &#x27;#eaf0ff&#x27;;
+    }
+    function readableMuted(hex) {
+        return readableText(hex) === &#x27;#0b1220&#x27; ? &#x27;#3d4a63&#x27; : &#x27;#93a7c7&#x27;;
+    }
+    function applyHostPrefs(prefs) {
+        try {
+            const primary = String((prefs &amp;&amp; prefs.primaryHex) || &#x27;#0E4C92&#x27;);
+            const palette = hostThemePalette(prefs &amp;&amp; prefs.theme, prefs &amp;&amp; prefs.themeHex);
+            const root = document.documentElement;
+            root.style.setProperty(&#x27;--host-bg&#x27;, palette.bg);
+            root.style.setProperty(&#x27;--host-card&#x27;, palette.card);
+            root.style.setProperty(&#x27;--host-surface&#x27;, mixHex(palette.card, &#x27;#ffffff&#x27;, 0.04));
+            root.style.setProperty(&#x27;--host-text&#x27;, palette.text);
+            root.style.setProperty(&#x27;--host-muted&#x27;, palette.muted);
+            root.style.setProperty(&#x27;--host-line&#x27;, palette.text === &#x27;#0b1220&#x27; ? &#x27;rgba(0,0,0,.12)&#x27; : &#x27;rgba(255,255,255,.12)&#x27;);
+            root.style.setProperty(&#x27;--host-primary&#x27;, primary);
+            root.style.setProperty(&#x27;--host-primary-dark&#x27;, darkenHost(primary, 0.22));
+            root.style.setProperty(&#x27;--host-font-scale&#x27;, String((prefs &amp;&amp; prefs.fontScale) || &#x27;1.15&#x27;));
+        } catch(e) {}
+    }
+
+    window.addEventListener(&#x27;message&#x27;, function(event) {
+        const data = event &amp;&amp; event.data;
+        if (!data || typeof data !== &#x27;object&#x27;) return;
+        if (data.type === &#x27;host-prefs&#x27;) applyHostPrefs(data.prefs || {});
+    });
+
+    window.addEventListener(&#x27;DOMContentLoaded&#x27;, function(){
+        try { parent.postMessage({ type: &#x27;notes-ready&#x27; }, &#x27;*&#x27;); } catch(e) {}
+    }, { once:true });
+
+    const btnBridgeBack = document.getElementById(&#x27;btnBridgeBack&#x27;);
+    if (btnBridgeBack) {
+        btnBridgeBack.addEventListener(&#x27;click&#x27;, bridgeBackToRevisiones, { passive: true });
+        btnBridgeBack.addEventListener(&#x27;touchend&#x27;, function(e){ try{e.preventDefault();}catch(_){} bridgeBackToRevisiones(); }, { passive: false });
+    }
+
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+  </section>
+
+<section id="settingsView" class="view">
     <div class="card">
       <p class="hint" style="margin-top:0;">Copia de seguridad en formato <b>.json</b>.</p>
       <div class="row">
@@ -623,6 +2259,9 @@ body.theme-gray{
       </div>
 
 </section>
+
+
+
 </main>
 
 <script>
@@ -645,25 +2284,55 @@ body.theme-gray{
   const listView = $('listView');
   const addView = $('addView');
   const settingsView = $('settingsView');
+  const notesView = $('notesView');
   const detailView = $('detailView');
 
   const barHome = $('barHome');
   const barList = $('barList');
   const barAdd = $('barAdd');
   const barSettings = $('barSettings');
+  const barNotes = $('barNotes');
   const barDetail = $('barDetail');
 
   const btnAdd = $('btnAdd');
   const btnList = $('btnList');
+  const btnNotes = $('btnNotes');
   const btnSettings = $('btnSettings');
 
   const backFromList = $('backFromList');
   const listSearch = document.getElementById('listSearch');
   const backFromAdd = $('backFromAdd');
   const backFromSettings = $('backFromSettings');
+  const backFromNotes = $('backFromNotes');
   const backFromDetail = $('backFromDetail');
 
   const saveVehicleTop = $('saveVehicleTop');
+
+  const notesFrame = document.getElementById('notesFrame');
+  const PREF_KEY_NOTES_BRIDGE = 'talleres_lista_prefs_v1_6';
+  const PREF_KEYS_NOTES_BRIDGE_OLD = ['talleres_lista_prefs_v1_5','talleres_lista_prefs_v1_4','talleres_lista_prefs_v1_3'];
+  const readPrefsForNotesBridge = () => {
+    try{
+      const raw = localStorage.getItem(PREF_KEY_NOTES_BRIDGE);
+      if(raw) return JSON.parse(raw);
+      for(const k of PREF_KEYS_NOTES_BRIDGE_OLD){
+        const old = localStorage.getItem(k);
+        if(old) return JSON.parse(old);
+      }
+    }catch(e){}
+    return null;
+  };
+  const sendNotesPrefs = () => {
+    try{
+      if(!notesFrame || !notesFrame.contentWindow) return;
+      notesFrame.contentWindow.postMessage({ type:'host-prefs', prefs: (readPrefsForNotesBridge() || {}) }, '*');
+    }catch(e){}
+  };
+  if(notesFrame){
+    notesFrame.addEventListener('load', () => {
+      setTimeout(sendNotesPrefs, 60);
+    }, {passive:true});
+  }
 
   const vehicleList = $('vehicleList');
   const homeAlerts = document.getElementById('homeAlerts');
@@ -1020,8 +2689,11 @@ const daysUntil = (isoDate) => {
   window.addEventListener('resize', setHeights, {passive:true});
 
   const showView = (which) => {
-    [home, listView, addView, settingsView, detailView].forEach(v => v.classList.remove('active'));
-    which.classList.add('active');
+    [home, listView, addView, settingsView, detailView, notesView].forEach(v => { if(v) v.classList.remove('active'); });
+    if(which) which.classList.add('active');
+
+    const isNotesMode = (which === notesView);
+    document.body.classList.toggle('notes-mode', !!isNotesMode);
 
     barHome.style.display = (which === home) ? '' : 'none';
     barList.style.display = (which === listView) ? '' : 'none';
@@ -1188,6 +2860,7 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
   }
 // por si cambia el tamaño de texto
       try{ setHeights(); }catch(e){}
+      try{ sendNotesPrefs(); }catch(e){}
     }catch(e){}
   };
 
@@ -1620,11 +3293,13 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
     listSearch.addEventListener('input', () => { renderList(); }, {passive:true});
   }
   onTap(btnAdd, () => { prepAddForm(); showView(addView); });
+  onTap(btnNotes, () => { showView(notesView); setTimeout(sendNotesPrefs, 60); });
   onTap(btnSettings, () => showView(settingsView));
 
   onTap(backFromList, () => showView(home));
   onTap(backFromAdd, () => showView(home));
   onTap(backFromSettings, () => showView(home));
+  onTap(backFromNotes, () => showView(home));
   onTap(backFromDetail, () => showView(listView));
 
   onTap(saveVehicleTop, saveVehicle);
@@ -1656,6 +3331,20 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
     };
     reader.readAsDataURL(file);
   }, {passive:true});
+
+
+  window.addEventListener('message', (event) => {
+    const data = event && event.data;
+    if(!data || typeof data !== 'object') return;
+    if(data.type === 'notes-back'){
+      showView(home);
+      return;
+    }
+    if(data.type === 'notes-ready'){
+      setTimeout(sendNotesPrefs, 30);
+      return;
+    }  });
+
 
   setHeights();
   showView(home);
