@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=yes">
+  <title>Presupuestos v1.3.4</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <style>
+    :root{
+      --bg:#f3f4f6;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --line:#dde5ee;
+      --primary:#2563eb;
+      --success:#16a34a;
+      --danger:#dc2626;
+      --warning:#f97316;
+      --dark:#0f172a;
+      --soft:#e5e7eb;
+      --radius:24px;
+      --shadow:0 14px 34px rgba(15,23,42,.08);
+      --bottom-h:94px;
+      --budget-scale:1;
+    }
+    body.theme-dark{
+      --bg:#0b1220;
+      --card:#111827;
+      --text:#e5eef9;
+      --muted:#94a3b8;
+      --line:#334155;
+      --primary:#3b82f6;
+      --success:#22c55e;
+      --danger:#ef4444;
+      --warning:#fb923c;
+      --dark:#020617;
+      --soft:#1f2937;
+      --shadow:0 16px 36px rgba(0,0,0,.32);
+    }
+    body.theme-dark .list-wrap,
+    body.theme-dark .preview-wrap,
+    body.theme-dark .selected-box{background:#0f172a}
+    body.theme-dark .group.company-group{background:#172033;border-color:#334155}
+    body.theme-dark .group.client-group{background:#162235;border-color:#334155}
+    body.theme-dark .group.items-group{background:#1d1830;border-color:#334155}
+    body.theme-dark .group.preview-group{background:#0f172a;border-color:#334155}
+    body.theme-dark .budget-row.active{background:#172554}
+    body.theme-dark .item-card{background:#0f172a;border-color:#334155}
+    body.theme-dark .item-title{color:#cbd5e1}
+    body.theme-dark .group h2{color:#e5eef9}
+    body.theme-dark input,
+    body.theme-dark textarea,
+    body.theme-dark select{background:#09142d;color:#f8fafc;border-color:#334155}
+    body.theme-dark #themeSelect,
+    body.theme-dark #textSizeSelect{background:#172554;color:#dbeafe;border-color:#3b82f6}
+    body.theme-dark input::placeholder,
+    body.theme-dark textarea::placeholder{color:#94a3b8}
+    body.theme-dark .btn-dark{background:#0b1734;border:1px solid #334155;box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
+    body.theme-dark .btn-light{background:#1e293b;border:1px solid #334155;color:#f8fafc}
+    body.theme-dark .icon-btn{background:#1e293b;border:1px solid #334155;color:#f8fafc}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+    body{min-height:100vh}
+    button,input,textarea{font:inherit}
+    .hidden{display:none !important}
+    .screen{display:none;min-height:100vh;padding:18px 14px calc(22px + env(safe-area-inset-bottom))}
+    .screen.active{display:block}
+    .shell{width:min(860px,100%);margin:0 auto}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
+
+    .start-screen.active{display:flex;align-items:center;justify-content:center}
+    .start-card{min-height:min(72vh,760px);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:32px 22px;text-align:center}
+    .start-title{margin:0 0 28px;font-size:44px;line-height:1.05;font-weight:800;letter-spacing:.2px}
+    .start-actions{display:grid;gap:14px;width:min(260px,100%)}
+
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .title{margin:0;font-size:28px;font-weight:800;flex:0 0 auto}
+    .top-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex:1 1 auto;min-width:0}
+    .top-actions button{width:auto}
+    .top-btn{padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.1;min-height:44px}
+    .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+    .btn-new-small{padding:10px 14px;min-width:88px}
+    .top-search{flex:1 1 260px;min-width:120px;max-width:320px}
+    .top-search .search-input{padding:10px 14px;min-height:44px;border-radius:14px}
+    .list-topbar{display:block;margin-bottom:14px}
+    .list-title-row{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:10px}
+    .list-toolbar{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center}
+
+    .scroll-shell{padding-bottom:calc(var(--bottom-h) + 26px + env(safe-area-inset-bottom))}
+    .panel{padding:18px;min-height:calc(100vh - 36px - env(safe-area-inset-bottom) - var(--bottom-h))}
+    .list-wrap{border:1px solid var(--line);background:#f8fafc;border-radius:22px;max-height:62vh;overflow:auto;padding:8px;-webkit-overflow-scrolling:touch}
+    .budget-row{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer}
+    .budget-row:last-child{margin-bottom:0}
+    .budget-row.active{border-color:var(--primary);background:#eff6ff}
+    .budget-name{font-size:18px;font-weight:800}
+    .budget-sub{font-size:13px;color:var(--muted);margin-top:4px}
+    .empty{padding:34px 18px;text-align:center;color:var(--muted)}
+    .selected-box{margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:18px;background:#fafafa;font-size:14px;font-weight:700;color:var(--text)}
+    .search-wrap{margin:0 0 12px}
+    .search-input{width:100%;padding:13px 16px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:15px}
+    .search-input::placeholder{color:var(--muted)}
+    .search-result{margin:10px 2px 0;font-size:13px;color:var(--muted);font-weight:700}
+
+    .form-grid{display:grid;gap:14px}
+    .group{border:1px solid var(--line);background:#fafafa;border-radius:22px;padding:14px}
+    .company-group{background:#f3f7ff}
+    .client-group{background:#eef6ff}
+    .items-group{background:#f6f0ff}
+    .preview-group{background:#f8fafc}
+    .group h2{margin:0 0 12px;font-size:15px;font-weight:800;color:#1e293b}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .row-4{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px}
+    .field{display:flex;flex-direction:column;gap:6px}
+    label{font-size:12px;font-weight:800;color:var(--text)}
+    input,textarea,select{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--text);outline:none}
+    input:focus,textarea:focus{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+    textarea{min-height:92px;resize:vertical}
+    .items-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+    .items-list{display:grid;gap:12px}
+    .item-card{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:12px}
+    .item-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .item-title{font-size:13px;font-weight:800;color:#334155}
+    .item-remove{padding:10px 12px;border-radius:12px;background:var(--danger);color:#fff;border-color:var(--danger)}
+    .item-remove:disabled{opacity:.45;background:#fca5a5;border-color:#fca5a5;color:#fff}
+    .btn-add-line{padding:12px 16px}
+
+    .preview-wrap{border:1px solid var(--line);background:#fafafa;border-radius:22px;padding:14px;display:flex;justify-content:center;align-items:flex-start;overflow:auto;-webkit-overflow-scrolling:touch;min-height:60vh}
+    .preview-wrap img,.preview-wrap svg{display:block;width:100%;max-width:760px;height:auto;background:#fff;border-radius:12px;box-shadow:0 6px 24px rgba(15,23,42,.12)}
+
+    .bottom-bar{
+      position:fixed;left:0;right:0;bottom:0;z-index:30;
+      padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+      background:linear-gradient(to top, rgba(243,244,246,1) 70%, rgba(243,244,246,.94) 100%);
+      backdrop-filter:blur(8px);
+    }
+    body.theme-dark .bottom-bar{
+      background:linear-gradient(to top, rgba(28,37,58,.96) 72%, rgba(11,18,32,.82) 100%);
+    }
+    .bottom-inner{width:min(860px,100%);margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:10px;display:grid;gap:10px}
+    #editorBar .bottom-inner{grid-template-columns:repeat(3,minmax(0,1fr))}
+    #listBar .bottom-inner{grid-template-columns:repeat(4,minmax(0,1fr))}
+    #pngBar .bottom-inner{grid-template-columns:repeat(2,minmax(0,1fr))}
+
+    button{border:1px solid transparent;border-radius:16px;padding:14px 18px;font-weight:800;cursor:pointer}
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-success{background:var(--success);color:#fff}
+    .btn-danger{background:var(--danger);color:#fff}
+    .btn-dark{background:var(--dark);color:#fff}
+     .btn-light{background:var(--soft);color:var(--text)}
+    .btn-warning{background:var(--warning);color:#fff}
+    button:disabled{opacity:.45;cursor:not-allowed}
+
+    #printStage{display:none}
+
+    
+    .icon-btn{width:54px;min-width:54px;padding:14px 0;font-size:22px;line-height:1}
+    .settings-modal{position:fixed;inset:0;z-index:80;display:flex;align-items:flex-end;justify-content:center;background:rgba(15,23,42,.35);padding:16px calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+    .settings-card{width:min(860px,100%);max-height:calc(100vh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow:auto;-webkit-overflow-scrolling:touch;background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);padding:18px}
+    .settings-card h2{margin:0 0 14px;font-size:22px}
+    .settings-grid{display:grid;gap:14px}
+    .settings-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px;width:100%}
+    #themeSelect,#textSizeSelect{background:#eff6ff;border-color:#93c5fd;color:#1e3a8a;font-weight:700}
+    #themeSelect:focus,#textSizeSelect:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+    .settings-actions button{padding:10px 12px;font-size:14px;line-height:1.15;border-radius:14px}
+    .version-tag{font-size:10px;color:var(--muted);font-weight:500;margin-left:4px;letter-spacing:.01em;vertical-align:middle;opacity:.62}
+
+    .btn-back-inline{background:var(--danger);color:#fff;border-color:var(--danger);padding:10px 14px;min-height:44px;border-radius:14px;font-size:14px;line-height:1.1;box-shadow:0 10px 24px rgba(220,38,38,.22)}
+    .btn-back-inline:hover{filter:brightness(.98)}
+    .btn-back-inline:active{transform:translateY(1px)}
+
+    @media (max-width:720px){
+      .settings-card{max-height:calc(100vh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));padding:16px}
+      .settings-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .settings-actions button{min-width:0;width:100%}
+
+      .start-title,.title{font-size:30px}
+      .row,.row-4{grid-template-columns:1fr}
+      .topbar{align-items:center;gap:10px}
+      .top-actions{width:auto;justify-content:flex-end;gap:6px}
+      .btn-new-small{min-width:78px;padding:10px 12px}
+      .top-search{max-width:none;flex:1 1 auto;min-width:90px}
+      .top-search .search-input{font-size:14px;padding:10px 12px}
+      .icon-btn{width:44px;min-width:44px;padding:10px 0;font-size:19px}
+      .list-title-row{margin-bottom:8px}
+      .list-toolbar{grid-template-columns:auto minmax(0,1fr) auto;gap:8px}
+      .bottom-inner{gap:8px;padding:8px}
+      .bottom-inner button{min-width:0;padding:14px 8px;font-size:14px;line-height:1.1;border-radius:14px}
+      .btn-back-inline{padding:10px 12px;font-size:14px}
+    }
+
+    @media print{
+      body{background:#fff}
+      .screen,.bottom-bar{display:none !important}
+      #printStage{display:block !important}
+      #printStage svg{width:210mm !important;height:auto !important}
+    }
+  </style>
+</head>
+<body>
+  <section id="listScreen" class="screen active">
+    <div class="shell scroll-shell">
+      <div class="card panel">
+        <div class="list-topbar">
+          <div class="list-title-row">
+            <h1 class="title">Presupuestos <span class="version-tag">v1.3.4</span></h1>
+            <button type="button" class="btn-back-inline" id="btnBackToIndex" aria-label="Volver al inicio">Volver</button>
+          </div>
+          <div class="list-toolbar">
+            <button type="button" class="btn-primary top-btn btn-new-small" id="btnListCreate">+Nuevo</button>
+            <div class="top-search">
+              <input id="budgetSearch" class="search-input" type="search" inputmode="search" placeholder="Buscar...">
+            </div>
+            <button type="button" class="btn-ghost icon-btn" id="btnOpenSettings" aria-label="Configuración" title="Configuración">⚙︎</button>
+          </div>
+        </div>
+        <div class="search-wrap">
+          <div class="search-result" id="searchInfo">Sin filtro.</div>
+        </div>
+        <div class="list-wrap" id="budgetList"></div>
+        <div class="selected-box" id="selectedInfo">No hay presupuestos seleccionados.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="editorScreen" class="screen">
+    <div class="shell scroll-shell">
+      <div class="card panel">
+        <div class="topbar">
+          <h1 class="title" id="editorTitle">Nuevo presupuesto</h1>
+        </div>
+        <div class="form-grid">
+
+          <div class="group client-group">
+            <h2>Datos cliente</h2>
+            <div class="row">
+              <div class="field"><label for="clienteNombre">Nombre cliente</label><input id="clienteNombre" type="text" inputmode="text"></div>
+              <div class="field"><label for="clienteNif">NIF</label><input id="clienteNif" type="text" inputmode="text"></div>
+            </div>
+            <div class="row">
+              <div class="field"><label for="clienteDireccion">Dirección</label><input id="clienteDireccion" type="text" inputmode="text"></div>
+              <div class="field"><label for="clienteTelefono">Teléfono</label><input id="clienteTelefono" type="tel" inputmode="tel"></div>
+            </div>
+          </div>
+
+          <div class="group items-group">
+            <div class="items-head">
+              <h2 style="margin:0">Conceptos</h2>
+            </div>
+            <div class="row" style="margin-bottom:12px">
+              <div class="field"><label for="numero">Número presupuesto</label><input id="numero" type="text" inputmode="text" autocapitalize="characters" spellcheck="false"></div>
+              <div class="field"><label for="fecha">Fecha</label><input id="fecha" type="date"></div>
+              <div class="field"><label for="validez">Validez hasta</label><input id="validez" type="date"></div>
+            </div>
+            <div class="items-list" id="itemsList"></div>
+            <div style="margin-top:12px">
+              <button type="button" class="btn-primary btn-add-line" id="btnAddItem">Añadir concepto</button>
+            </div>
+          </div>
+
+          <div class="group preview-group">
+            <h2>Vista del presupuesto</h2>
+            <div class="preview-wrap">
+              <svg id="docSvg" viewBox="0 0 800 1132" xmlns="http://www.w3.org/2000/svg" aria-label="Vista previa del presupuesto">
+                <rect width="800" height="1132" fill="white"/>
+                <text id="svgEmpresa" x="50" y="55" font-family="Arial" font-weight="bold" font-size="18"></text>
+                <text id="svgEmpresa2" x="50" y="78" font-family="Arial" font-size="12"></text>
+                <text id="svgEmpresa3" x="50" y="96" font-family="Arial" font-size="12"></text>
+                <text id="svgEmpresa4" x="50" y="114" font-family="Arial" font-size="12"></text>
+
+                <text x="400" y="150" text-anchor="middle" font-family="Arial" font-size="28" font-weight="bold">PRESUPUESTO</text>
+                <text id="svgNumero" x="50" y="182" font-family="Arial" font-size="14" font-weight="bold"></text>
+                <text id="svgFecha" x="50" y="204" font-family="Arial" font-size="16" font-weight="bold"></text>
+                <text id="svgValidez" x="50" y="226" font-family="Arial" font-size="16" font-weight="bold"></text>
+
+                <rect x="50" y="248" width="700" height="130" fill="none" stroke="black" stroke-width="0.8"/>
+                <text x="65" y="272" font-family="Arial" font-size="14" font-weight="bold">CLIENTE</text>
+                <text id="svgCliente" x="65" y="298" font-family="Arial" font-size="18" font-weight="bold"></text>
+                <text id="svgCliente2" x="65" y="322" font-family="Arial" font-size="14"></text>
+                <text id="svgCliente3" x="65" y="342" font-family="Arial" font-size="14"></text>
+                <text id="svgCliente4" x="65" y="360" font-family="Arial" font-size="14"></text>
+
+                <rect x="50" y="404" width="700" height="30" fill="#d1d5db" stroke="black" stroke-width="0.8"/>
+                <rect id="svgItemsBox" x="50" y="434" width="700" height="320" fill="none" stroke="black" stroke-width="0.8"/>
+                <text id="svgConceptHeader" x="66" y="423" font-family="Arial" font-size="12" font-weight="bold">CONCEPTO</text>
+                <text id="svgUdsHeader" x="465" y="423" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">UDS</text>
+                <text id="svgPrecioHeader" x="565" y="423" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">PRECIO</text>
+                <text id="svgDtoHeader" x="645" y="423" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">DTO%</text>
+                <text id="svgBaseHeader" x="740" y="423" text-anchor="end" font-family="Arial" font-size="12" font-weight="bold">BASE TOTAL</text>
+                <line id="svgLineConceptUds" x1="440" y1="404" x2="440" y2="754" stroke="black" stroke-width="0.6"/>
+                <line id="svgLineUdsPrecio" x1="490" y1="404" x2="490" y2="754" stroke="black" stroke-width="0.6"/>
+                <line id="svgLinePrecioBase" x1="610" y1="404" x2="610" y2="754" stroke="black" stroke-width="0.6"/>
+                <line id="svgLineDtoBase" x1="680" y1="404" x2="680" y2="754" stroke="black" stroke-width="0.6"/>
+                <g id="svgItemsLayer"></g>
+
+                <rect id="svgTotalsBox" x="408" y="818" width="342" height="108" fill="none" stroke="black" stroke-width="0.8"/>
+                <text id="svgBaseLabel" x="648" y="848" text-anchor="end" font-family="Arial" font-size="16">Base imponible:</text>
+                <text id="svgBase2" x="736" y="848" text-anchor="end" font-family="Arial" font-size="16"></text>
+                <text id="svgIvaLabel" x="648" y="878" text-anchor="end" font-family="Arial" font-size="16">IVA 21%:</text>
+                <text id="svgIva" x="736" y="878" text-anchor="end" font-family="Arial" font-size="16"></text>
+                <text id="svgTotalLabel" x="648" y="910" text-anchor="end" font-family="Arial" font-size="22" font-weight="bold">TOTAL:</text>
+                <text id="svgTotal" x="736" y="910" text-anchor="end" font-family="Arial" font-size="22" font-weight="bold"></text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pngScreen" class="screen">
+    <div class="shell scroll-shell">
+      <div class="card panel">
+        <div class="topbar">
+          <h1 class="title">Vista PNG</h1>
+        </div>
+        <div class="preview-wrap">
+          <img id="pngPreviewImage" alt="Vista previa del presupuesto en PNG">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="bottom-bar hidden" id="editorBar">
+    <div class="bottom-inner">
+      <button type="button" class="btn-success" id="btnSave">Guardar</button>
+      <button type="button" class="btn-dark" id="btnEditorPdf">Exportar PDF</button>
+      <button type="button" class="btn-light" id="btnCancel">Cancelar</button>
+    </div>
+  </div>
+
+  <div class="bottom-bar hidden" id="listBar">
+    <div class="bottom-inner">
+      <button type="button" class="btn-primary" id="btnEdit">Editar</button>
+      <button type="button" class="btn-dark" id="btnPdfSelected">PDF</button>
+      <button type="button" class="btn-success" id="btnPngSelected">PNG</button>
+      <button type="button" class="btn-danger" id="btnDelete">Borrar</button>
+    </div>
+  </div>
+
+  <div class="bottom-bar hidden" id="pngBar">
+    <div class="bottom-inner">
+      <button type="button" class="btn-success" id="btnSavePng">Guardar imagen</button>
+      <button type="button" class="btn-light" id="btnBackFromPng">Volver a la lista</button>
+    </div>
+  </div>
+
+  
+  <div class="settings-modal hidden" id="settingsModal" aria-hidden="true">
+    <div class="settings-card">
+      <h2>Configuración</h2>
+      <div class="settings-grid">
+        <div class="field">
+          <label for="themeSelect">Modo</label>
+          <select id="themeSelect">
+            <option value="light">Claro</option>
+            <option value="dark">Oscuro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="textSizeSelect">Tamaño texto presupuesto</label>
+          <select id="textSizeSelect">
+            <option value="0.9">Pequeño</option>
+            <option value="1" selected>Normal</option>
+            <option value="1.12">Grande</option>
+            <option value="1.24">Muy grande</option>
+          </select>
+        </div>
+        <div class="group company-group" style="margin-top:4px">
+          <h2 style="font-size:18px;margin:0 0 12px">Datos empresa</h2>
+          <div class="row">
+            <div class="field"><label for="settingsEmpresaNombre">Nombre empresa</label><input id="settingsEmpresaNombre" type="text" inputmode="text"></div>
+            <div class="field"><label for="settingsEmpresaNif">NIF</label><input id="settingsEmpresaNif" type="text" inputmode="text"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="settingsEmpresaDireccion">Dirección</label><input id="settingsEmpresaDireccion" type="text" inputmode="text"></div>
+            <div class="field"><label for="settingsEmpresaTelefono">Teléfono</label><input id="settingsEmpresaTelefono" type="tel" inputmode="tel"></div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-actions">
+        <button type="button" class="btn-primary" id="btnExportJson">Exportar</button>
+        <button type="button" class="btn-warning" id="btnImportJson">Importar</button>
+        <button type="button" class="btn-primary" id="btnCloseSettings">Cerrar</button>
+      </div>
+      <input id="jsonFileInput" type="file" accept="application/json,.json" class="hidden" aria-hidden="true">
+    </div>
+  </div>
+
+  <div id="printStage"></div>
+
+  <script>
+    (function(){
+      const STORAGE_KEY = 'presupuestos_app_simple_v7';
+      const SETTINGS_KEY = 'presupuestos_app_settings_v12';
+      const IVA = 0.21;
+      const $ = id => document.getElementById(id);
+      const screens = {
+        list: $('listScreen'),
+        editor: $('editorScreen'),
+        png: $('pngScreen')
+      };
+      const bars = {
+        editor: $('editorBar'),
+        list: $('listBar'),
+        png: $('pngBar')
+      };
+
+      let budgets = [];
+      let current = null;
+      let selectedId = null;
+      let pngDataUrl = '';
+      let searchTerm = '';
+      let appSettings = { theme:'light', textScale:1, empresaNombre:'Empresa', empresaNif:'00000000A', empresaDireccion:'Dirección', empresaTelefono:'' };
+
+      function goBackToIndex(){
+        try {
+          const fallback = 'index.html';
+          const ref = document.referrer ? String(document.referrer) : '';
+          const sameOrigin = ref && /^https?:/i.test(ref) ? (new URL(ref, window.location.href).origin === window.location.origin) : false;
+          if (sameOrigin && window.history.length > 1) {
+            window.history.back();
+            return;
+          }
+          window.location.href = fallback;
+        } catch(err) {
+          window.location.href = 'index.html';
+        }
+      }
+
+      const btnBackToIndex = $('btnBackToIndex');
+      if(btnBackToIndex){
+        btnBackToIndex.addEventListener('click', goBackToIndex, { passive:true });
+        btnBackToIndex.addEventListener('touchend', function(e){ try{ e.preventDefault(); }catch(_){ } goBackToIndex(); }, { passive:false });
+      }
+
+
+      function uid(){ return 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2,9); }
+      function today(){ return new Date().toISOString().slice(0,10); }
+      function addDays(dateStr, days){
+        const base = dateStr ? new Date(dateStr + 'T12:00:00') : new Date();
+        if(Number.isNaN(base.getTime())) return today();
+        base.setDate(base.getDate() + Number(days || 0));
+        return base.toISOString().slice(0,10);
+      }
+      function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+      function money(value){ return Number(value || 0).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €'; }
+      function fmtDate(value){ if(!value) return ''; const [y,m,d] = value.split('-'); return y && m && d ? `${d}/${m}/${y}` : value; }
+      function safe(v){ return String(v || '').trim(); }
+      function measureSvgTextWidth(text, fontSize, fontWeight){
+        if(!measureSvgTextWidth.canvas){
+          measureSvgTextWidth.canvas = document.createElement('canvas');
+          measureSvgTextWidth.ctx = measureSvgTextWidth.canvas.getContext('2d');
+        }
+        const ctx = measureSvgTextWidth.ctx;
+        ctx.font = `${fontWeight || '400'} ${fontSize || 16}px Arial`;
+        return ctx.measureText(String(text || '')).width;
+      }
+      function wrapConceptLines(value, maxWidth, fontSize){
+        const rawLines = String(value == null ? '' : value).replace(/\r/g,'').split('\n');
+        const out = [];
+        rawLines.forEach(raw => {
+          const line = raw.replace(/\t/g,' ').trimEnd();
+          if(!line.trim()){
+            out.push('');
+            return;
+          }
+          const words = line.split(/\s+/);
+          let currentLine = '';
+          words.forEach(word => {
+            const probe = currentLine ? currentLine + ' ' + word : word;
+            if(currentLine && measureSvgTextWidth(probe, fontSize, '400') > maxWidth){
+              out.push(currentLine);
+              currentLine = word;
+            } else {
+              currentLine = probe;
+            }
+          });
+          if(currentLine) out.push(currentLine);
+        });
+        return out.length ? out : [''];
+      }
+      function summary(doc){ return safe(doc.clienteNombre) || 'Sin nombre'; }
+      function budgetMatchesSearch(doc, term){
+        const q = safe(term).toLowerCase();
+        if(!q) return true;
+        const haystack = [
+          safe(doc.clienteNombre),
+          safe(doc.clienteNif),
+          safe(doc.clienteDireccion),
+          safe(doc.numero),
+          safe(doc.fecha),
+          fmtDate(doc.fecha),
+          safe(doc.validez),
+          fmtDate(doc.validez),
+          ...(Array.isArray(doc.items) ? doc.items.map(it => safe(it.concepto)) : [])
+        ].join(' ').toLowerCase();
+        return haystack.includes(q);
+      }
+      function esc(str){ return String(str || '').replace(/[&<>\"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+      function nextNumber(){
+        let max = 0;
+        budgets.forEach(b => {
+          const m = String(b.numero || '').match(/(\d+)$/);
+          if(m) max = Math.max(max, Number(m[1]));
+        });
+        return 'P-' + new Date().getFullYear() + '-' + String(max + 1).padStart(4,'0');
+      }
+      function blankItem(){
+        return { concepto:'', unidades:'1', precioUnidad:'0', descuento:'0' };
+      }
+      function normalizeBudget(doc){
+        const out = Object.assign(blankBudget(), clone(doc || {}));
+        if(!out.validez) out.validez = addDays(out.fecha || today(), 15);
+        if(Array.isArray(out.items) && out.items.length){
+          out.items = out.items.map(it => ({
+            concepto: String(it && it.concepto || ''),
+            unidades: String(it && it.unidades != null ? it.unidades : '1'),
+            precioUnidad: String(it && it.precioUnidad != null ? it.precioUnidad : '0'),
+            descuento: String(it && it.descuento != null ? it.descuento : '0')
+          }));
+        }else{
+          out.items = [{
+            concepto: String(out.concepto || ''),
+            unidades: String(out.unidades != null ? out.unidades : '1'),
+            precioUnidad: String(out.precioUnidad != null ? out.precioUnidad : '0'),
+            descuento: String(out.descuento != null ? out.descuento : '0')
+          }];
+        }
+        if(!out.items.length) out.items = [blankItem()];
+        return out;
+      }
+      function blankBudget(){
+        return {
+          id: '',
+          numero: nextNumber(),
+          fecha: today(),
+          validez: addDays(today(), 15),
+          empresaNombre: appSettings.empresaNombre || 'Empresa',
+          empresaNif: appSettings.empresaNif || '00000000A',
+          empresaDireccion: appSettings.empresaDireccion || 'Dirección',
+          empresaTelefono: appSettings.empresaTelefono || '',
+          clienteNombre: 'Clientes contado',
+          clienteNif: '00000000A',
+          clienteDireccion: '',
+          clienteTelefono: '',
+          items: [blankItem()],
+          createdAt: 0,
+          updatedAt: 0
+        };
+      }
+      function calcItem(item){
+        const uds = Number(item.unidades || 0);
+        const precio = Number(item.precioUnidad || 0);
+        const descuento = Number(item.descuento || 0);
+        const base = uds * precio * (1 - descuento/100);
+        return { uds, precio, descuento, base };
+      }
+      function calc(doc){
+        const items = Array.isArray(doc.items) ? doc.items : [];
+        const base = items.reduce((sum, item) => sum + calcItem(item).base, 0);
+        const iva = base * IVA;
+        const total = base + iva;
+        return { base, iva, total };
+      }
+      function saveStorage(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(budgets)); }
+      function loadStorage(){
+        try{
+          const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+          budgets = Array.isArray(data) ? data.map(normalizeBudget) : [];
+        }catch(_){ budgets = []; }
+      }
+
+
+      function loadSettings(){
+        try{
+          const raw = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+          appSettings = {
+            theme: raw && raw.theme === 'dark' ? 'dark' : 'light',
+            textScale: [0.9,1,1.12,1.24].includes(Number(raw && raw.textScale)) ? Number(raw.textScale) : 1,
+            empresaNombre: raw && typeof raw.empresaNombre === 'string' && raw.empresaNombre.trim() ? raw.empresaNombre : 'Empresa',
+            empresaNif: raw && typeof raw.empresaNif === 'string' && raw.empresaNif.trim() ? raw.empresaNif : '00000000A',
+            empresaDireccion: raw && typeof raw.empresaDireccion === 'string' && raw.empresaDireccion.trim() ? raw.empresaDireccion : 'Dirección',
+            empresaTelefono: raw && typeof raw.empresaTelefono === 'string' ? raw.empresaTelefono : ''
+          };
+        }catch(_){ appSettings = { theme:'light', textScale:1, empresaNombre:'Empresa', empresaNif:'00000000A', empresaDireccion:'Dirección', empresaTelefono:'' }; }
+      }
+      function saveSettings(){
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(appSettings));
+      }
+      function applySettings(){
+        document.body.classList.toggle('theme-dark', appSettings.theme === 'dark');
+        document.documentElement.style.setProperty('--budget-scale', String(appSettings.textScale || 1));
+        const themeSelect = $('themeSelect');
+        const textSizeSelect = $('textSizeSelect');
+        if(themeSelect) themeSelect.value = appSettings.theme;
+        if(textSizeSelect) textSizeSelect.value = String(appSettings.textScale || 1);
+        if($('settingsEmpresaNombre')) $('settingsEmpresaNombre').value = appSettings.empresaNombre || '';
+        if($('settingsEmpresaNif')) $('settingsEmpresaNif').value = appSettings.empresaNif || '';
+        if($('settingsEmpresaDireccion')) $('settingsEmpresaDireccion').value = appSettings.empresaDireccion || '';
+        if($('settingsEmpresaTelefono')) $('settingsEmpresaTelefono').value = appSettings.empresaTelefono || '';
+        if(current){
+          current.empresaNombre = appSettings.empresaNombre || '';
+          current.empresaNif = appSettings.empresaNif || '';
+          current.empresaDireccion = appSettings.empresaDireccion || '';
+          current.empresaTelefono = appSettings.empresaTelefono || '';
+          renderSvg();
+        }
+      }
+      function openSettings(){
+        $('settingsModal').classList.remove('hidden');
+        $('settingsModal').setAttribute('aria-hidden','false');
+      }
+      function closeSettings(){
+        $('settingsModal').classList.add('hidden');
+        $('settingsModal').setAttribute('aria-hidden','true');
+      }
+      async function exportBackupJson(){
+        const payload = {
+          app: 'presupuestos',
+          version: '1.3.4',
+          exportedAt: new Date().toISOString(),
+          budgets: Array.isArray(budgets) ? budgets.map(function(doc){ return normalizeBudget(clone(doc)); }) : [],
+          settings: Object.assign({}, appSettings || {})
+        };
+        const jsonText = JSON.stringify(payload, null, 2);
+        const filename = safeFileName('presupuestos-backup-' + today(), 'json');
+        const blob = new Blob([jsonText], { type:'application/json;charset=utf-8' });
+
+        if(navigator.share && navigator.canShare){
+          try{
+            const file = new File([blob], filename, { type:'application/json' });
+            if(navigator.canShare({ files:[file] })){
+              await navigator.share({ files:[file], title: filename, text:'Copia de seguridad JSON' });
+              return;
+            }
+          }catch(err){
+            if(err && err.name === 'AbortError') return;
+          }
+        }
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+      }
+      function importBackupJsonFromFile(file){
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(){
+          try{
+            const raw = JSON.parse(String(reader.result || '{}'));
+            if(!raw || typeof raw !== 'object') throw new Error('Archivo no válido.');
+            const importedBudgets = Array.isArray(raw.budgets) ? raw.budgets.map(normalizeBudget) : null;
+            const importedSettings = raw.settings && typeof raw.settings === 'object' ? raw.settings : null;
+            if(!importedBudgets || !importedSettings) throw new Error('El JSON no contiene una copia válida.');
+
+            budgets = importedBudgets;
+            appSettings = {
+              theme: importedSettings.theme === 'dark' ? 'dark' : 'light',
+              textScale: [0.9,1,1.12,1.24].includes(Number(importedSettings.textScale)) ? Number(importedSettings.textScale) : 1,
+              empresaNombre: typeof importedSettings.empresaNombre === 'string' && importedSettings.empresaNombre.trim() ? importedSettings.empresaNombre : 'Empresa',
+              empresaNif: typeof importedSettings.empresaNif === 'string' && importedSettings.empresaNif.trim() ? importedSettings.empresaNif : '00000000A',
+              empresaDireccion: typeof importedSettings.empresaDireccion === 'string' && importedSettings.empresaDireccion.trim() ? importedSettings.empresaDireccion : 'Dirección',
+              empresaTelefono: typeof importedSettings.empresaTelefono === 'string' ? importedSettings.empresaTelefono : ''
+            };
+
+            saveStorage();
+            saveSettings();
+            selectedId = budgets[0] ? budgets[0].id : null;
+            current = budgets[0] ? normalizeBudget(clone(budgets[0])) : normalizeBudget(blankBudget());
+            fillForm();
+            applySettings();
+            renderSvg();
+            renderList();
+            showScreen('list');
+            closeSettings();
+            alert('Copia importada correctamente.');
+          }catch(err){
+            alert(err && err.message ? err.message : 'No se pudo importar el JSON.');
+          }
+        };
+        reader.onerror = function(){ alert('No se pudo leer el archivo JSON.'); };
+        reader.readAsText(file, 'utf-8');
+      }
+
+
+      function setBar(name){
+        Object.keys(bars).forEach(k => bars[k].classList.toggle('hidden', k !== name));
+      }
+      function showScreen(name){
+        Object.keys(screens).forEach(k => screens[k].classList.toggle('active', k === name));
+        if(name === 'list') { setBar('list'); renderList(); }
+        if(name === 'editor') { setBar('editor'); fillForm(); renderSvg(); }
+        if(name === 'png') setBar('png');
+      }
+      function setBar(name){
+        Object.values(bars).forEach(el => el.classList.add('hidden'));
+        if(name !== 'none' && bars[name]) bars[name].classList.remove('hidden');
+      }
+
+      function renderItemsForm(){
+        const wrap = $('itemsList');
+        const items = Array.isArray(current.items) && current.items.length ? current.items : [blankItem()];
+        wrap.innerHTML = items.map((item, index) => `
+          <div class="item-card" data-index="${index}">
+            <div class="item-card-head">
+              <div class="item-title">Concepto ${index + 1}</div>
+              <button type="button" class="btn-danger item-remove" data-remove-item="${index}" ${items.length === 1 ? 'disabled' : ''}>Eliminar</button>
+            </div>
+            <div class="field" style="margin-bottom:12px">
+              <label>Concepto</label>
+              <textarea data-field="concepto" data-index="${index}">${esc(item.concepto)}</textarea>
+            </div>
+            <div class="row-4">
+              <div class="field"><label>Unidades</label><input data-field="unidades" data-index="${index}" type="number" min="0" step="0.01" inputmode="decimal" value="${esc(item.unidades)}"></div>
+              <div class="field"><label>Precio unidad</label><input data-field="precioUnidad" data-index="${index}" type="number" min="0" step="0.01" inputmode="decimal" value="${esc(item.precioUnidad)}"></div>
+              <div class="field"><label>Descuento %</label><input data-field="descuento" data-index="${index}" type="number" min="0" step="0.01" inputmode="decimal" value="${esc(item.descuento)}"></div>
+              <div class="field"><label>Base</label><input type="text" data-base-index="${index}" value="${esc(money(calcItem(item).base))}" disabled></div>
+            </div>
+          </div>
+        `).join('');
+      }
+      function updateItemBaseDisplays(){
+        Array.from(document.querySelectorAll('[data-base-index]')).forEach(el => {
+          const index = Number(el.getAttribute('data-base-index'));
+          const item = current.items[index] || blankItem();
+          el.value = money(calcItem(item).base);
+        });
+      }
+      function fillForm(){
+        current = normalizeBudget(current);
+        if(!current.validez) current.validez = addDays(current.fecha || today(), 15);
+        $('editorTitle').textContent = current && current.id ? 'Editar presupuesto' : 'Nuevo presupuesto';
+        $('clienteNombre').value = current.clienteNombre || '';
+        $('clienteNif').value = current.clienteNif || '';
+        $('clienteDireccion').value = current.clienteDireccion || '';
+        $('clienteTelefono').value = current.clienteTelefono || '';
+        $('numero').value = current.numero || '';
+        $('fecha').value = current.fecha || today();
+        $('validez').value = current.validez || addDays(current.fecha || today(), 15);
+        renderItemsForm();
+      }
+      function updateFromForm(){
+        current.empresaNombre = appSettings.empresaNombre || '';
+        current.empresaNif = appSettings.empresaNif || '';
+        current.empresaDireccion = appSettings.empresaDireccion || '';
+        current.empresaTelefono = appSettings.empresaTelefono || '';
+        current.clienteNombre = $('clienteNombre').value;
+        current.clienteNif = $('clienteNif').value;
+        current.clienteDireccion = $('clienteDireccion').value;
+        current.clienteTelefono = $('clienteTelefono').value;
+        current.numero = safe($('numero').value) || current.numero || nextNumber();
+        current.fecha = $('fecha').value;
+        current.validez = $('validez').value || addDays(current.fecha || today(), 15);
+        current.items = Array.from(document.querySelectorAll('#itemsList .item-card')).map(card => ({
+          concepto: card.querySelector('[data-field="concepto"]').value,
+          unidades: card.querySelector('[data-field="unidades"]').value,
+          precioUnidad: card.querySelector('[data-field="precioUnidad"]').value,
+          descuento: card.querySelector('[data-field="descuento"]').value
+        }));
+        if(!current.items.length) current.items = [blankItem()];
+        const first = current.items[0] || blankItem();
+        current.concepto = first.concepto;
+        current.unidades = first.unidades;
+        current.precioUnidad = first.precioUnidad;
+        current.descuento = first.descuento;
+      }
+      function renderSvg(){
+        updateFromForm();
+        const t = calc(current);
+        const svg = $('docSvg');
+        const scaleText = Number(appSettings.textScale || 1);
+        $('svgEmpresa').textContent = safe(current.empresaNombre);
+        $('svgEmpresa2').textContent = safe(current.empresaDireccion);
+        $('svgEmpresa3').textContent = (safe(current.empresaNif) ? 'NIF: ' + safe(current.empresaNif) : '');
+        $('svgEmpresa4').textContent = (safe(current.empresaTelefono) ? 'Tel: ' + safe(current.empresaTelefono) : '');
+        $('svgNumero').textContent = 'Número: ' + safe(current.numero);
+        $('svgFecha').textContent = 'Fecha: ' + fmtDate(current.fecha);
+        $('svgValidez').textContent = 'Validez: ' + fmtDate(current.validez || addDays(current.fecha || today(), 15));
+        $('svgCliente').textContent = safe(current.clienteNombre);
+        $('svgCliente2').textContent = safe(current.clienteDireccion);
+        $('svgCliente3').textContent = safe(current.clienteNif) ? 'NIF: ' + safe(current.clienteNif) : '';
+        $('svgCliente4').textContent = safe(current.clienteTelefono) ? 'Tel: ' + safe(current.clienteTelefono) : '';
+
+        $('svgEmpresa').setAttribute('font-size', String(20 * scaleText));
+        $('svgEmpresa2').setAttribute('font-size', String(13 * scaleText));
+        $('svgEmpresa3').setAttribute('font-size', String(13 * scaleText));
+        $('svgEmpresa4').setAttribute('font-size', String(13 * scaleText));
+        $('svgNumero').setAttribute('font-size', String(16 * scaleText));
+        $('svgFecha').setAttribute('font-size', String(16 * scaleText));
+        $('svgValidez').setAttribute('font-size', String(16 * scaleText));
+        $('svgCliente').setAttribute('font-size', String(17 * scaleText));
+        $('svgCliente2').setAttribute('font-size', String(13 * scaleText));
+        $('svgCliente3').setAttribute('font-size', String(13 * scaleText));
+        $('svgCliente4').setAttribute('font-size', String(14 * scaleText));
+        $('svgBaseLabel').setAttribute('font-size', String(16 * scaleText));
+        $('svgBase2').setAttribute('font-size', String(16 * scaleText));
+        $('svgIvaLabel').setAttribute('font-size', String(16 * scaleText));
+        $('svgIva').setAttribute('font-size', String(16 * scaleText));
+        $('svgTotalLabel').setAttribute('font-size', String(22 * scaleText));
+        $('svgTotal').setAttribute('font-size', String(22 * scaleText));
+
+        const itemsLayer = $('svgItemsLayer');
+        itemsLayer.innerHTML = '';
+        const items = Array.isArray(current.items) ? current.items : [];
+        const hasDiscount = items.some(item => Number(item.descuento || 0) > 0);
+
+        const layout = hasDiscount
+          ? { udsX:456, precioX:525, dtoX:592, baseX:742, line1:426, line2:484, line3:556, line4:624 }
+          : { udsX:465, precioX:552, dtoX:0, baseX:742, line1:438, line2:500, line3:614, line4:0 };
+
+        const tableTop = 434;
+        const conceptX = 66;
+        const conceptFontSize = 18 * scaleText;
+        const numberFontSize = 18 * scaleText;
+        const lineHeight = 24 * scaleText;
+        const blockGap = 10 * scaleText;
+        const topPadding = 20 * scaleText;
+        const bottomPadding = 18 * scaleText;
+        const conceptMaxWidth = layout.line1 - conceptX - 12;
+
+        const lineConceptUds = $('svgLineConceptUds');
+        const lineUdsPrecio = $('svgLineUdsPrecio');
+        if(lineConceptUds){ lineConceptUds.setAttribute('x1', String(layout.line1)); lineConceptUds.setAttribute('x2', String(layout.line1)); }
+        if(lineUdsPrecio){ lineUdsPrecio.setAttribute('x1', String(layout.line2)); lineUdsPrecio.setAttribute('x2', String(layout.line2)); }
+        $('svgLinePrecioBase').setAttribute('x1', String(layout.line3));
+        $('svgLinePrecioBase').setAttribute('x2', String(layout.line3));
+        $('svgLineDtoBase').style.display = hasDiscount ? 'block' : 'none';
+        $('svgLineDtoBase').setAttribute('x1', String(layout.line4 || 0));
+        $('svgLineDtoBase').setAttribute('x2', String(layout.line4 || 0));
+
+        $('svgUdsHeader').setAttribute('x', String(layout.udsX));
+        $('svgPrecioHeader').setAttribute('x', String(layout.precioX));
+        $('svgDtoHeader').style.display = hasDiscount ? 'block' : 'none';
+        $('svgDtoHeader').setAttribute('x', String(layout.dtoX || 0));
+        $('svgBaseHeader').setAttribute('x', String(layout.baseX));
+
+        let cursorY = tableTop + topPadding + conceptFontSize;
+        items.forEach(item => {
+          const line = calcItem(item);
+          const dto = Number(item.descuento || 0);
+          const dtoText = dto > 0 ? String(dto).replace('.',',') + ' %' : '';
+          const visibleLines = wrapConceptLines(item.concepto, conceptMaxWidth, conceptFontSize);
+          visibleLines.forEach((txt, lineIndex) => {
+            const y = cursorY + (lineIndex * lineHeight);
+            itemsLayer.insertAdjacentHTML('beforeend', `<text x="${conceptX}" y="${y}" font-family="Arial" font-size="${conceptFontSize}">${esc(txt)}</text>`);
+          });
+          const numberY = cursorY;
+          itemsLayer.insertAdjacentHTML('beforeend', `
+            <text x="${layout.udsX}" y="${numberY}" text-anchor="middle" font-family="Arial" font-size="${numberFontSize}">${esc(String(Number(item.unidades || 0)).replace('.',','))}</text>
+            <text x="${layout.precioX}" y="${numberY}" text-anchor="middle" font-family="Arial" font-size="${numberFontSize}">${esc(money(item.precioUnidad || 0))}</text>
+            ${hasDiscount ? `<text x="${layout.dtoX}" y="${numberY}" text-anchor="middle" font-family="Arial" font-size="${numberFontSize}">${esc(dtoText)}</text>` : ''}
+            <text x="${layout.baseX}" y="${numberY}" text-anchor="end" font-family="Arial" font-size="${numberFontSize}">${esc(money(line.base))}</text>
+          `);
+          cursorY += (visibleLines.length * lineHeight) + blockGap;
+        });
+
+        const itemsContentBottom = Math.max(tableTop + 72, cursorY - blockGap + bottomPadding);
+        const totalsY = Math.max(itemsContentBottom + 40, 620);
+        const totalsHeight = 108 * scaleText;
+        const pageHeight = Math.max(totalsY + totalsHeight + (70 * scaleText), 980);
+
+        svg.setAttribute('viewBox', `0 0 800 ${pageHeight}`);
+        svg.querySelector('rect').setAttribute('height', String(pageHeight));
+        $('svgItemsBox').setAttribute('height', String(itemsContentBottom - tableTop));
+        if(lineConceptUds){ lineConceptUds.setAttribute('y2', String(itemsContentBottom)); }
+        if(lineUdsPrecio){ lineUdsPrecio.setAttribute('y2', String(itemsContentBottom)); }
+        $('svgLinePrecioBase').setAttribute('y2', String(itemsContentBottom));
+        $('svgLineDtoBase').setAttribute('y2', String(itemsContentBottom));
+
+        $('svgTotalsBox').setAttribute('y', String(totalsY));
+        $('svgBaseLabel').setAttribute('y', String(totalsY + (30 * scaleText)));
+        $('svgBase2').setAttribute('y', String(totalsY + (30 * scaleText)));
+        $('svgIvaLabel').setAttribute('y', String(totalsY + (60 * scaleText)));
+        $('svgIva').setAttribute('y', String(totalsY + (60 * scaleText)));
+        $('svgTotalLabel').setAttribute('y', String(totalsY + (92 * scaleText)));
+        $('svgTotal').setAttribute('y', String(totalsY + (92 * scaleText)));
+
+        $('svgBase2').textContent = money(t.base);
+        $('svgIva').textContent = money(t.iva);
+        $('svgTotal').textContent = money(t.total);
+      }
+
+      function renderList(){
+        const wrap = $('budgetList');
+        const sorted = budgets.slice().sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+        const filtered = sorted.filter(doc => budgetMatchesSearch(doc, searchTerm));
+        wrap.innerHTML = '';
+        if($('budgetSearch') && $('budgetSearch').value !== searchTerm) $('budgetSearch').value = searchTerm;
+        if(!sorted.length){
+          selectedId = null;
+          wrap.innerHTML = '<div class="empty">No hay presupuestos guardados.</div>';
+          $('selectedInfo').textContent = 'No hay presupuestos seleccionados.';
+          $('searchInfo').textContent = 'No hay presupuestos guardados.';
+          updateListButtons();
+          return;
+        }
+        if(filtered.length){
+          if(!selectedId || !filtered.some(x => x.id === selectedId)) selectedId = filtered[0].id;
+        }else{
+          selectedId = null;
+        }
+        if(!filtered.length){
+          wrap.innerHTML = '<div class="empty">No hay resultados para esa búsqueda.</div>';
+          $('selectedInfo').textContent = 'No hay presupuestos seleccionados.';
+          $('searchInfo').textContent = `Resultados: 0 de ${sorted.length}`;
+          updateListButtons();
+          return;
+        }
+        filtered.forEach(doc => {
+          const row = document.createElement('div');
+          row.className = 'budget-row' + (doc.id === selectedId ? ' active' : '');
+          row.dataset.id = doc.id;
+          row.innerHTML = `<div><div class="budget-name">${esc(summary(doc))}</div><div class="budget-sub">${esc(doc.numero)} · ${esc(fmtDate(doc.fecha))}</div></div><div class="budget-sub">Seleccionar</div>`;
+          wrap.appendChild(row);
+        });
+        const sel = budgets.find(x => x.id === selectedId);
+        $('selectedInfo').textContent = sel ? `Seleccionado: ${summary(sel)} · ${sel.numero}` : 'No hay presupuestos seleccionados.';
+        $('searchInfo').textContent = searchTerm ? `Resultados: ${filtered.length} de ${sorted.length}` : `Total: ${sorted.length}`;
+        updateListButtons();
+      }
+      function updateListButtons(){
+        const enabled = !!budgets.find(x => x.id === selectedId);
+        ['btnEdit','btnPdfSelected','btnPngSelected','btnDelete'].forEach(id => { $(id).disabled = !enabled; });
+      }
+
+      function startCreate(){
+        current = normalizeBudget(blankBudget());
+        current.empresaNombre = appSettings.empresaNombre || '';
+        current.empresaNif = appSettings.empresaNif || '';
+        current.empresaDireccion = appSettings.empresaDireccion || '';
+        current.empresaTelefono = appSettings.empresaTelefono || '';
+        fillForm();
+        renderSvg();
+        showScreen('editor');
+      }
+      function editSelected(){
+        const found = budgets.find(x => x.id === selectedId);
+        if(!found) return;
+        current = normalizeBudget(clone(found));
+        current.empresaNombre = appSettings.empresaNombre || '';
+        current.empresaNif = appSettings.empresaNif || '';
+        current.empresaDireccion = appSettings.empresaDireccion || '';
+        current.empresaTelefono = appSettings.empresaTelefono || '';
+        fillForm();
+        renderSvg();
+        showScreen('editor');
+      }
+      function saveCurrent(){
+        updateFromForm();
+        const doc = normalizeBudget(clone(current));
+        if(!doc.id){ doc.id = uid(); doc.createdAt = Date.now(); }
+        doc.updatedAt = Date.now();
+        const idx = budgets.findIndex(x => x.id === doc.id);
+        if(idx >= 0) budgets[idx] = doc; else budgets.unshift(doc);
+        current = clone(doc);
+        selectedId = doc.id;
+        saveStorage();
+        renderList();
+        showScreen('list');
+      }
+      function cancelEditor(){
+        showScreen('list');
+      }
+      function deleteSelected(){
+        if(!selectedId) return;
+        budgets = budgets.filter(x => x.id !== selectedId);
+        saveStorage();
+        selectedId = budgets[0] ? budgets[0].id : null;
+        if(current && current.id === selectedId){ current = budgets[0] ? clone(budgets[0]) : blankBudget(); }
+        renderList();
+      }
+
+      function svgToPngDataUrl(){
+        renderSvg();
+        const svg = $('docSvg');
+        const cloneSvg = svg.cloneNode(true);
+        cloneSvg.setAttribute('xmlns','http://www.w3.org/2000/svg');
+        const svgText = new XMLSerializer().serializeToString(cloneSvg);
+        const blob = new Blob([svgText], {type:'image/svg+xml;charset=utf-8'});
+        const url = URL.createObjectURL(blob);
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = function(){
+            try{
+              const canvas = document.createElement('canvas');
+              canvas.width = 1600;
+              const vb = (svg.getAttribute('viewBox') || '0 0 800 1132').split(/\s+/).map(Number);
+              const svgHeight = vb[3] || 1132;
+              canvas.height = Math.round(1600 * svgHeight / 800);
+              const ctx = canvas.getContext('2d');
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(0,0,canvas.width,canvas.height);
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              URL.revokeObjectURL(url);
+              resolve(canvas.toDataURL('image/png'));
+            }catch(err){
+              URL.revokeObjectURL(url);
+              reject(err);
+            }
+          };
+          img.onerror = function(){ URL.revokeObjectURL(url); reject(new Error('No se pudo exportar PNG.')); };
+          img.src = url;
+        });
+      }
+      function openPngPreviewFromSelected(){
+        const found = budgets.find(x => x.id === selectedId);
+        if(!found) return;
+        current = normalizeBudget(clone(found));
+        fillForm();
+        renderSvg();
+        svgToPngDataUrl().then(dataUrl => {
+          pngDataUrl = dataUrl;
+          $('pngPreviewImage').src = dataUrl;
+          showScreen('png');
+        }).catch(err => alert(err.message || 'No se pudo exportar PNG.'));
+      }
+      async function savePng(){
+        if(!pngDataUrl) return;
+        const selected = budgets.find(x => x.id === selectedId) || current || {};
+        const filename = safeFileName(((selected && selected.numero) || 'presupuesto'), 'png');
+
+        try{
+          const response = await fetch(pngDataUrl);
+          const blob = await response.blob();
+
+          if(navigator.share && navigator.canShare){
+            try{
+              const file = new File([blob], filename, { type:'image/png' });
+              if(navigator.canShare({ files:[file] })){
+                await navigator.share({ files:[file], title: filename, text:'Imagen del presupuesto' });
+                return;
+              }
+            }catch(err){
+              if(err && err.name === 'AbortError') return;
+            }
+          }
+
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          a.rel = 'noopener';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+        }catch(err){
+          try{
+            const win = window.open('', '_blank');
+            if(win){
+              win.document.write('<title>' + filename + '</title><img src="' + pngDataUrl + '" style="max-width:100%;height:auto;display:block;margin:0 auto">');
+              win.document.close();
+              return;
+            }
+          }catch(_){ }
+          alert('No se pudo guardar la imagen PNG.');
+        }
+      }
+      function setStatusMessage(msg){
+        console.log(msg);
+      }
+      function safeFileName(name, ext){
+        let s = String(name || 'documento').replace(/[\\/:*?"<>|]/g,' ').replace(/\s+/g,' ').trim();
+        if(!s) s = 'documento';
+        return s + (ext || '');
+      }
+      async function shareOrDownloadBlob(blob, filename, titleText){
+        let file = null;
+        try{ file = new File([blob], filename, {type: blob.type || 'application/octet-stream'}); }catch(_){ }
+        try{
+          if(file && navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+            await navigator.share({ files:[file], title: titleText || filename });
+            setStatusMessage('Se abrió compartir para guardar el PDF.');
+            return {method:'share'};
+          }
+        }catch(_){ }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => { try{ URL.revokeObjectURL(url); }catch(_){ } }, 4000);
+        return {method:'download'};
+      }
+      function _b64ToBytes(b64){
+        const bin = atob(b64);
+        const len = bin.length;
+        const bytes = new Uint8Array(len);
+        for(let i=0;i<len;i++) bytes[i] = bin.charCodeAt(i) & 0xFF;
+        return bytes;
+      }
+      function _pdf_bytes_cp1252(str){
+        const out = [];
+        for(let i=0;i<str.length;i++){
+          const c = str.charCodeAt(i);
+          if(c <= 0xFF){ out.push(c); continue; }
+          if(c === 0x20AC){ out.push(0x80); continue; }
+          const map = {0x00E1:0xE1,0x00E9:0xE9,0x00ED:0xED,0x00F3:0xF3,0x00FA:0xFA,0x00C1:0xC1,0x00C9:0xC9,0x00CD:0xCD,0x00D3:0xD3,0x00DA:0xDA,0x00F1:0xF1,0x00D1:0xD1,0x00FC:0xFC,0x00DC:0xDC,0x00BF:0xBF,0x00A1:0xA1};
+          out.push(map[c] || 0x3F);
+        }
+        return new Uint8Array(out);
+      }
+      function _pdfTextShow_cp1252(s){
+        const bytes = [];
+        for(let i=0;i<s.length;i++){
+          const cp = s.charCodeAt(i);
+          let b = 0x3F;
+          if(cp <= 0xFF) b = cp;
+          else if(cp === 0x20AC) b = 0x80;
+          else {
+            const map = {0x00E1:0xE1,0x00E9:0xE9,0x00ED:0xED,0x00F3:0xF3,0x00FA:0xFA,0x00C1:0xC1,0x00C9:0xC9,0x00CD:0xCD,0x00D3:0xD3,0x00DA:0xDA,0x00F1:0xF1,0x00D1:0xD1,0x00FC:0xFC,0x00DC:0xDC,0x00BF:0xBF,0x00A1:0xA1};
+            b = map[cp] || 0x3F;
+          }
+          bytes.push(b);
+        }
+        let hex = '<';
+        for(let j=0;j<bytes.length;j++){
+          let h = bytes[j].toString(16).toUpperCase();
+          if(h.length<2) h='0'+h;
+          hex += h;
+        }
+        return hex + '> Tj';
+      }
+      function _pdf_concat(arrs){
+        let total = 0;
+        for(let i=0;i<arrs.length;i++) total += arrs[i].length;
+        const out = new Uint8Array(total);
+        let off = 0;
+        for(let j=0;j<arrs.length;j++){
+          out.set(arrs[j], off);
+          off += arrs[j].length;
+        }
+        return out;
+      }
+      function _pdf_buildA4VectorPDF_MULTI(contentBytesArr, jpegBytes, imgWpx, imgHpx){
+        const pageW = 595.28, pageH = 841.89;
+        const hasImg = !!(jpegBytes && jpegBytes.length);
+        const pagesN = (contentBytesArr && contentBytesArr.length) ? contentBytesArr.length : 1;
+        const parts = [], offsets = [0];
+        let cursor = 0;
+        function addBytes(u8){ parts.push(u8); cursor += u8.length; }
+        function addStr(s){ addBytes(_pdf_bytes_cp1252(s)); }
+        function mark(n){ offsets[n] = cursor; }
+        addStr('%PDF-1.4\n%' + String.fromCharCode(0xE2,0xE3,0xCF,0xD3) + '\n');
+        const objCatalog = 1, objPages = 2, objFirstPage = 3;
+        const objFont1 = objFirstPage + pagesN, objFont2 = objFirstPage + pagesN + 1;
+        const objImg = hasImg ? (objFirstPage + pagesN + 2) : null;
+        const objFirstContent = hasImg ? (objFirstPage + pagesN + 3) : (objFirstPage + pagesN + 2);
+        const objMax = objFirstContent + pagesN - 1, size = objMax + 1;
+        mark(objCatalog); addStr(objCatalog + ' 0 obj\n<< /Type /Catalog /Pages ' + objPages + ' 0 R >>\nendobj\n');
+        let kids = '';
+        for(let i=0;i<pagesN;i++) kids += (objFirstPage+i) + ' 0 R ';
+        mark(objPages); addStr(objPages + ' 0 obj\n<< /Type /Pages /Kids [' + kids.trim() + '] /Count ' + pagesN + ' >>\nendobj\n');
+        for(let p=0;p<pagesN;p++){
+          const objPage = objFirstPage + p, objContent = objFirstContent + p;
+          let res = '/Resources << /Font << /F1 ' + objFont1 + ' 0 R /F2 ' + objFont2 + ' 0 R >>';
+          if(hasImg) res += ' /XObject << /Im0 ' + objImg + ' 0 R >>';
+          res += ' >>';
+          mark(objPage);
+          addStr(objPage + ' 0 obj\n<< /Type /Page /Parent ' + objPages + ' 0 R /MediaBox [0 0 ' + pageW + ' ' + pageH + '] ' + res + ' /Contents ' + objContent + ' 0 R >>\nendobj\n');
+        }
+        mark(objFont1); addStr(objFont1 + ' 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>\nendobj\n');
+        mark(objFont2); addStr(objFont2 + ' 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>\nendobj\n');
+        if(hasImg){
+          mark(objImg);
+          addStr(objImg + ' 0 obj\n<< /Type /XObject /Subtype /Image /Name /Im0 /Width ' + imgWpx + ' /Height ' + imgHpx + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpegBytes.length + ' >>\nstream\n');
+          addBytes(jpegBytes);
+          addStr('\nendstream\nendobj\n');
+        }
+        for(let c=0;c<pagesN;c++){
+          const objC = objFirstContent + c;
+          const bytes = contentBytesArr[c] || new Uint8Array(0);
+          mark(objC);
+          addStr(objC + ' 0 obj\n<< /Length ' + bytes.length + ' >>\nstream\n');
+          addBytes(bytes);
+          addStr('\nendstream\nendobj\n');
+        }
+        const xrefPos = cursor;
+        addStr('xref\n0 ' + size + '\n');
+        addStr('0000000000 65535 f \n');
+        for(let n=1;n<size;n++){
+          let offStr = String(offsets[n]||0);
+          while(offStr.length<10) offStr='0'+offStr;
+          addStr(offStr + ' 00000 n \n');
+        }
+        addStr('trailer\n<< /Size ' + size + ' /Root ' + objCatalog + ' 0 R >>\nstartxref\n' + xrefPos + '\n%%EOF');
+        return _pdf_concat(parts);
+      }
+      async function exportSvgToEditablePdf(svgEl, options){
+        options = options || {};
+        if(!svgEl) throw new Error('SVG no encontrado');
+        setStatusMessage('Preparando PDF editable...');
+        const vb = svgEl.getAttribute('viewBox') || '0 0 800 1132';
+        const parts = vb.split(/\s+/).map(Number);
+        const vbW = parts[2] || 800;
+        const pageW = 595.28, pageH = 841.89, scale = pageW / vbW;
+        const mc = document.createElement('canvas');
+        const mctx = mc.getContext('2d');
+        if(!mctx) throw new Error('No se pudo iniciar canvas');
+        function pdfNum(n){ return (Math.round(n*1000)/1000).toString(); }
+        function svgYToPdf(y){ return pageH - (y * scale); }
+        function parseTranslate(tr){
+          if(!tr) return {x:0,y:0};
+          const m = tr.match(/translate\(\s*([-0-9.]+)(?:[ ,]\s*([-0-9.]+))?\s*\)/i);
+          if(!m) return {x:0,y:0};
+          return {x: parseFloat(m[1]||'0')||0, y: parseFloat(m[2]||'0')||0};
+        }
+        function getAccumTranslate(el){
+          let tx=0, ty=0, cur=el;
+          while(cur && cur.getAttribute){
+            const tr = cur.getAttribute('transform');
+            if(tr){ const t = parseTranslate(tr); tx += t.x; ty += t.y; }
+            cur = cur.parentNode;
+          }
+          return {x:tx,y:ty};
+        }
+        function getStrokeWidth(el, fallback){
+          let sw = parseFloat(el.getAttribute('stroke-width')||'');
+          if(!isFinite(sw)) sw = fallback;
+          return sw;
+        }
+        function measureWidthPt(text, fontCss){ mctx.font = fontCss; return mctx.measureText(text).width / 1.333; }
+        function pathTokens(d){ return d.match(/[a-zA-Z]|-?\d*\.?\d+/g) || []; }
+        function pathToPdf(d, tr){
+          const toks = pathTokens(d); if(!toks.length) return '';
+          let k=0,cx=0,cy=0,sx=0,sy=0,out='';
+          function nextNum(){ return parseFloat(toks[k++]); }
+          while(k<toks.length){
+            const cmd = toks[k++];
+            if(cmd==='M' || cmd==='L'){
+              const x = nextNum()+tr.x, y = nextNum()+tr.y; cx=x; cy=y;
+              if(cmd==='M'){ sx=cx; sy=cy; out += pdfNum(cx*scale)+' '+pdfNum(svgYToPdf(cy))+' m\n'; }
+              else out += pdfNum(cx*scale)+' '+pdfNum(svgYToPdf(cy))+' l\n';
+            } else if(cmd==='H'){
+              cx = nextNum()+tr.x; out += pdfNum(cx*scale)+' '+pdfNum(svgYToPdf(cy))+' l\n';
+            } else if(cmd==='V'){
+              cy = nextNum()+tr.y; out += pdfNum(cx*scale)+' '+pdfNum(svgYToPdf(cy))+' l\n';
+            } else if(cmd==='Z' || cmd==='z'){
+              out += 'h\n'; cx=sx; cy=sy;
+            } else return '';
+          }
+          return out + 'S\n';
+        }
+        function extractLines(s){
+          if(!s) return [];
+          s = String(s).replace(/\r/g,'').replace(/\u2028|\u2029/g,'\n');
+          if(s.indexOf('\n')>=0){
+            const parts = s.split('\n'), out=[];
+            for(let i=0;i<parts.length;i++){
+              const p = (parts[i]||'').replace(/[ \t]+/g,' ').trim();
+              if(p) out.push(p);
+            }
+            return out;
+          }
+          const one = s.replace(/\s+/g,' ').trim();
+          return one ? [one] : [];
+        }
+        function buildPdf(jpegBytes, imgWpx, imgHpx){
+          const vbNow = svgEl.getAttribute('viewBox') || '0 0 800 1132';
+          const vbParts = vbNow.split(/\s+/).map(Number);
+          const vbH = vbParts[3] || 1132;
+          const PAGE_H_SVG = 1132;
+          const pages = Math.max(1, Math.ceil(vbH / PAGE_H_SVG));
+          const contents = new Array(pages), preByPage = new Array(pages).fill('');
+          for(let p=0;p<pages;p++){
+            contents[p] = ['q\n','0 0 0 RG\n0 0 0 rg\n'];
+          }
+          function svgYToPdfRel(yRel){ return pageH - (yRel * scale); }
+          function pageOfY(yAbs){ let pi=Math.floor((yAbs+0.0001)/PAGE_H_SVG); if(pi<0)pi=0; if(pi>=pages)pi=pages-1; return pi; }
+          function relY(yAbs,p){ return yAbs - (p*PAGE_H_SVG); }
+          const logoEl = svgEl.querySelector('#svg_logo_img');
+          let logoHref = '';
+          try{ if(logoEl) logoHref = logoEl.getAttribute('href') || (logoEl.href && logoEl.href.baseVal) || ''; }catch(_){ }
+          const hasLogoData = !!(logoHref && logoHref.indexOf('data:image')===0);
+          if(jpegBytes && jpegBytes.length && hasLogoData && logoEl){
+            const lt = getAccumTranslate(logoEl);
+            const lxAbs = parseFloat(logoEl.getAttribute('x')||'0') + lt.x;
+            const lyAbs = parseFloat(logoEl.getAttribute('y')||'0') + lt.y;
+            const lwAbs = parseFloat(logoEl.getAttribute('width')||'0');
+            const lhAbs = parseFloat(logoEl.getAttribute('height')||'0');
+            const draw = 'q\n' + pdfNum(lwAbs*scale) + ' 0 0 ' + pdfNum(lhAbs*scale) + ' ' + pdfNum(lxAbs*scale) + ' ' + pdfNum(svgYToPdfRel(lyAbs) - (lhAbs*scale)) + ' cm\n/Im0 Do\nQ\n';
+            for(let pl=0; pl<pages; pl++) preByPage[pl] = draw;
+          }
+          const rects = svgEl.querySelectorAll('rect');
+          for(let i=0;i<rects.length;i++){
+            const r = rects[i], tr = getAccumTranslate(r);
+            const xAbs = parseFloat(r.getAttribute('x')||'0') + tr.x;
+            const yAbs = parseFloat(r.getAttribute('y')||'0') + tr.y;
+            const wAbs = parseFloat(r.getAttribute('width')||'0');
+            const hAbs = parseFloat(r.getAttribute('height')||'0');
+            const stroke = r.getAttribute('stroke');
+            const fill = (r.getAttribute('fill')||'').toLowerCase();
+            if(!stroke && (fill==='white'||fill==='#fff'||fill==='#ffffff')) continue;
+            if(hAbs > PAGE_H_SVG*0.9 && wAbs > 600 && (fill==='white'||fill==='#fff'||fill==='#ffffff')) continue;
+            const p = pageOfY(yAbs), yRel = relY(yAbs,p), sw = getStrokeWidth(r,0.8)*scale;
+            contents[p].push(pdfNum(sw)+' w\n');
+            contents[p].push(pdfNum(xAbs*scale)+' '+pdfNum(svgYToPdfRel(yRel)-(hAbs*scale))+' '+pdfNum(wAbs*scale)+' '+pdfNum(hAbs*scale)+' re S\n');
+          }
+          const lines = svgEl.querySelectorAll('line');
+          for(let li=0;li<lines.length;li++){
+            const l = lines[li], trl = getAccumTranslate(l);
+            const x1Abs = parseFloat(l.getAttribute('x1')||'0') + trl.x;
+            const y1Abs = parseFloat(l.getAttribute('y1')||'0') + trl.y;
+            const x2Abs = parseFloat(l.getAttribute('x2')||'0') + trl.x;
+            const y2Abs = parseFloat(l.getAttribute('y2')||'0') + trl.y;
+            const p = pageOfY(Math.min(y1Abs,y2Abs));
+            const sw = getStrokeWidth(l,0.8)*scale;
+            contents[p].push(pdfNum(sw)+' w\n');
+            contents[p].push(pdfNum(x1Abs*scale)+' '+pdfNum(svgYToPdfRel(relY(y1Abs,p)))+' m\n'+pdfNum(x2Abs*scale)+' '+pdfNum(svgYToPdfRel(relY(y2Abs,p)))+' l\nS\n');
+          }
+          const paths = svgEl.querySelectorAll('path');
+          for(let pi=0;pi<paths.length;pi++){
+            const pa = paths[pi], d = pa.getAttribute('d')||'';
+            if(!d) continue;
+            const trp = getAccumTranslate(pa), toks = pathTokens(d);
+            let yFirst = null;
+            for(let tk=0;tk<toks.length;tk++){
+              if(toks[tk]==='M' || toks[tk]==='m'){ yFirst = parseFloat(toks[tk+2]||'0') + trp.y; break; }
+            }
+            if(yFirst===null) yFirst = trp.y;
+            const p = pageOfY(yFirst), out = pathToPdf(d,{x:trp.x,y:trp.y-(p*PAGE_H_SVG)});
+            if(out){ contents[p].push(pdfNum(getStrokeWidth(pa,0.8)*scale)+' w\n'); contents[p].push(out); }
+          }
+          const texts = svgEl.querySelectorAll('text');
+          for(let ti=0;ti<texts.length;ti++){
+            const t = texts[ti];
+            if(!t.textContent) continue;
+            const styleAttr = (t.getAttribute('style')||'').toLowerCase();
+            const disp = (t.getAttribute('display')||'').toLowerCase();
+            const vis  = (t.getAttribute('visibility')||'').toLowerCase();
+            if(disp==='none' || vis==='hidden' || styleAttr.indexOf('display:none')>=0 || styleAttr.indexOf('visibility:hidden')>=0) continue;
+            const trt = getAccumTranslate(t);
+            const xAbs = parseFloat(t.getAttribute('x')||'0') + trt.x;
+            const yAbs = parseFloat(t.getAttribute('y')||'0') + trt.y;
+            const p = pageOfY(yAbs), yRel = relY(yAbs,p);
+            const style = window.getComputedStyle(t);
+            const fontFamily = (style.fontFamily || t.getAttribute('font-family') || 'Helvetica').split(',')[0].trim();
+            const fontSize = parseFloat(style.fontSize || t.getAttribute('font-size') || '12') || 12;
+            const fontWeight = String(style.fontWeight || t.getAttribute('font-weight') || '400');
+            const bold = fontWeight.indexOf('bold')>=0 || parseInt(fontWeight,10)>=600;
+            let fsPt = (fontSize * scale) * 0.75; if(fsPt<6) fsPt=6;
+            const ta = (t.getAttribute('text-anchor')||'start').toLowerCase();
+            const linesArr = extractLines(t.textContent || '');
+            if(!linesArr.length) continue;
+            let lineStep = (fontSize * 1.15) * scale;
+            if(lineStep < fsPt*1.05) lineStep = fsPt*1.05;
+            for(let li2=0;li2<linesArr.length;li2++){
+              const sline = String(linesArr[li2] || '');
+              const fontCss = (bold ? 'bold ' : '') + fontSize + 'px ' + fontFamily;
+              const wPt = measureWidthPt(sline, fontCss) * scale;
+              let xAdj = xAbs * scale;
+              if(ta==='middle') xAdj -= wPt/2; else if(ta==='end') xAdj -= wPt;
+              const yPdf = svgYToPdfRel(yRel) - (li2 * lineStep);
+              contents[p].push('BT\n');
+              contents[p].push('/' + (bold ? 'F2' : 'F1') + ' ' + pdfNum(fsPt) + ' Tf\n');
+              contents[p].push(pdfNum(xAdj) + ' ' + pdfNum(yPdf) + ' Td\n');
+              contents[p].push(_pdfTextShow_cp1252(sline) + '\n');
+              contents[p].push('ET\n');
+            }
+          }
+          const contentBytesArr = [];
+          for(let p2=0;p2<pages;p2++) contentBytesArr.push(_pdf_bytes_cp1252((preByPage[p2]||'') + contents[p2].join('')));
+          return _pdf_buildA4VectorPDF_MULTI(contentBytesArr, jpegBytes, imgWpx, imgHpx);
+        }
+        const logoEl = svgEl.querySelector('#svg_logo_img');
+        let logoHref = '';
+        try{ if(logoEl) logoHref = logoEl.getAttribute('href') || (logoEl.href && logoEl.href.baseVal) || ''; }catch(_){ }
+        const hasLogoData = !!(logoHref && logoHref.indexOf('data:image')===0);
+        let pdfBytes;
+        if(hasLogoData){
+          pdfBytes = await new Promise(function(resolve){
+            const img = new Image();
+            img.onload = function(){
+              try{
+                const c2 = document.createElement('canvas');
+                const wpx = Math.max(240, Math.round(img.naturalWidth || 240));
+                const hpx = Math.max(100, Math.round(img.naturalHeight || 100));
+                c2.width = wpx; c2.height = hpx;
+                const cx2 = c2.getContext('2d');
+                cx2.fillStyle = '#fff';
+                cx2.fillRect(0,0,wpx,hpx);
+                cx2.drawImage(img,0,0,wpx,hpx);
+                const jpg = c2.toDataURL('image/jpeg', 0.92);
+                resolve(buildPdf(_b64ToBytes(jpg.split(',')[1] || ''), wpx, hpx));
+              }catch(_){ resolve(buildPdf(null,0,0)); }
+            };
+            img.onerror = function(){ resolve(buildPdf(null,0,0)); };
+            img.src = logoHref;
+          });
+        } else {
+          pdfBytes = buildPdf(null,0,0);
+        }
+        const pdfBlob = new Blob([pdfBytes], {type:'application/pdf'});
+        const filename = safeFileName(options.filename || 'presupuesto', '.pdf');
+        await shareOrDownloadBlob(pdfBlob, filename, options.title || 'Documento PDF');
+        return {blob: pdfBlob, filename: filename};
+      }
+      async function exportPdfFromDoc(doc){
+        current = clone(doc);
+        fillForm();
+        renderSvg();
+        const filenameBase = [safe(current.numero), safe(current.clienteNombre)].filter(Boolean).join(' ');
+        await exportSvgToEditablePdf($('docSvg'), { filename: filenameBase || 'presupuesto' });
+      }
+      async function exportPdfSelected(){
+        const found = budgets.find(x => x.id === selectedId);
+        if(!found) return;
+        exportPdfFromDoc(found);
+      }
+      async function exportPdfCurrent(){
+        updateFromForm();
+        exportPdfFromDoc(current);
+      }
+
+      function bind(){
+        document.addEventListener('input', function(e){
+          if(e.target.id === 'budgetSearch'){
+            searchTerm = e.target.value || '';
+            renderList();
+            return;
+          }
+          if(e.target.closest('#editorScreen')){
+            if(e.target.id === 'fecha'){
+              const validezEl = $('validez');
+              if(validezEl && (!validezEl.value || validezEl.dataset.auto === '1')){
+                validezEl.value = addDays(e.target.value || today(), 15);
+                validezEl.dataset.auto = '1';
+              }
+            }
+            if(e.target.id === 'validez'){
+              e.target.dataset.auto = e.target.value === addDays($('fecha').value || today(), 15) ? '1' : '0';
+            }
+            updateFromForm();
+            updateItemBaseDisplays();
+            renderSvg();
+          }
+        }, {passive:true});
+        document.addEventListener('click', function(e){
+          const removeBtn = e.target.closest('[data-remove-item]');
+          if(removeBtn){
+            updateFromForm();
+            const index = Number(removeBtn.getAttribute('data-remove-item'));
+            current.items.splice(index, 1);
+            if(!current.items.length) current.items = [blankItem()];
+            renderItemsForm();
+            renderSvg();
+            return;
+          }
+          const row = e.target.closest('.budget-row');
+          if(row){
+            selectedId = row.dataset.id;
+            renderList();
+          }
+        });
+        $('validez').dataset.auto = '1';
+        $('btnAddItem').addEventListener('click', function(){
+          updateFromForm();
+          current.items.push(blankItem());
+          renderItemsForm();
+          renderSvg();
+        });
+        $('btnListCreate').addEventListener('click', startCreate);
+        $('budgetSearch').addEventListener('search', function(e){
+          searchTerm = e.target.value || '';
+          renderList();
+        });
+        $('btnSave').addEventListener('click', saveCurrent);
+        $('btnEditorPdf').addEventListener('click', () => { exportPdfCurrent().catch(err => alert(err && err.message ? err.message : 'No se pudo exportar PDF.')); });
+        $('btnCancel').addEventListener('click', cancelEditor);
+        $('btnEdit').addEventListener('click', editSelected);
+        $('btnPdfSelected').addEventListener('click', () => { exportPdfSelected().catch(err => alert(err && err.message ? err.message : 'No se pudo exportar PDF.')); });
+        $('btnPngSelected').addEventListener('click', openPngPreviewFromSelected);
+        $('btnDelete').addEventListener('click', deleteSelected);
+        $('btnSavePng').addEventListener('click', savePng);
+        $('btnBackFromPng').addEventListener('click', () => showScreen('list'));
+        $('btnOpenSettings').addEventListener('click', openSettings);
+        $('btnCloseSettings').addEventListener('click', closeSettings);
+        $('btnExportJson').addEventListener('click', function(){ exportBackupJson().catch(function(err){ alert(err && err.message ? err.message : 'No se pudo exportar el JSON.'); }); });
+        $('btnImportJson').addEventListener('click', function(){ const input = $('jsonFileInput'); if(!input) return; input.value = ''; input.click(); });
+        $('jsonFileInput').addEventListener('change', function(e){ importBackupJsonFromFile(e.target.files && e.target.files[0]); });
+        $('themeSelect').addEventListener('change', function(e){ appSettings.theme = e.target.value === 'dark' ? 'dark' : 'light'; saveSettings(); applySettings(); });
+        $('textSizeSelect').addEventListener('change', function(e){ appSettings.textScale = Number(e.target.value || 1); saveSettings(); applySettings(); });
+        ['settingsEmpresaNombre','settingsEmpresaNif','settingsEmpresaDireccion','settingsEmpresaTelefono'].forEach(function(id){
+          const el = $(id);
+          if(!el) return;
+          el.addEventListener('input', function(){
+            appSettings.empresaNombre = $('settingsEmpresaNombre').value;
+            appSettings.empresaNif = $('settingsEmpresaNif').value;
+            appSettings.empresaDireccion = $('settingsEmpresaDireccion').value;
+            appSettings.empresaTelefono = $('settingsEmpresaTelefono').value;
+            saveSettings();
+            applySettings();
+          });
+          el.addEventListener('change', function(){
+            appSettings.empresaNombre = $('settingsEmpresaNombre').value;
+            appSettings.empresaNif = $('settingsEmpresaNif').value;
+            appSettings.empresaDireccion = $('settingsEmpresaDireccion').value;
+            appSettings.empresaTelefono = $('settingsEmpresaTelefono').value;
+            saveSettings();
+            applySettings();
+          });
+        });
+        $('settingsModal').addEventListener('click', function(e){ if(e.target === $('settingsModal')) closeSettings(); });
+      }
+
+      loadSettings();
+      loadStorage();
+      current = budgets[0] ? normalizeBudget(clone(budgets[0])) : normalizeBudget(blankBudget());
+      selectedId = budgets[0] ? budgets[0].id : null;
+      fillForm();
+      renderSvg();
+      renderList();
+      bind();
+      applySettings();
+      showScreen('list');
+    })();
+  </script>
+</body>
+</html>
