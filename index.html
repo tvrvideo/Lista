@@ -171,47 +171,62 @@ textarea{min-height:70px; resize:vertical;}
 /* Home buttons in one line */
 .homeRow{
   width:100%;
-  display:grid;
-  grid-template-columns: minmax(0,1.2fr) repeat(2, minmax(0,.8fr)) 70px;
-  gap:10px;
-  align-items:stretch;
+  display:flex;
+  align-items:center;
+  gap:8px;
   overflow:hidden;
+  flex-wrap:nowrap;
 }
 .homeRow > button{
   min-width:0;
-  min-height:48px;
+  min-height:46px;
   display:flex;
   align-items:center;
   justify-content:center;
   text-align:center;
-  line-height:1.05;
+  line-height:1;
+  border-radius:12px;
 }
-#btnAdd{
-  width:100%;
-  min-width:0;
-  white-space:normal;
-  overflow:hidden;
-  text-overflow:clip;
-  font-size: calc(15px * var(--fontScale));
-  padding:8px 10px;
-  text-wrap:balance;
-  word-break:keep-all;
-}
+#btnAdd,
+#btnPresupuesto,
 #btnList,
 #btnNotes{
-  white-space:normal;
-  text-wrap:balance;
-  font-size: calc(15px * var(--fontScale));
-  padding:8px 10px;
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-size: calc(12.5px * var(--fontScale));
+  padding:7px 8px;
+  flex:1 1 0;
 }
+#btnAdd{ flex:1.28 1 0; }
+#btnPresupuesto{ flex:1.02 1 0; }
+#btnList{ flex:.66 1 0; }
+#btnNotes{ flex:.72 1 0; }
 #btnSettings{
-  min-width:50px;width:100%;
-  padding-left:0;padding-right:0;
-  display:flex;align-items:center;justify-content:center;
+  flex:0 0 26px;
+  min-width:26px;
+  min-height:46px;
+  padding:0;
+  border:none;
+  background:transparent;
+  border-radius:0;
+  font-size: calc(23px * var(--fontScale));
+  line-height:1;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
+#btnSettings:active{ transform:scale(.96); }
 @media (max-width:560px){
-  .homeRow{ grid-template-columns: minmax(0,1.15fr) repeat(2, minmax(0,.78fr)) 64px; }
-  #btnAdd, #btnList, #btnNotes{ font-size: calc(14px * var(--fontScale)); }
+  .homeRow{ gap:6px; }
+  #btnAdd, #btnPresupuesto, #btnList, #btnNotes{ font-size: calc(11.4px * var(--fontScale)); padding:6px 6px; }
+  #btnAdd{ flex:1.22 1 0; }
+  #btnPresupuesto{ flex:.98 1 0; }
+  #btnList{ flex:.60 1 0; }
+  #btnNotes{ flex:.67 1 0; }
+  #btnSettings{ flex-basis:22px; min-width:22px; font-size: calc(20px * var(--fontScale)); }
 }
 
 
@@ -503,10 +518,6 @@ body.notes-mode main > .view:not(#notesView){ display:none !important; }
   margin-top:10px;
 }
 .transferActions button{ min-width:120px; }
-.homeRow{
-  grid-template-columns: minmax(0,1fr) auto auto auto;
-}
-#btnNotes{white-space:nowrap;}
 
 </style>
 </head>
@@ -529,9 +540,10 @@ body.notes-mode main > .view:not(#notesView){ display:none !important; }
   <div class="inner">
     <div class="homeRow">
       <button class="primary" id="btnAdd">+ Vehículo</button>
+      <button class="primary" id="btnPresupuesto">Presupuesto</button>
       <button class="primary" id="btnList">Lista</button>
       <button class="primary" id="btnNotes">Notas</button>
-      <button class="primary" id="btnSettings" aria-label="Configuración" title="Configuración">⚙️</button>
+      <button id="btnSettings" aria-label="Configuración" title="Configuración">⚙︎</button>
     </div>
   </div>
 </div>
@@ -2265,6 +2277,7 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
   const barDetail = $('barDetail');
 
   const btnAdd = $('btnAdd');
+  const btnPresupuesto = $('btnPresupuesto');
   const btnList = $('btnList');
   const btnNotes = $('btnNotes');
   const btnSettings = $('btnSettings');
@@ -3294,6 +3307,7 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
     listSearch.addEventListener('input', () => { renderList(); }, {passive:true});
   }
   onTap(btnAdd, () => { prepAddForm(); showView(addView); });
+  onTap(btnPresupuesto, () => { window.location.href = 'presupuesto.html'; });
   onTap(btnNotes, () => { showView(notesView); setTimeout(sendNotesPrefs, 60); });
   onTap(btnSettings, () => showView(settingsView));
 
