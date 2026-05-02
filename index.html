@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Language" content="es-ES">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Revisiones v3.3</title>
+<title>Revisiones v3.9</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0E4C92">
 <meta name="apple-mobile-web-app-title" content="Talleres Lista">
@@ -38,7 +38,8 @@ body{
   background:var(--bg);
   color:var(--text);
   -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
+  touch-action: pan-y manipulation;
+  -webkit-overflow-scrolling: touch;
   font-size: calc(16px * var(--fontScale));
 }
 
@@ -92,6 +93,16 @@ main{
   margin-bottom:14px;
 }
 
+
+.view{
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+.workBody{
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Fixed action bars */
 .actionBar{
   position:fixed;
@@ -134,6 +145,50 @@ button.danger{background:var(--danger);}
 .field{flex:1 1 200px;}
 .small{flex:0 0 150px;}
 
+/* Formulario vehículo: líneas fijas para iPhone/iOS */
+.vehicleForm .vehicleLine3,
+.vehicleForm .vehicleLine2{
+  display:grid;
+  gap:10px;
+  flex-wrap:nowrap;
+  align-items:start;
+  width:100%;
+}
+.vehicleForm .vehicleLine3{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.vehicleForm .vehicleLine2{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.vehicleForm .field,
+.vehicleForm .field.small{
+  flex:initial;
+  min-width:0;
+  width:100%;
+}
+.vehicleForm label{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-size: clamp(12px, 3.05vw, calc(14px * var(--fontScale)));
+}
+.vehicleForm input{
+  min-width:0;
+  width:100%;
+  padding-left:8px;
+  padding-right:8px;
+  font-size: clamp(13px, 3.35vw, calc(16px * var(--fontScale)));
+}
+.vehicleForm input[type="date"]{
+  -webkit-appearance:none;
+  appearance:none;
+}
+.vehicleForm input[type="date"]::-webkit-date-and-time-value{
+  text-align:left;
+  min-height:1.2em;
+}
+@media (max-width:430px){
+  .vehicleForm .vehicleLine3{ gap:8px; }
+  .vehicleForm .vehicleLine2{ gap:8px; }
+  .vehicleForm input{ padding-left:7px; padding-right:7px; }
+}
+
 label{line-height:1.2;font-size: calc(14px * var(--fontScale));color:var(--muted);display:block;margin-bottom:6px;}
 
 select{
@@ -142,7 +197,7 @@ select{
   min-height:48px;
   border-radius:14px;
   border:1px solid var(--line);
-  background: rgba(255,255,255,.05);
+  background: rgba(255,255,255,.10);
   color:var(--text);
   font-size: calc(16px * var(--fontScale));
   outline:none;
@@ -155,7 +210,7 @@ input, textarea{
   min-height:48px;
   border-radius:14px;
   border:1px solid var(--line);
-  background: rgba(255,255,255,.05);
+  background: rgba(255,255,255,.10);
   color:var(--text);
   font-size: calc(16px * var(--fontScale));
   outline:none;
@@ -279,44 +334,154 @@ body.theme-beige .vehicleCard.matchTop{
   font-size: calc(17px * var(--fontScale));
 }
 
-/* Works cards like sketch */
+/* Works cards desplegables tipo acordeón */
 .workCard{
-border: 1.5px solid rgba(255,255,255,.18);
-  border-radius: 16px;
-  padding: 14px;
-  background: rgba(245, 233, 200, .12);
-margin-top: 14px;
-  box-shadow: 0 10px 24px rgba(0,0,0,.25);
+  position:relative;
+  border:1.5px solid rgba(255,255,255,.18);
+  border-radius:18px;
+  padding:0;
+  background:rgba(10,19,36,.72);
+  margin-top:14px;
+  overflow:hidden;
+  box-shadow:0 10px 24px rgba(0,0,0,.25);
+}
+.workCard.open{ background:rgba(10,19,36,.88); }
+.workHead{
+  min-height:58px;
+  padding:14px 46px 14px 16px;
+  background:linear-gradient(90deg, rgba(14,76,146,.62), rgba(14,76,146,.30));
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  user-select:none;
+  touch-action:manipulation;
 }
 .workTitle{
-  font-weight: 900;
-  font-size: calc(18px * var(--fontScale));
-  margin: 0 0 10px 0;
+  font-weight:900;
+  font-size:calc(18px * var(--fontScale));
+  line-height:1.05;
+  margin:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  padding-right:4px;
 }
-.workTop{
+.workArrow{
+  font-weight:900;
+  opacity:.85;
+  font-size:calc(16px * var(--fontScale));
+  transition:transform .18s ease;
+}
+.workCard.open .workArrow{ transform:rotate(180deg); }
+.workBody{ display:none; padding:14px 12px 16px; }
+.workCard.open .workBody{ display:block; }
+.workTop,
+.workGrid3{
   display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap:10px;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:8px;
+  width:100%;
+  margin-top:0;
 }
-.notesBox{ margin-top: 12px; }
+.workTop + .workTop,
+.workGrid3 + .workGrid3{ margin-top:12px; }
+.workCard .field{
+  flex:initial;
+  min-width:0;
+  width:100%;
+}
+.workCard label{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-size:clamp(12px, 3.05vw, calc(14px * var(--fontScale)));
+}
+
+.workCard textarea{
+  display:block;
+  width:100%;
+  min-width:0;
+  min-height:86px;
+  padding:12px;
+  border-radius:14px;
+  border:1.5px solid rgba(255,255,255,.22);
+  background:rgba(255,214,10,.26);
+  color:var(--text);
+  font-size:calc(16px * var(--fontScale));
+  outline:none;
+  resize:vertical;
+  touch-action:pan-y;
+}
+.workCard textarea::placeholder{ color:rgba(255,255,255,.65); }
+.workCard textarea:focus{
+  border-color:rgba(255,214,10,.78);
+  box-shadow:0 0 0 3px rgba(255,214,10,.13);
+}
+
+.workCard input,
+.workCard textarea{
+  min-width:0;
+  width:100%;
+  background:rgba(255,255,255,.10);
+  padding-left:7px;
+  padding-right:7px;
+  font-size:clamp(13px, 3.25vw, calc(16px * var(--fontScale)));
+}
+.workCard input[type="date"]{
+  -webkit-appearance:none;
+  appearance:none;
+  font-size:clamp(12px, 3.05vw, calc(15px * var(--fontScale)));
+}
+.workCard input[type="date"]::-webkit-date-and-time-value{
+  text-align:left;
+  min-height:1.2em;
+}
+.notesBox{ margin-top:12px; }
 .notesBox textarea{
   width:100%;
-  background: rgba(255, 214, 10, .26);
-  border: 1.5px solid rgba(255, 214, 10, .45);
-  color: var(--text);
-  min-height: 90px;
+  background:rgba(255,214,10,.22);
+  border:1.5px solid rgba(255,214,10,.45);
+  color:var(--text);
+  min-height:90px;
 }
-.notesBox textarea::placeholder{ color: rgba(255,255,255,.65); }
+.notesBox textarea::placeholder{ color:rgba(255,255,255,.65); }
+@media (max-width:430px){
+  .workBody{ padding-left:10px; padding-right:10px; }
+  .workTop,
+  .workGrid3{ gap:6px; }
+  .workCard input,
+  .workCard textarea{ padding-left:6px; padding-right:6px; }
+}
 
+
+.filterNameBox{
+  height:48px;
+  min-width:0;
+  width:100%;
+  display:flex;
+  align-items:center;
+  padding:0 8px;
+  border-radius:14px;
+  border:1.5px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  font-weight:900;
+  font-size:clamp(13px, 3.25vw, calc(16px * var(--fontScale)));
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 
 /* Papelera eliminar trabajo */
 .workCard{ position: relative; }
 .trashBtn{
   position:absolute;
-  top:10px;
+  top:14px;
   right:10px;
-  width:30px;
-  height:30px;
+  width:34px;
+  height:34px;
   border-radius:10px;
   border:1px solid rgba(198,40,40,.55);
   background: rgba(198,40,40,.22);
@@ -519,6 +684,184 @@ body.notes-mode main > .view:not(#notesView){ display:none !important; }
 }
 .transferActions button{ min-width:120px; }
 
+
+.title-single-line{
+  white-space:nowrap;
+  font-size:18px;
+}
+
+
+.filterNameBox{
+  background:linear-gradient(90deg, rgba(245,158,11,.26), rgba(245,158,11,.12)) !important;
+  border-color:rgba(245,158,11,.58) !important;
+  color:var(--text) !important;
+}
+.filterNameBox input,
+input.filterNameInput{
+  width:100%;
+  height:100%;
+  min-height:0;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:var(--text);
+  font-weight:900;
+  font-size:inherit;
+  outline:none;
+}
+.filterNameBox input::placeholder,
+input.filterNameInput::placeholder{
+  color:rgba(234,240,255,.72);
+}
+
+
+/* Diferenciar inputs normales */
+.workBody input:not(.filterNameInput){
+  background:linear-gradient(90deg, rgba(59,130,246,.18), rgba(59,130,246,.08)) !important;
+  border-color:rgba(59,130,246,.55) !important;
+}
+/* textarea notas también */
+.workBody textarea{
+  background:linear-gradient(90deg, rgba(59,130,246,.16), rgba(59,130,246,.08)) !important;
+  border-color:rgba(59,130,246,.55) !important;
+}
+
+
+
+/* v3.9 - Fechas más llenas en iPhone sin romper el control nativo */
+.workBody input[type="date"]{
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  padding-left:5px !important;
+  padding-right:2px !important;
+  font-size:clamp(16px, 3.9vw, calc(18px * var(--fontScale))) !important;
+  letter-spacing:-0.6px;
+  text-align:left;
+}
+
+/* iOS/Safari: ampliar el área visual del texto */
+.workBody input[type="date"]::-webkit-datetime-edit{
+  padding:0;
+  margin:0;
+}
+
+.workBody input[type="date"]::-webkit-date-and-time-value{
+  text-align:left;
+}
+
+
+/* v3.9 - aplicar también a fecha alta cliente */
+input[type="date"]{
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  padding-left:5px !important;
+  padding-right:2px !important;
+  font-size:clamp(16px, 3.9vw, calc(18px * var(--fontScale))) !important;
+  letter-spacing:-0.6px;
+  text-align:left;
+}
+
+input[type="date"]::-webkit-datetime-edit{
+  padding:0;
+  margin:0;
+}
+
+input[type="date"]::-webkit-date-and-time-value{
+  text-align:left;
+}
+
+
+/* Estado con % visual */
+input[data-k*="Estado"]{
+  text-align:right;
+  padding-right:18px;
+  position:relative;
+}
+input[data-k*="Estado"]::after{
+  content:"%";
+}
+
+/* Notas fondo amarillo */
+.notesBox textarea{
+  background:rgba(255,214,10,.18) !important;
+  border-color:rgba(255,214,10,.55) !important;
+}
+
+
+/* v3.9 - textos de cajas un poco mayores */
+.workCard label,
+.workBox label,
+.workBody label{
+  font-size:clamp(15px, 3.55vw, calc(17px * var(--fontScale))) !important;
+}
+
+.filterNameBox,
+.filterNameInput{
+  font-size:clamp(15px, 3.55vw, calc(17px * var(--fontScale))) !important;
+}
+
+.workBody input:not([type="date"]),
+.workBody textarea{
+  font-size:clamp(16px, 3.75vw, calc(17px * var(--fontScale))) !important;
+}
+
+/* v3.9 - Estado de frenos por porcentaje */
+input.estado-ok{
+  background:linear-gradient(90deg, rgba(34,197,94,.32), rgba(34,197,94,.14)) !important;
+  border-color:rgba(34,197,94,.80) !important;
+}
+
+input.estado-warn{
+  background:linear-gradient(90deg, rgba(245,158,11,.34), rgba(245,158,11,.15)) !important;
+  border-color:rgba(245,158,11,.85) !important;
+}
+
+input.estado-bad{
+  background:linear-gradient(90deg, rgba(220,38,38,.34), rgba(220,38,38,.15)) !important;
+  border-color:rgba(220,38,38,.85) !important;
+}
+
+
+/* FIX colores estado (más prioridad) */
+.workBody input.estado-ok{
+  background:linear-gradient(90deg, rgba(34,197,94,.45), rgba(34,197,94,.2)) !important;
+  border:2px solid rgba(34,197,94,1) !important;
+}
+
+.workBody input.estado-warn{
+  background:linear-gradient(90deg, rgba(245,158,11,.45), rgba(245,158,11,.2)) !important;
+  border:2px solid rgba(245,158,11,1) !important;
+}
+
+.workBody input.estado-bad{
+  background:linear-gradient(90deg, rgba(220,38,38,.45), rgba(220,38,38,.2)) !important;
+  border:2px solid rgba(220,38,38,1) !important;
+}
+
+
+.generalNotesBox{
+  margin-top:12px;
+}
+.generalNotesBox textarea{
+  min-height:110px;
+}
+
+
+/* v3.9 - Trabajo auxiliar estable */
+.auxWorkActions{ margin:14px 0 6px; }
+.auxWorkActions .auxBtn{
+  width:100%;
+  background:linear-gradient(90deg, rgba(22,163,74,.98), rgba(22,163,74,.72)) !important;
+  border:1px solid rgba(34,197,94,.95) !important;
+  color:#fff !important;
+  box-shadow:0 12px 28px rgba(22,163,74,.18);
+}
+.auxWorkBox .workHead{
+  background:linear-gradient(90deg, rgba(22,163,74,.70), rgba(22,163,74,.35)) !important;
+}
+
 </style>
 </head>
 
@@ -527,7 +870,7 @@ body.notes-mode main > .view:not(#notesView){ display:none !important; }
 <header id="appHeader">
   <div class="titleblock">
     <h1>Revisiones</h1>
-    <div class="ver">v3.3</div>
+    <div class="ver">v3.9</div>
   </div>
 
   <div class="logoBox" id="logoBox" title="Pulsa para cambiar el logo">
@@ -570,7 +913,7 @@ body.notes-mode main > .view:not(#notesView){ display:none !important; }
 <div class="actionBar" id="barAdd" style="display:none" aria-label="Acciones añadir">
   <div class="inner">
     <button class="primary" id="backFromAdd" style="min-width:110px;">Volver</button>
-    <div style="font-weight:900; font-size: calc(18px * var(--fontScale));">Añadir vehículo</div>
+    <div style="font-weight:900; font-size: calc(18px * var(--fontScale));"><span class="title-single-line">Añadir vehículo</span></div>
     <button class="primary" id="saveVehicleTop" style="min-width:110px;">Guardar</button>
   </div>
 </div>
@@ -603,79 +946,138 @@ body.notes-mode main > .view:not(#notesView){ display:none !important; }
   </section>
 
   <section id="detailView" class="view">
-    <div class="card">
+    <div class="card vehicleForm">
       <h3 style="margin:0 0 10px 0;">Datos vehículo</h3>
-      <div class="row">
+      <div class="row vehicleLine3">
         <div class="field small">
           <label>Fecha alta</label>
           <input type="date" lang="es-ES" id="dCreated">
         </div>
         <div class="field small">
           <label>Matrícula</label>
-          <input id="dPlate" autocomplete="off" autocapitalize="characters">
+          <input id="dPlate" autocomplete="off" autocapitalize="characters" spellcheck="false">
         </div>
         <div class="field small">
           <label>Kilómetros</label>
           <input id="dKm" inputmode="numeric" autocomplete="off" placeholder="0">
         </div>
+      </div>
+      <div class="row vehicleLine3">
         <div class="field">
           <label>Vehículo</label>
           <input id="dVehicle" autocomplete="off">
         </div>
         <div class="field">
-          <label>Propietario</label>
+          <label>VIN</label>
+          <input id="dVin" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        </div>
+        <div class="field">
+          <label>Código Motor</label>
+          <input id="dEngineCode" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        </div>
+      </div>
+      <div class="row vehicleLine2">
+        <div class="field">
+          <label>Cliente</label>
           <input id="dOwner" autocomplete="off">
         </div>
         <div class="field">
+          <label>Domicilio</label>
+          <input id="dAddress" autocomplete="street-address">
+        </div>
+      </div>
+      <div class="row vehicleLine2">
+        <div class="field">
+          <label>DNI</label>
+          <input id="dDni" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        </div>
+        <div class="field">
           <label>Teléfono</label>
-          <input id="dPhone" inputmode="tel" autocomplete="off">
+          <input id="dPhone" inputmode="tel" autocomplete="tel">
         </div>
       </div>
 
       <div class="sectionTitle">Trabajos</div>
       <div id="detailWorks"></div>
 
-      <div style="margin-top:16px;">
-        <button class="primary" id="btnAddWork">+ Añadir trabajo</button>
+      <div class="auxWorkActions">
+        <button class="primary auxBtn" id="btnAddWork" type="button">+ Trabajo auxiliar</button>
       </div>
+
+      <div class="sectionTitle">Notas generales</div>
+      <div class="notesBox generalNotesBox">
+        <label>Notas</label>
+        <textarea id="dGeneralNotes" placeholder="Notas generales del vehículo"></textarea>
+      </div>
+
       <p class="hint">Los cambios se guardan automáticamente.</p>
     </div>
   </section>
 
   <section id="addView" class="view">
-    <div class="card">
-      <div class="row">
+    <div class="card vehicleForm">
+      <div class="row vehicleLine3">
         <div class="field small">
           <label>Fecha alta</label>
           <input type="date" lang="es-ES" id="aCreated">
         </div>
         <div class="field small">
           <label>Matrícula</label>
-          <input id="aPlate" autocomplete="off" autocapitalize="characters">
+          <input id="aPlate" autocomplete="off" autocapitalize="characters" spellcheck="false">
         </div>
         <div class="field small">
           <label>Kilómetros</label>
           <input id="aKm" inputmode="numeric" autocomplete="off" placeholder="0">
         </div>
+      </div>
+      <div class="row vehicleLine3">
         <div class="field">
           <label>Vehículo</label>
           <input id="aVehicle" autocomplete="off">
         </div>
         <div class="field">
-          <label>Propietario</label>
+          <label>VIN</label>
+          <input id="aVin" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        </div>
+        <div class="field">
+          <label>Código Motor</label>
+          <input id="aEngineCode" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        </div>
+      </div>
+      <div class="row vehicleLine2">
+        <div class="field">
+          <label>Cliente</label>
           <input id="aOwner" autocomplete="off">
         </div>
         <div class="field">
+          <label>Domicilio</label>
+          <input id="aAddress" autocomplete="street-address">
+        </div>
+      </div>
+      <div class="row vehicleLine2">
+        <div class="field">
+          <label>DNI</label>
+          <input id="aDni" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        </div>
+        <div class="field">
           <label>Teléfono</label>
-          <input id="aPhone" inputmode="tel" autocomplete="off">
+          <input id="aPhone" inputmode="tel" autocomplete="tel">
         </div>
       </div>
 
       <div class="sectionTitle">Trabajos</div>
       <div id="addWorks"></div>
-      <div style="margin-top:16px;">
-        <button class="primary" id="btnAddWorkAdd">+ Añadir trabajo</button>
+
+      <div class="auxWorkActions">
+        <button class="primary auxBtn" id="btnAddWorkAdd" type="button">+ Trabajo auxiliar</button>
       </div>
+
+      <div class="sectionTitle">Notas generales</div>
+      <div class="notesBox generalNotesBox">
+        <label>Notas</label>
+        <textarea id="aGeneralNotes" placeholder="Notas generales del vehículo"></textarea>
+      </div>
+
       <p class="hint">Pulsa “Guardar” arriba.</p>
     </div>
   </section>
@@ -2254,10 +2656,7 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
   const LOGO_KEY = 'talleres_lista_logo_v28';
   const SAMPLE_FLAG = 'talleres_lista_sample_created_v1';
 
-  const DEFAULT_WORKS = [
-    'Aceite','Filtro aceite','Filtro aire','Filtro combustible',
-    'Filtro habitáculo','Aceite caja cambios','Distribución'
-  ];
+  const DEFAULT_WORKS = ['Aceite','Filtros','Neumáticos','Frenos','Aceite caja cambios','Distribución','Correas Accesorios','Batería'];
 
   const $ = (id) => document.getElementById(id);
 
@@ -2324,18 +2723,28 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
   const aPlate = $('aPlate');
   const aKm = $('aKm');
   const aVehicle = $('aVehicle');
+  const aVin = $('aVin');
+  const aEngineCode = $('aEngineCode');
   const aOwner = $('aOwner');
+  const aAddress = $('aAddress');
+  const aDni = $('aDni');
   const aPhone = $('aPhone');
   const addWorks = $('addWorks');
+  const aGeneralNotes = $('aGeneralNotes');
   const btnAddWorkAdd = $('btnAddWorkAdd');
 
   const dCreated = $('dCreated');
   const dPlate = $('dPlate');
   const dKm = $('dKm');
   const dVehicle = $('dVehicle');
+  const dVin = $('dVin');
+  const dEngineCode = $('dEngineCode');
   const dOwner = $('dOwner');
+  const dAddress = $('dAddress');
+  const dDni = $('dDni');
   const dPhone = $('dPhone');
   const detailWorks = $('detailWorks');
+  const dGeneralNotes = $('dGeneralNotes');
   const btnAddWork = $('btnAddWork');
   const btnDeleteVehicle = $('btnDeleteVehicle');
 
@@ -2492,14 +2901,39 @@ const daysUntil = (isoDate) => {
   const vehicleAlerts = (v) => {
     const items = [];
     const works = v.works || {};
-    Object.keys(works).forEach((wname) => {
-      const next = works[wname] && works[wname].next ? works[wname].next : '';
+
+    const addDateAlert = (workLabel, isoDate) => {
+      const next = isoDate || '';
       const du = daysUntil(next);
       if(du === null) return;
       if(du < 0 || du <= 30){
-        items.push({ work:wname, next:next, days:du });
+        items.push({ work:workLabel, next:next, days:du });
+      }
+    };
+
+    Object.keys(works).forEach((wname) => {
+      const w = works[wname] || {};
+      const key = (wname || '').trim().toLowerCase();
+
+      // Compatibilidad: cualquier caja antigua/genérica sigue usando "next".
+      addDateAlert(wname, w.next);
+
+      // Nuevas cajas con varias fechas de vencimiento.
+      if(key === 'filtros'){
+        addDateAlert('Filtros · Aceite', w.filtroAceiteProx);
+        addDateAlert('Filtros · Aire', w.filtroAireProx);
+        addDateAlert('Filtros · Gasoil', w.filtroGasoilProx);
+        addDateAlert('Filtros · Polen', w.filtroPolenProx);
+        addDateAlert('Filtros · Habitáculo', w.filtroHabitaculoProx);
+      }else if(key === 'frenos'){
+        addDateAlert('Frenos · Líquido', w.frenoLiquidoProxFecha);
+      }else if(key === 'distribución'){
+        addDateAlert('Distribución · Fecha', w.distFechaProx);
+      }else if(key.includes('bater')){
+        addDateAlert('Batería · Fin garantía', w.batFin);
       }
     });
+
     const overdue = items.filter(x => x.days < 0);
     const soon = items.filter(x => x.days >= 0 && x.days <= 30);
     items.sort((a,b) => a.days - b.days);
@@ -2626,8 +3060,14 @@ const daysUntil = (isoDate) => {
     plate: example ? '0000AAA' : '',
     km: '',
     vehicle: example ? 'Audi A3' : '',
+    vin: '',
+    engineCode: '',
     owner: example ? 'Pepe' : '',
+    address: '',
+    dni: '',
     phone: '',
+    generalNotes: '',
+    hiddenWorks: [],
     works: emptyWorksFromList(DEFAULT_WORKS)
   });
 
@@ -2649,13 +3089,81 @@ const daysUntil = (isoDate) => {
       if(!Array.isArray(db.vehicles)) db.vehicles = [];
       db.vehicles.forEach(v => {
         if(typeof v.km !== 'string') v.km = (v.km == null ? '' : String(v.km));
+        if(typeof v.vehicle !== 'string') v.vehicle = (v.vehicle == null ? '' : String(v.vehicle));
+        if(typeof v.vin !== 'string') v.vin = (v.vin == null ? '' : String(v.vin));
+        if(typeof v.engineCode !== 'string') v.engineCode = (v.engineCode == null ? '' : String(v.engineCode));
+        if(typeof v.owner !== 'string') v.owner = (v.owner == null ? '' : String(v.owner));
+        if(typeof v.address !== 'string') v.address = (v.address == null ? '' : String(v.address));
+        if(typeof v.dni !== 'string') v.dni = (v.dni == null ? '' : String(v.dni));
+        if(typeof v.phone !== 'string') v.phone = (v.phone == null ? '' : String(v.phone));
+        if(typeof v.generalNotes !== 'string') v.generalNotes = (v.generalNotes == null ? '' : String(v.generalNotes));
+        if(!Array.isArray(v.hiddenWorks)) v.hiddenWorks = [];
         if(!v.works || typeof v.works !== 'object') v.works = emptyWorksFromList(DEFAULT_WORKS);
+        if(!Array.isArray(v.works.__hidden__)) v.works.__hidden__ = [];
+
+        // Compatibilidad con copias antiguas: antes los filtros eran cajas separadas.
+        // Ahora se muestran juntos dentro de una sola caja llamada "Filtros".
+        if(!v.works.__hidden__.includes('Filtros') && (!v.works['Filtros'] || typeof v.works['Filtros'] !== 'object')) v.works['Filtros'] = { done:'', next:'', km:'', notes:'' };
+        const filtrosCompat = v.works['Filtros'] || {};
+        const filtroAceiteOld = v.works['Filtro aceite'] || {};
+        const filtroAireOld = v.works['Filtro aire'] || {};
+        const filtroGasoilOld = v.works['Filtro combustible'] || {};
+        const filtroPolenOld = v.works['Filtro habitáculo'] || {};
+        if(filtrosCompat.filtroAceiteRef == null) filtrosCompat.filtroAceiteRef = filtroAceiteOld.ref || '';
+        if(filtrosCompat.filtroAceiteProx == null) filtrosCompat.filtroAceiteProx = filtroAceiteOld.next || '';
+        if(filtrosCompat.filtroAireRef == null) filtrosCompat.filtroAireRef = filtroAireOld.ref || '';
+        if(filtrosCompat.filtroAireProx == null) filtrosCompat.filtroAireProx = filtroAireOld.next || '';
+        if(filtrosCompat.filtroGasoilRef == null) filtrosCompat.filtroGasoilRef = filtroGasoilOld.ref || '';
+        if(filtrosCompat.filtroGasoilProx == null) filtrosCompat.filtroGasoilProx = filtroGasoilOld.next || '';
+        if(filtrosCompat.filtroPolenRef == null) filtrosCompat.filtroPolenRef = filtroPolenOld.ref || '';
+        if(filtrosCompat.filtroPolenProx == null) filtrosCompat.filtroPolenProx = filtroPolenOld.next || '';
+        if(filtrosCompat.filtroAceiteNombre == null || filtrosCompat.filtroAceiteNombre === '') filtrosCompat.filtroAceiteNombre = 'Aceite';
+        if(filtrosCompat.filtroAireNombre == null || filtrosCompat.filtroAireNombre === '') filtrosCompat.filtroAireNombre = 'Aire';
+        if(filtrosCompat.filtroGasoilNombre == null || filtrosCompat.filtroGasoilNombre === '') filtrosCompat.filtroGasoilNombre = 'Gasoil';
+        if(filtrosCompat.filtroPolenNombre == null || filtrosCompat.filtroPolenNombre === '') filtrosCompat.filtroPolenNombre = 'Polen';
+        if(filtrosCompat.filtroHabitaculoRef == null) filtrosCompat.filtroHabitaculoRef = filtroPolenOld.ref || '';
+        if(filtrosCompat.filtroHabitaculoProx == null) filtrosCompat.filtroHabitaculoProx = filtroPolenOld.next || '';
+        if(filtrosCompat.filtroHabitaculoNombre == null || filtrosCompat.filtroHabitaculoNombre === '') filtrosCompat.filtroHabitaculoNombre = 'Habitáculo';
+        if(filtrosCompat.notes == null || filtrosCompat.notes === ''){
+          filtrosCompat.notes = filtroAceiteOld.notes || filtroAireOld.notes || filtroGasoilOld.notes || filtroPolenOld.notes || '';
+        }
+
+        DEFAULT_WORKS.forEach(name => {
+          if(v.works.__hidden__.includes(name)) return;
+          if(!v.works[name] || typeof v.works[name] !== 'object') v.works[name] = { done:'', next:'', km:'', notes:'' };
+        });
+
         Object.keys(v.works).forEach(name => {
           const w = v.works[name] || {};
           if(typeof w.done !== 'string') w.done = (w.done == null ? '' : String(w.done));
           if(typeof w.next !== 'string') w.next = (w.next == null ? '' : String(w.next));
           if(typeof w.km !== 'string') w.km = (w.km == null ? '' : String(w.km));
           if(typeof w.notes !== 'string') w.notes = (w.notes == null ? '' : String(w.notes));
+          if(name.trim && name.trim().toLowerCase() === 'aceite'){
+            if(typeof w.type !== 'string') w.type = (w.type == null ? '' : String(w.type));
+            if(typeof w.liters !== 'string') w.liters = (w.liters == null ? '' : String(w.liters));
+            if(typeof w.nextKm !== 'string') w.nextKm = (w.nextKm == null ? '' : String(w.nextKm));
+          }
+          if(name.trim && name.trim().toLowerCase() === 'filtros'){
+            ['filtroAceiteNombre','filtroAceiteRef','filtroAceiteProx','filtroAireNombre','filtroAireRef','filtroAireProx','filtroGasoilNombre','filtroGasoilRef','filtroGasoilProx','filtroPolenNombre','filtroPolenRef','filtroPolenProx','filtroHabitaculoNombre','filtroHabitaculoRef','filtroHabitaculoProx'].forEach(k => {
+              if(typeof w[k] !== 'string') w[k] = (w[k] == null ? '' : String(w[k]));
+            });
+          }
+          if(name.trim && name.trim().toLowerCase() === 'neumáticos'){
+            ['neuVehiculoNombre','neuVehiculoDel','neuVehiculoTras','neuRepuestoNombre','neuRepuestoEstado'].forEach(k => {
+              if(typeof w[k] !== 'string') w[k] = (w[k] == null ? '' : String(w[k]));
+            });
+            if(!w.neuVehiculoNombre) w.neuVehiculoNombre = 'Vehículo';
+            if(!w.neuRepuestoNombre) w.neuRepuestoNombre = 'Repuesto';
+          }
+          if(name.trim && name.trim().toLowerCase() === 'frenos'){
+            ['frenoDelNombre','frenoDelRef','frenoDelEstado','frenoTrasNombre','frenoTrasRef','frenoTrasEstado','frenoLiquidoNombre','frenoLiquidoFecha','frenoLiquidoProxFecha'].forEach(k => {
+              if(typeof w[k] !== 'string') w[k] = (w[k] == null ? '' : String(w[k]));
+            });
+            if(!w.frenoDelNombre) w.frenoDelNombre = 'Delantero';
+            if(!w.frenoTrasNombre) w.frenoTrasNombre = 'Trasero';
+            if(!w.frenoLiquidoNombre) w.frenoLiquidoNombre = 'Líquido';
+          }
           v.works[name] = w;
         });
       });
@@ -2981,38 +3489,428 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
 
   const renderWorksCards = (container, worksObj, onChange) => {
     container.innerHTML = '';
-    Object.keys(worksObj).forEach((name) => {
+
+    const escAttr = (val) => String(val == null ? '' : val)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    const escText = (val) => String(val == null ? '' : val)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    const oldFilterNames = ['Filtro aceite','Filtro aire','Filtro combustible','Filtro habitáculo'];
+    const hiddenWorks = Array.isArray(worksObj.__hidden__) ? worksObj.__hidden__ : [];
+    const existingNames = Object.keys(worksObj).filter(n => n !== '__hidden__');
+    const renderNames = [];
+    DEFAULT_WORKS.forEach(n => {
+      if(hiddenWorks.includes(n)) return;
+      if(worksObj[n]) renderNames.push(n);
+    });
+    existingNames.forEach(n => {
+      if(oldFilterNames.includes(n)) return;
+      if(hiddenWorks.includes(n)) return;
+      if(!renderNames.includes(n)) renderNames.push(n);
+    });
+
+    renderNames.forEach((name) => {
+      if(Array.isArray(hiddenWorks) && hiddenWorks.includes(name)) return;
       const w = worksObj[name] || {done:'', next:'', km:'', notes:''};
       const duNext = daysUntil(w.next || '');
       const status = (duNext !== null && duNext < 0) ? 'overdue' : (duNext !== null && duNext <= 30 ? 'soon' : '');
-      const card = document.createElement('div');
-      card.className = 'workCard' + (status ? (' ' + status) : '');
-      card.innerHTML = `
-        <button class="trashBtn" type="button" data-del="${name}" aria-label="Eliminar ${name}" title="Eliminar">🗑️</button>
-        <div class="workTitle">${name}</div>
 
-        <div class="workTop">
+      const safeName = escAttr(name);
+      const titleName = escText(name);
+      const isAceite = name.trim().toLowerCase() === 'aceite';
+      const isAuxiliar = name.trim().toLowerCase().startsWith('aux ');
+
+      const card = document.createElement('div');
+      card.dataset.name = name;
+      card.className = 'workCard' + (status ? (' ' + status) : '') + (isAuxiliar ? ' auxWorkBox' : '');
+      const isFiltros = name.trim().toLowerCase() === 'filtros';
+      const isNeumaticos = name.trim().toLowerCase() === 'neumáticos';
+      const isFrenos = name.trim().toLowerCase() === 'frenos';
+      const isDistribucion = name.trim().toLowerCase() === 'distribución';
+const isBateria = name.trim().toLowerCase().includes('bater');
+const isCorreas = name.trim().toLowerCase().includes('correas');
+
+      const aceiteBody = `
+        <div class="workGrid3">
+          <div class="field">
+            <label>Tipo</label>
+            <input data-name="${safeName}" data-k="type" value="${escAttr(w.type || '')}" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Litros</label>
+            <input inputmode="decimal" data-name="${safeName}" data-k="liters" value="${escAttr(w.liters || '')}" placeholder="0">
+          </div>
           <div class="field">
             <label>Fecha</label>
-            <input type="date" lang="es-ES" data-name="${name}" data-k="done" value="${w.done || ''}">
+            <input type="date" lang="es-ES" data-name="${safeName}" data-k="done" value="${escAttr(w.done || '')}">
           </div>
-          <div class="field">
-            <label>Próxima revisión</label>
-            <input type="date" lang="es-ES" data-name="${name}" data-k="next" value="${w.next || ''}">
-          </div>
+        </div>
+        <div class="workGrid3">
           <div class="field">
             <label>Kilómetros</label>
-            <input inputmode="numeric" data-name="${name}" data-k="km" value="${w.km || ''}" placeholder="0">
+            <input inputmode="numeric" data-name="${safeName}" data-k="km" value="${escAttr(w.km || '')}" placeholder="0">
+          </div>
+          <div class="field">
+            <label>Próx Km</label>
+            <input inputmode="numeric" data-name="${safeName}" data-k="nextKm" value="${escAttr(w.nextKm || '')}" placeholder="0">
+          </div>
+          <div class="field">
+            <label>Próx Fecha</label>
+            <input class="nextInput" type="date" lang="es-ES" data-name="${safeName}" data-k="next" value="${escAttr(w.next || '')}">
           </div>
         </div>
 
         <div class="notesBox">
           <label>Notas</label>
-          <textarea data-name="${name}" data-k="notes" placeholder="Buscar">${w.notes || ''}</textarea>
+          <textarea data-name="${safeName}" data-k="notes" placeholder="Notas">${escText(w.notes || '')}</textarea>
         </div>
       `;
+
+      const filtrosBody = `
+        <div class="workGrid3">
+          <div class="field">
+            <label>Filtro</label>
+            <div class="filterNameBox"><input class="filterNameInput" data-name="${safeName}" data-k="filtroAceiteNombre" value="${escAttr(w.filtroAceiteNombre || 'Aceite')}" placeholder="Aceite" autocomplete="off"></div>
+          </div>
+          <div class="field">
+            <label>Ref</label>
+            <input data-name="${safeName}" data-k="filtroAceiteRef" value="${escAttr(w.filtroAceiteRef || '')}" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Próx Cambio</label>
+            <input type="date" lang="es-ES" data-name="${safeName}" data-k="filtroAceiteProx" value="${escAttr(w.filtroAceiteProx || '')}">
+          </div>
+        </div>
+
+        <div class="workGrid3">
+          <div class="field">
+            <label>Filtro</label>
+            <div class="filterNameBox"><input class="filterNameInput" data-name="${safeName}" data-k="filtroAireNombre" value="${escAttr(w.filtroAireNombre || 'Aire')}" placeholder="Aire" autocomplete="off"></div>
+          </div>
+          <div class="field">
+            <label>Ref</label>
+            <input data-name="${safeName}" data-k="filtroAireRef" value="${escAttr(w.filtroAireRef || '')}" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Próx Cambio</label>
+            <input type="date" lang="es-ES" data-name="${safeName}" data-k="filtroAireProx" value="${escAttr(w.filtroAireProx || '')}">
+          </div>
+        </div>
+
+        <div class="workGrid3">
+          <div class="field">
+            <label>Filtro</label>
+            <div class="filterNameBox"><input class="filterNameInput" data-name="${safeName}" data-k="filtroGasoilNombre" value="${escAttr(w.filtroGasoilNombre || 'Gasoil')}" placeholder="Gasoil" autocomplete="off"></div>
+          </div>
+          <div class="field">
+            <label>Ref</label>
+            <input data-name="${safeName}" data-k="filtroGasoilRef" value="${escAttr(w.filtroGasoilRef || '')}" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Próx Cambio</label>
+            <input type="date" lang="es-ES" data-name="${safeName}" data-k="filtroGasoilProx" value="${escAttr(w.filtroGasoilProx || '')}">
+          </div>
+        </div>
+
+        <div class="workGrid3">
+          <div class="field">
+            <label>Filtro</label>
+            <div class="filterNameBox"><input class="filterNameInput" data-name="${safeName}" data-k="filtroPolenNombre" value="${escAttr(w.filtroPolenNombre || 'Polen')}" placeholder="Polen" autocomplete="off"></div>
+          </div>
+          <div class="field">
+            <label>Ref</label>
+            <input data-name="${safeName}" data-k="filtroPolenRef" value="${escAttr(w.filtroPolenRef || '')}" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Próx Cambio</label>
+            <input type="date" lang="es-ES" data-name="${safeName}" data-k="filtroPolenProx" value="${escAttr(w.filtroPolenProx || '')}">
+          </div>
+        </div>
+
+        <div class="workGrid3">
+          <div class="field">
+            <label>Filtro</label>
+            <div class="filterNameBox"><input class="filterNameInput" data-name="${safeName}" data-k="filtroHabitaculoNombre" value="${escAttr(w.filtroHabitaculoNombre || 'Habitáculo')}" placeholder="Habitáculo" autocomplete="off"></div>
+          </div>
+          <div class="field">
+            <label>Ref</label>
+            <input data-name="${safeName}" data-k="filtroHabitaculoRef" value="${escAttr(w.filtroHabitaculoRef || '')}" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Próx Cambio</label>
+            <input type="date" lang="es-ES" data-name="${safeName}" data-k="filtroHabitaculoProx" value="${escAttr(w.filtroHabitaculoProx || '')}">
+          </div>
+        </div>
+
+        <div class="notesBox">
+          <label>Notas</label>
+          <textarea data-name="${safeName}" data-k="notes" placeholder="Notas">${escText(w.notes || '')}</textarea>
+        </div>
+      `;
+
+      const frenosBody = `
+        <div class="workGrid3">
+          <div class="field">
+            <label>Freno</label>
+            <div class="filterNameBox"><input class="filterNameInput" data-name="${safeName}" data-k="frenoDelNombre" value="${escAttr(w.frenoDelNombre || 'Delantero')}" placeholder="Delantero" autocomplete="off"></div>
+          </div>
+          <div class="field">
+            <label>Ref</label>
+            <input data-name="${safeName}" data-k="frenoDelRef" value="${escAttr(w.frenoDelRef || '')}" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Estado</label>
+            <input data-name="${safeName}" data-k="frenoDelEstado" value="${escAttr(w.frenoDelEstado || '')}" inputmode="decimal" placeholder="%">
+          </div>
+        </div>
+
+        <div class="workGrid3">
+          <div class="field">
+            <label>Freno</label>
+            <div class="filterNameBox"><input class="filterNameInput" data-name="${safeName}" data-k="frenoTrasNombre" value="${escAttr(w.frenoTrasNombre || 'Trasero')}" placeholder="Trasero" autocomplete="off"></div>
+          </div>
+          <div class="field">
+            <label>Ref</label>
+            <input data-name="${safeName}" data-k="frenoTrasRef" value="${escAttr(w.frenoTrasRef || '')}" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Estado</label>
+            <input data-name="${safeName}" data-k="frenoTrasEstado" value="${escAttr(w.frenoTrasEstado || '')}" inputmode="decimal" placeholder="%">
+          </div>
+        </div>
+
+        <div class="workGrid3">
+          <div class="field">
+            <label>Freno</label>
+            <div class="filterNameBox"><input class="filterNameInput" data-name="${safeName}" data-k="frenoLiquidoNombre" value="${escAttr(w.frenoLiquidoNombre || 'Líquido')}" placeholder="Líquido" autocomplete="off"></div>
+          </div>
+          <div class="field">
+            <label>Fecha cambio</label>
+            <input type="date" lang="es-ES" data-name="${safeName}" data-k="frenoLiquidoFecha" value="${escAttr(w.frenoLiquidoFecha || '')}">
+          </div>
+          <div class="field">
+            <label>Próx Fecha</label>
+            <input type="date" lang="es-ES" data-name="${safeName}" data-k="frenoLiquidoProxFecha" value="${escAttr(w.frenoLiquidoProxFecha || '')}">
+          </div>
+        </div>
+
+        <div class="notesBox">
+          <label>Notas</label>
+          <textarea data-name="${safeName}" data-k="notes" placeholder="Notas">${escText(w.notes || '')}</textarea>
+        </div>
+      `;
+
+      
+      const distribucionBody = `
+        <div class="workGrid3">
+          <div class="field">
+            <label>Fecha</label>
+            <div class="filterNameBox">Fecha</div>
+          </div>
+          <div class="field">
+            <label>Cambiado</label>
+            <input type="date" data-name="${safeName}" data-k="distFechaCambio" value="${escAttr(w.distFechaCambio || '')}">
+          </div>
+          <div class="field">
+            <label>Próx Cambio</label>
+            <input type="date" data-name="${safeName}" data-k="distFechaProx" value="${escAttr(w.distFechaProx || '')}">
+          </div>
+        </div>
+
+        <div class="workGrid3">
+          <div class="field">
+            <label>Kilómetros</label>
+            <div class="filterNameBox">Kilómetros</div>
+          </div>
+          <div class="field">
+            <label>Cambiado</label>
+            <input data-name="${safeName}" data-k="distKmCambio" value="${escAttr(w.distKmCambio || '')}">
+          </div>
+          <div class="field">
+            <label>Próx Cambio</label>
+            <input data-name="${safeName}" data-k="distKmProx" value="${escAttr(w.distKmProx || '')}">
+          </div>
+        </div>
+
+        <div class="notesBox">
+          <label>Notas</label>
+          <textarea data-name="${safeName}" data-k="notes">${escText(w.notes || '')}</textarea>
+        </div>
+      `;
+
+
+      const neumaticosBody = `
+        <div class="workGrid3">
+          <div class="field">
+            <label>Ruedas</label>
+            <div class="filterNameBox"><input class="filterNameInput" data-name="${safeName}" data-k="neuVehiculoNombre" value="${escAttr(w.neuVehiculoNombre || 'Vehículo')}" autocomplete="off"></div>
+          </div>
+          <div class="field">
+            <label>Delanteras %</label>
+            <input data-name="${safeName}" data-k="neuVehiculoDel" value="${escAttr(w.neuVehiculoDel || '')}" inputmode="decimal">
+          </div>
+          <div class="field">
+            <label>Traseras %</label>
+            <input data-name="${safeName}" data-k="neuVehiculoTras" value="${escAttr(w.neuVehiculoTras || '')}" inputmode="decimal">
+          </div>
+        </div>
+
+        <div class="workGrid3">
+          <div class="field">
+            <label>Rueda</label>
+            <div class="filterNameBox"><input class="filterNameInput" data-name="${safeName}" data-k="neuRepuestoNombre" value="${escAttr(w.neuRepuestoNombre || 'Repuesto')}" autocomplete="off"></div>
+          </div>
+          <div class="field">
+            <label>Estado %</label>
+            <input data-name="${safeName}" data-k="neuRepuestoEstado" value="${escAttr(w.neuRepuestoEstado || '')}" inputmode="decimal">
+          </div>
+          <div></div>
+        </div>
+
+        <div class="notesBox">
+          <label>Notas</label>
+          <textarea data-name="${safeName}" data-k="notes">${escText(w.notes || '')}</textarea>
+        </div>
+      `;
+
+
+const bateriaBody = `
+  <div class="workGrid3">
+    <div class="field">
+      <label>Referencia</label>
+      <input data-name="${safeName}" data-k="batRef" value="${escAttr(w.batRef || '')}">
+    </div>
+    <div class="field">
+      <label>Fecha</label>
+      <input type="date" data-name="${safeName}" data-k="batFecha" value="${escAttr(w.batFecha || '')}">
+    </div>
+    <div class="field">
+      <label>Fin Garantía</label>
+      <input type="date" data-name="${safeName}" data-k="batFin" value="${escAttr(w.batFin || '')}">
+    </div>
+  </div>
+
+  <div class="notesBox">
+    <label>Notas</label>
+    <textarea data-name="${safeName}" data-k="notes">${escText(w.notes || '')}</textarea>
+  </div>
+`;
+
+
+const correasBody = `
+  <div class="workGrid3">
+    <div class="field">
+      <label>Ref 1</label>
+      <input data-name="${safeName}" data-k="correaRef1" value="${escAttr(w.correaRef1 || '')}">
+    </div>
+    <div class="field">
+      <label>Ref 2</label>
+      <input data-name="${safeName}" data-k="correaRef2" value="${escAttr(w.correaRef2 || '')}">
+    </div>
+    <div class="field">
+      <label>Ref 3</label>
+      <input data-name="${safeName}" data-k="correaRef3" value="${escAttr(w.correaRef3 || '')}">
+    </div>
+  </div>
+
+  <div class="notesBox">
+    <label>Notas</label>
+    <textarea data-name="${safeName}" data-k="notes">${escText(w.notes || '')}</textarea>
+  </div>
+`;
+
+
+      const auxBody = `
+        <div class="workGrid3">
+          <div class="field">
+            <label>Aux 1</label>
+            <input data-name="${safeName}" data-k="aux1" value="${escAttr(w.aux1 || '')}" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Aux 2</label>
+            <input data-name="${safeName}" data-k="aux2" value="${escAttr(w.aux2 || '')}" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Aux 3</label>
+            <input data-name="${safeName}" data-k="aux3" value="${escAttr(w.aux3 || '')}" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="workGrid3">
+          <div class="field">
+            <label>Aux 4</label>
+            <input data-name="${safeName}" data-k="aux4" value="${escAttr(w.aux4 || '')}" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Aux 5</label>
+            <input data-name="${safeName}" data-k="aux5" value="${escAttr(w.aux5 || '')}" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Aux 6</label>
+            <input data-name="${safeName}" data-k="aux6" value="${escAttr(w.aux6 || '')}" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="notesBox">
+          <label>Notas</label>
+          <textarea data-name="${safeName}" data-k="notes" placeholder="Notas">${escText(w.notes || '')}</textarea>
+        </div>
+      `;
+
+const genericBody = `
+        <div class="workTop">
+          <div class="field">
+            <label>Fecha</label>
+            <input type="date" lang="es-ES" data-name="${safeName}" data-k="done" value="${escAttr(w.done || '')}">
+          </div>
+          <div class="field">
+            <label>Próx Fecha</label>
+            <input class="nextInput" type="date" lang="es-ES" data-name="${safeName}" data-k="next" value="${escAttr(w.next || '')}">
+          </div>
+          <div class="field">
+            <label>Kilómetros</label>
+            <input inputmode="numeric" data-name="${safeName}" data-k="km" value="${escAttr(w.km || '')}" placeholder="0">
+          </div>
+        </div>
+
+        <div class="notesBox">
+          <label>Notas</label>
+          <textarea data-name="${safeName}" data-k="notes" placeholder="Buscar">${escText(w.notes || '')}</textarea>
+        </div>
+      `;
+
+      card.innerHTML = `
+        <div class="workHead" role="button" tabindex="0" aria-expanded="false">
+          <div class="workTitle">${titleName}</div>
+          <div class="workArrow">⌄</div>
+        </div>
+        <button class="trashBtn" data-del="${safeName}" type="button" aria-label="Eliminar ${safeName}" title="Eliminar">🗑️</button>
+        <div class="workBody">
+          ${isAuxiliar ? auxBody : (isAceite ? aceiteBody : (isFiltros ? filtrosBody : (isNeumaticos ? neumaticosBody : (isFrenos ? frenosBody : (isCorreas ? correasBody : (isBateria ? bateriaBody : (isDistribucion ? distribucionBody : genericBody)))))))}
+        </div>
+      `;
+
       const ni = card.querySelector('.nextInput');
       if(ni && status) ni.classList.add(status);
+
+      const head = card.querySelector('.workHead');
+      const toggle = () => {
+        const isOpen = card.classList.toggle('open');
+        if(head) head.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      };
+      if(head){
+        onTap(head, toggle, {preventDefault:false, stopPropagation:true});
+        head.addEventListener('keydown', (ev) => {
+          if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); toggle(); }
+        });
+      }
+
       card.querySelectorAll('input, textarea').forEach(inp => {
         inp.addEventListener('input', () => {
           const n = inp.getAttribute('data-name');
@@ -3023,17 +3921,27 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
 
       const delBtn = card.querySelector('.trashBtn');
       if(delBtn){
-        onTap(delBtn, () => {
-          const delName = delBtn.getAttribute('data-del');
-          if(!delName) return;
+        const deleteWork = (ev) => {
+          if(ev){
+            ev.preventDefault();
+            ev.stopPropagation();
+          }
+          const delName = delBtn.getAttribute('data-del') || name;
+          if(!delName || !worksObj[delName]) return;
           if(!confirm('¿Eliminar el trabajo "' + delName + '"?')) return;
+
+          if(DEFAULT_WORKS.includes(delName)){
+            if(!Array.isArray(worksObj.__hidden__)) worksObj.__hidden__ = [];
+            if(!worksObj.__hidden__.includes(delName)) worksObj.__hidden__.push(delName);
+          }
           delete worksObj[delName];
           try{ saveDB(); }catch(e){}
           try{ renderHomeAlerts(); }catch(e){}
-          // Re-render after deletion
           container.innerHTML = '';
           renderWorksCards(container, worksObj, onChange);
-        });
+        };
+        delBtn.addEventListener('click', deleteWork, {passive:false});
+        delBtn.addEventListener('touchend', deleteWork, {passive:false});
       }
 
       container.appendChild(card);
@@ -3041,14 +3949,14 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
   };
 
   const addCustomWorkTo = (vehicleOrWorksObj) => {
-    const name = prompt('Nombre del trabajo (ej: Pastillas freno)');
-    if(!name) return;
-    const trimmed = name.trim();
-    if(!trimmed) return;
-
     const worksObj = vehicleOrWorksObj.works ? vehicleOrWorksObj.works : vehicleOrWorksObj;
-    if(worksObj[trimmed]) { alert('Ese trabajo ya existe.'); return; }
-    worksObj[trimmed] = { done:'', next:'', km:'', notes:'' };
+    if(!Array.isArray(worksObj.__hidden__)) worksObj.__hidden__ = [];
+    let n = 1;
+    while(worksObj['Aux ' + n]) n++;
+    worksObj['Aux ' + n] = {
+      done:'', next:'', km:'', notes:'',
+      aux1:'', aux2:'', aux3:'', aux4:'', aux5:'', aux6:''
+    };
   };
 
   const renderList = () => {
@@ -3065,7 +3973,10 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
       const plate = (v.plate || '').toLowerCase();
       const veh = (v.vehicle || '').toLowerCase();
       const own = (v.owner || '').toLowerCase();
-      const hay = (plate + ' ' + veh + ' ' + own).trim();
+      const vin = (v.vin || '').toLowerCase();
+      const dni = (v.dni || '').toLowerCase();
+      const phone = (v.phone || '').toLowerCase();
+      const hay = (plate + ' ' + veh + ' ' + own + ' ' + vin + ' ' + dni + ' ' + phone).trim();
 
       let matchScore = 0;
       if(q){
@@ -3073,7 +3984,7 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
         else if(plate.startsWith(q)) matchScore = 800;
         else if(plate.includes(q)) matchScore = 600;
         else if(veh.startsWith(q) || own.startsWith(q)) matchScore = 450;
-        else if(veh.includes(q) || own.includes(q)) matchScore = 300;
+        else if(veh.includes(q) || own.includes(q) || vin.includes(q) || dni.includes(q) || phone.includes(q)) matchScore = 300;
       }
 
       return { v, a, status, key, urgency, hay, matchScore };
@@ -3132,14 +4043,19 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
     dPlate.value = v.plate || '';
     dKm.value = v.km || '';
     dVehicle.value = v.vehicle || '';
+    dVin.value = v.vin || '';
+    dEngineCode.value = v.engineCode || '';
     dOwner.value = v.owner || '';
+    dAddress.value = v.address || '';
+    dDni.value = v.dni || '';
     dPhone.value = v.phone || '';
+    if(dGeneralNotes) dGeneralNotes.value = v.generalNotes || '';
 
     renderWorksCards(detailWorks, v.works, (name, k, val) => {
       if(!v.works[name]) v.works[name] = {done:'', next:'', km:'', notes:''};
       v.works[name][k] = val;
       saveDB();
-    });
+    }, v.hiddenWorks || []);
 
     showView(detailView);
   };
@@ -3152,13 +4068,18 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
       v.plate = (dPlate.value || '').toUpperCase();
       v.km = (dKm.value || '').trim();
       v.vehicle = dVehicle.value || '';
+      v.vin = (dVin.value || '').trim().toUpperCase();
+      v.engineCode = (dEngineCode.value || '').trim().toUpperCase();
       v.owner = dOwner.value || '';
+      v.address = dAddress.value || '';
+      v.dni = (dDni.value || '').trim().toUpperCase();
       v.phone = dPhone.value || '';
+      if(dGeneralNotes) v.generalNotes = dGeneralNotes.value || '';
       saveDB();
       renderList();
       renderHomeAlerts();
     };
-    [dCreated, dPlate, dKm, dVehicle, dOwner, dPhone].forEach(inp => inp.addEventListener('input', saveField, {passive:true}));
+    [dCreated, dPlate, dKm, dVehicle, dVin, dEngineCode, dOwner, dAddress, dDni, dPhone, dGeneralNotes].filter(Boolean).forEach(inp => inp.addEventListener('input', saveField, {passive:true}));
   };
   bindDetailAutosave();
 
@@ -3172,7 +4093,7 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
       if(!v.works[name]) v.works[name] = {done:'', next:'', km:'', notes:''};
       v.works[name][k] = val;
       saveDB();
-    });
+    }, v.hiddenWorks || []);
   });
 
   onTap(btnDeleteVehicle, () => {
@@ -3188,19 +4109,26 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
   });
 
   let addWorksObj = emptyWorksFromList(DEFAULT_WORKS);
+  let addHiddenWorks = [];
 
   const prepAddForm = () => {
     aCreated.value = todayISO();
     aPlate.value = '';
     aKm.value = '';
     aVehicle.value = '';
+    aVin.value = '';
+    aEngineCode.value = '';
     aOwner.value = '';
+    aAddress.value = '';
+    aDni.value = '';
     aPhone.value = '';
+    if(aGeneralNotes) aGeneralNotes.value = '';
     addWorksObj = emptyWorksFromList(DEFAULT_WORKS);
+    addHiddenWorks = [];
     renderWorksCards(addWorks, addWorksObj, (name, k, val) => {
       if(!addWorksObj[name]) addWorksObj[name] = {done:'', next:'', km:'', notes:''};
       addWorksObj[name][k] = val;
-    });
+    }, addHiddenWorks);
   };
 
   onTap(btnAddWorkAdd, () => {
@@ -3208,7 +4136,7 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
     renderWorksCards(addWorks, addWorksObj, (name, k, val) => {
       if(!addWorksObj[name]) addWorksObj[name] = {done:'', next:'', km:'', notes:''};
       addWorksObj[name][k] = val;
-    });
+    }, addHiddenWorks);
   });
 
   const saveVehicle = () => {
@@ -3217,8 +4145,14 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
     v.plate = (aPlate.value || '').trim().toUpperCase();
     v.km = (aKm.value || '').trim();
     v.vehicle = (aVehicle.value || '').trim();
+    v.vin = (aVin.value || '').trim().toUpperCase();
+    v.engineCode = (aEngineCode.value || '').trim().toUpperCase();
     v.owner = (aOwner.value || '').trim();
+    v.address = (aAddress.value || '').trim();
+    v.dni = (aDni.value || '').trim().toUpperCase();
     v.phone = (aPhone.value || '').trim();
+    v.generalNotes = aGeneralNotes ? (aGeneralNotes.value || '') : '';
+    v.hiddenWorks = Array.isArray(addHiddenWorks) ? addHiddenWorks.slice() : [];
     v.works = addWorksObj;
 
     db.vehicles.unshift(v);
@@ -3365,6 +4299,222 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
   showView(home);
 })();
 </script>
+
+<script>
+document.addEventListener('input', function(e){
+  if(e.target && e.target.dataset && e.target.dataset.k && e.target.dataset.k.includes('Estado')){
+    let v = e.target.value.replace('%','').trim();
+    if(v !== '') e.target.value = v;
+  }
+});
+document.addEventListener('blur', function(e){
+  if(e.target && e.target.dataset && e.target.dataset.k && e.target.dataset.k.includes('Estado')){
+    let v = e.target.value.replace('%','').trim();
+    if(v !== '') e.target.value = v + '%';
+  }
+}, true);
+</script>
+
+<script>
+(function(){
+  function getEstadoNumber(value){
+    const n = parseFloat(String(value || '').replace('%','').replace(',','.').trim());
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function paintEstado(input){
+    if(!input || !input.dataset || !input.dataset.k || !input.dataset.k.includes('Estado')) return;
+
+    input.classList.remove('estado-ok','estado-warn','estado-bad');
+
+    const n = getEstadoNumber(input.value);
+    if(n === null) return;
+
+    if(n >= 60){
+      input.classList.add('estado-ok');
+    }else if(n >= 30){
+      input.classList.add('estado-warn');
+    }else{
+      input.classList.add('estado-bad');
+    }
+  }
+
+  function normalizeEstadoTyping(input){
+    if(!input || !input.dataset || !input.dataset.k || !input.dataset.k.includes('Estado')) return;
+    input.value = String(input.value || '').replace('%','').trim();
+    paintEstado(input);
+  }
+
+  function normalizeEstadoBlur(input){
+    if(!input || !input.dataset || !input.dataset.k || !input.dataset.k.includes('Estado')) return;
+    let v = String(input.value || '').replace('%','').trim();
+    if(v !== '') input.value = v + '%';
+    paintEstado(input);
+  }
+
+  document.addEventListener('input', function(e){
+    normalizeEstadoTyping(e.target);
+  }, true);
+
+  document.addEventListener('blur', function(e){
+    normalizeEstadoBlur(e.target);
+  }, true);
+
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('input[data-k*="Estado"]').forEach(function(input){
+      normalizeEstadoBlur(input);
+    });
+  });
+
+  // Por si la app renderiza trabajos después de cargar
+  const oldRenderTimer = window.setInterval(function(){
+    document.querySelectorAll('input[data-k*="Estado"]').forEach(paintEstado);
+  }, 1000);
+  window.setTimeout(function(){ window.clearInterval(oldRenderTimer); }, 8000);
+})();
+</script>
+
+
+<script>
+(function(){
+  function getNum(v){
+    const n = parseFloat((v||'').replace('%','').replace(',','.'));
+    return isNaN(n) ? null : n;
+  }
+
+  function paint(input){
+    if(!input || !input.dataset || !input.dataset.k || !input.dataset.k.includes('Estado')) return;
+
+    input.classList.remove('estado-ok','estado-warn','estado-bad');
+
+    const n = getNum(input.value);
+    if(n===null) return;
+
+    if(n>=60){
+      input.classList.add('estado-ok');
+    }else if(n>=30){
+      input.classList.add('estado-warn');
+    }else{
+      input.classList.add('estado-bad');
+    }
+  }
+
+  function onInput(e){
+    const el = e.target;
+    if(el.dataset && el.dataset.k && el.dataset.k.includes('Estado')){
+      el.value = el.value.replace('%','');
+      paint(el);
+    }
+  }
+
+  function onBlur(e){
+    const el = e.target;
+    if(el.dataset && el.dataset.k && el.dataset.k.includes('Estado')){
+      let v = el.value.replace('%','').trim();
+      if(v) el.value = v + '%';
+      paint(el);
+    }
+  }
+
+  document.addEventListener('input', onInput, true);
+  document.addEventListener('blur', onBlur, true);
+  document.addEventListener('change', onBlur, true);
+
+  // repaint inicial
+  setTimeout(()=>{
+    document.querySelectorAll('input[data-k*="Estado"]').forEach(paint);
+  },500);
+})();
+</script>
+
+
+<script>
+(function(){
+  function isNeumatico(el){
+    return el && el.dataset && el.dataset.k && 
+    (el.dataset.k.includes('neuVehiculoDel') || 
+     el.dataset.k.includes('neuVehiculoTras') || 
+     el.dataset.k.includes('neuRepuestoEstado'));
+  }
+
+  function getNum(v){
+    const n = parseFloat((v||'').replace('%','').replace(',','.'));
+    return isNaN(n) ? null : n;
+  }
+
+  function paint(el){
+    if(!isNeumatico(el)) return;
+    el.classList.remove('estado-ok','estado-warn','estado-bad');
+    const n = getNum(el.value);
+    if(n===null) return;
+    if(n>=60) el.classList.add('estado-ok');
+    else if(n>=30) el.classList.add('estado-warn');
+    else el.classList.add('estado-bad');
+  }
+
+  function onInput(e){
+    const el = e.target;
+    if(isNeumatico(el)){
+      el.value = el.value.replace('%','');
+      paint(el);
+    }
+  }
+
+  function onBlur(e){
+    const el = e.target;
+    if(isNeumatico(el)){
+      let v = el.value.replace('%','').trim();
+      if(v) el.value = v + '%';
+      paint(el);
+    }
+  }
+
+  document.addEventListener('input', onInput, true);
+  document.addEventListener('blur', onBlur, true);
+  document.addEventListener('change', onBlur, true);
+
+  setTimeout(()=>{
+    document.querySelectorAll('input').forEach(paint);
+  },500);
+})();
+</script>
+
+
+<script>
+(function(){
+  function daysLeft(dateStr){
+    if(!dateStr) return null;
+    const d = new Date(dateStr);
+    const now = new Date();
+    return (d - now) / (1000*60*60*24);
+  }
+
+  function paintBattery(){
+    document.querySelectorAll('input[data-k="batFin"]').forEach(el=>{
+      el.classList.remove('estado-ok','estado-warn','estado-bad');
+      const days = daysLeft(el.value);
+      if(days===null) return;
+
+      if(days < 0){
+        el.classList.add('estado-bad');
+      }else if(days < 60){
+        el.classList.add('estado-warn');
+      }else{
+        el.classList.add('estado-ok');
+      }
+    });
+  }
+
+  document.addEventListener('change', paintBattery);
+  document.addEventListener('input', paintBattery);
+
+  setTimeout(paintBattery,500);
+})();
+</script>
+
+
+
+
 
 </body>
 </html>
