@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8"/>
 <meta http-equiv="Content-Language" content="es-ES">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Revisiones v3.9</title>
+<title>Revisiones v4.0</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0E4C92">
 <meta name="apple-mobile-web-app-title" content="Talleres Lista">
@@ -212,9 +212,9 @@ input, textarea{
   border:1px solid var(--line);
   background: rgba(255,255,255,.10);
   color:var(--text);
-  font-size: calc(16px * var(--fontScale));
+  font-size: max(16px, calc(16px * var(--fontScale)));
   outline:none;
-  touch-action: manipulation;
+  touch-action: auto;
 }
 textarea{min-height:70px; resize:vertical;}
 
@@ -412,7 +412,7 @@ body.theme-beige .vehicleCard.matchTop{
   font-size:calc(16px * var(--fontScale));
   outline:none;
   resize:vertical;
-  touch-action:pan-y;
+  touch-action:auto;
 }
 .workCard textarea::placeholder{ color:rgba(255,255,255,.65); }
 .workCard textarea:focus{
@@ -728,7 +728,7 @@ input.filterNameInput::placeholder{
 
 
 
-/* v3.9 - Fechas más llenas en iPhone sin romper el control nativo */
+/* v4.0 - Fechas más llenas en iPhone sin romper el control nativo */
 .workBody input[type="date"]{
   width:100%;
   min-width:0;
@@ -751,7 +751,7 @@ input.filterNameInput::placeholder{
 }
 
 
-/* v3.9 - aplicar también a fecha alta cliente */
+/* v4.0 - aplicar también a fecha alta cliente */
 input[type="date"]{
   width:100%;
   min-width:0;
@@ -790,7 +790,7 @@ input[data-k*="Estado"]::after{
 }
 
 
-/* v3.9 - textos de cajas un poco mayores */
+/* v4.0 - textos de cajas un poco mayores */
 .workCard label,
 .workBox label,
 .workBody label{
@@ -807,7 +807,7 @@ input[data-k*="Estado"]::after{
   font-size:clamp(16px, 3.75vw, calc(17px * var(--fontScale))) !important;
 }
 
-/* v3.9 - Estado de frenos por porcentaje */
+/* v4.0 - Estado de frenos por porcentaje */
 input.estado-ok{
   background:linear-gradient(90deg, rgba(34,197,94,.32), rgba(34,197,94,.14)) !important;
   border-color:rgba(34,197,94,.80) !important;
@@ -849,7 +849,7 @@ input.estado-bad{
 }
 
 
-/* v3.9 - Trabajo auxiliar estable */
+/* v4.0 - Trabajo auxiliar estable */
 .auxWorkActions{ margin:14px 0 6px; }
 .auxWorkActions .auxBtn{
   width:100%;
@@ -862,6 +862,26 @@ input.estado-bad{
   background:linear-gradient(90deg, rgba(22,163,74,.70), rgba(22,163,74,.35)) !important;
 }
 
+
+/* v4.0 - Corrección teclado virtual móvil: inputs siempre nativos */
+input,
+textarea,
+select,
+[contenteditable="true"]{
+  touch-action:auto !important;
+  -webkit-user-select:text;
+  user-select:text;
+}
+
+input,
+textarea{
+  font-size:max(16px, 1em) !important;
+}
+
+input[type="date"]{
+  font-size:max(16px, clamp(16px, 3.9vw, calc(18px * var(--fontScale)))) !important;
+}
+
 </style>
 </head>
 
@@ -870,7 +890,7 @@ input.estado-bad{
 <header id="appHeader">
   <div class="titleblock">
     <h1>Revisiones</h1>
-    <div class="ver">v3.9</div>
+    <div class="ver">v4.0</div>
   </div>
 
   <div class="logoBox" id="logoBox" title="Pulsa para cambiar el logo">
@@ -1089,7 +1109,7 @@ input.estado-bad{
 &lt;html lang=&quot;es-ES&quot;&gt;
 &lt;head&gt;
     &lt;meta charset=&quot;UTF-8&quot;&gt;
-    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1, viewport-fit=cover&quot;&gt;
     &lt;meta name=&quot;apple-mobile-web-app-capable&quot; content=&quot;yes&quot;&gt;
     &lt;title&gt;iNote Pro v1.9.1&lt;/title&gt;
 &lt;style&gt;
@@ -2773,6 +2793,14 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
     let startX = 0, startY = 0;
     let moved = false;
 
+    const isEditableTarget = (target) => {
+      try{
+        return !!(target && target.closest && target.closest('input, textarea, select, option, label, [contenteditable="true"]'));
+      }catch(_){
+        return false;
+      }
+    };
+
     const run = () => {
       const now = Date.now();
       if(now - last < 350) return; // debounce: touchend + click / pointerup
@@ -2794,8 +2822,8 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
       el.addEventListener('touchstart', (e) => {
         const t = e.touches && e.touches[0];
         if(t) markStart(t.clientX, t.clientY);
-        try{ e.preventDefault(); }catch(_){}
-        if(stopPropagation){
+        if(!isEditableTarget(e.target)){ try{ e.preventDefault(); }catch(_){} }
+        if(stopPropagation && !isEditableTarget(e.target)){
           try{ e.stopPropagation(); }catch(_){}
         }
       }, {passive:false});
@@ -2815,10 +2843,10 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
     el.addEventListener('touchend', (e) => {
       if(moved) return; // era scroll
 
-      if(preventDefault){
+      if(preventDefault && !isEditableTarget(e.target)){
         try{ e.preventDefault(); }catch(_){}
       }
-      if(stopPropagation){
+      if(stopPropagation && !isEditableTarget(e.target)){
         try{ e.stopPropagation(); }catch(_){}
       }
       run();
@@ -2828,11 +2856,11 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
     el.addEventListener('pointerdown', (e) => {
       if(e.isPrimary === false) return;
       markStart(e.clientX, e.clientY);
-      if(preventDefault){
+      if(preventDefault && !isEditableTarget(e.target)){
         // En iOS a veces ayuda a evitar selección/gestos raros
         try{ e.preventDefault(); }catch(_){}
       }
-      if(stopPropagation){
+      if(stopPropagation && !isEditableTarget(e.target)){
         try{ e.stopPropagation(); }catch(_){}
       }
     }, {passive:false});
@@ -2845,7 +2873,7 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
     el.addEventListener('pointerup', (e) => {
       if(e.isPrimary === false) return;
       if(moved) return;
-      if(stopPropagation){
+      if(stopPropagation && !isEditableTarget(e.target)){
         try{ e.stopPropagation(); }catch(_){}
       }
       run();
@@ -2853,10 +2881,10 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
 
     // Click fallback
     el.addEventListener('click', (e) => {
-      if(preventDefault){
+      if(preventDefault && !isEditableTarget(e.target)){
         try{ e.preventDefault(); }catch(_){}
       }
-      if(stopPropagation){
+      if(stopPropagation && !isEditableTarget(e.target)){
         try{ e.stopPropagation(); }catch(_){}
       }
       run();
