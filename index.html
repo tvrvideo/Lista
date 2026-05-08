@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8"/>
 <meta http-equiv="Content-Language" content="es-ES">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, "/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Revisiones v4.1</title>
+<title>Revisiones v4.4</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0E4C92">
 <meta name="apple-mobile-web-app-title" content="Talleres Lista">
@@ -21,8 +21,6 @@
   --muted:#93a7c7;
   --line:rgba(255,255,255,.12);
   --primary:#0E4C92;
-  --primary:#0E4C92;
-  --primaryDark:#083a73;
   --primaryDark:#083a73;
   --danger:#c62828;
 
@@ -38,7 +36,7 @@ body{
   background:var(--bg);
   color:var(--text);
   -webkit-tap-highlight-color: transparent;
-  touch-action: auto;
+  touch-action: pan-y manipulation;
   -webkit-overflow-scrolling: touch;
   font-size: calc(16px * var(--fontScale));
 }
@@ -728,7 +726,7 @@ input.filterNameInput::placeholder{
 
 
 
-/* v4.1 - Fechas más llenas en iPhone sin romper el control nativo */
+/* v4.4 - Fechas más llenas en iPhone sin romper el control nativo */
 .workBody input[type="date"]{
   width:100%;
   min-width:0;
@@ -751,7 +749,7 @@ input.filterNameInput::placeholder{
 }
 
 
-/* v4.1 - aplicar también a fecha alta cliente */
+/* v4.4 - aplicar también a fecha alta cliente */
 input[type="date"]{
   width:100%;
   min-width:0;
@@ -790,7 +788,7 @@ input[data-k*="Estado"]::after{
 }
 
 
-/* v4.1 - textos de cajas un poco mayores */
+/* v4.4 - textos de cajas un poco mayores */
 .workCard label,
 .workBox label,
 .workBody label{
@@ -807,7 +805,7 @@ input[data-k*="Estado"]::after{
   font-size:clamp(16px, 3.75vw, calc(17px * var(--fontScale))) !important;
 }
 
-/* v4.1 - Estado de frenos por porcentaje */
+/* v4.4 - Estado de frenos por porcentaje */
 input.estado-ok{
   background:linear-gradient(90deg, rgba(34,197,94,.32), rgba(34,197,94,.14)) !important;
   border-color:rgba(34,197,94,.80) !important;
@@ -849,7 +847,7 @@ input.estado-bad{
 }
 
 
-/* v4.1 - Trabajo auxiliar estable */
+/* v4.4 - Trabajo auxiliar estable */
 .auxWorkActions{ margin:14px 0 6px; }
 .auxWorkActions .auxBtn{
   width:100%;
@@ -863,19 +861,13 @@ input.estado-bad{
 }
 
 
-/* v4.1 iOS keyboard FIX */
-html, body {
-  touch-action: auto !important;
-  -webkit-user-select: text;
-}
-
+/* v4.4 FINAL CLEAN iOS FIX */
 input, textarea, select {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
   touch-action: auto !important;
   font-size: 16px !important;
-}
-
-input:focus, textarea:focus {
-  scroll-margin-top: 140px;
 }
 
 </style>
@@ -886,7 +878,7 @@ input:focus, textarea:focus {
 <header id="appHeader">
   <div class="titleblock">
     <h1>Revisiones</h1>
-    <div class="ver">v4.1</div>
+    <div class="ver">v4.4</div>
   </div>
 
   <div class="logoBox" id="logoBox" title="Pulsa para cambiar el logo">
@@ -1105,7 +1097,7 @@ input:focus, textarea:focus {
 &lt;html lang=&quot;es-ES&quot;&gt;
 &lt;head&gt;
     &lt;meta charset=&quot;UTF-8&quot;&gt;
-    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0, maximum-scale=1.0, , viewport-fit=cover&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover&quot;&gt;
     &lt;meta name=&quot;apple-mobile-web-app-capable&quot; content=&quot;yes&quot;&gt;
     &lt;title&gt;iNote Pro v1.9.1&lt;/title&gt;
 &lt;style&gt;
@@ -4534,15 +4526,18 @@ document.addEventListener('blur', function(e){
 
 
 <script>
-/* v4.1 iOS keyboard FIX */
-document.addEventListener('touchend', function(e) {
-  const target = e.target.closest('input, textarea, select');
-  if (target) {
-    setTimeout(() => {
-      target.focus();
-    }, 50);
+/* v4.4 FINAL CLEAN iOS FIX */
+(function(){
+  function forceFocus(e){
+    const el = e.target.closest('input, textarea, select');
+    if(el){
+      el.focus();
+    }
   }
-}, { passive: true });
+
+  document.addEventListener('touchstart', forceFocus, {passive:true});
+  document.addEventListener('click', forceFocus, true);
+})();
 </script>
 
 </body>
