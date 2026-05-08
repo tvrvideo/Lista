@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8"/>
 <meta http-equiv="Content-Language" content="es-ES">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, "/>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Revisiones v4.0</title>
+<title>Revisiones v4.1</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0E4C92">
 <meta name="apple-mobile-web-app-title" content="Talleres Lista">
@@ -38,7 +38,7 @@ body{
   background:var(--bg);
   color:var(--text);
   -webkit-tap-highlight-color: transparent;
-  touch-action: pan-y manipulation;
+  touch-action: auto;
   -webkit-overflow-scrolling: touch;
   font-size: calc(16px * var(--fontScale));
 }
@@ -212,9 +212,9 @@ input, textarea{
   border:1px solid var(--line);
   background: rgba(255,255,255,.10);
   color:var(--text);
-  font-size: max(16px, calc(16px * var(--fontScale)));
+  font-size: calc(16px * var(--fontScale));
   outline:none;
-  touch-action: auto;
+  touch-action: manipulation;
 }
 textarea{min-height:70px; resize:vertical;}
 
@@ -412,7 +412,7 @@ body.theme-beige .vehicleCard.matchTop{
   font-size:calc(16px * var(--fontScale));
   outline:none;
   resize:vertical;
-  touch-action:auto;
+  touch-action:pan-y;
 }
 .workCard textarea::placeholder{ color:rgba(255,255,255,.65); }
 .workCard textarea:focus{
@@ -728,7 +728,7 @@ input.filterNameInput::placeholder{
 
 
 
-/* v4.0 - Fechas más llenas en iPhone sin romper el control nativo */
+/* v4.1 - Fechas más llenas en iPhone sin romper el control nativo */
 .workBody input[type="date"]{
   width:100%;
   min-width:0;
@@ -751,7 +751,7 @@ input.filterNameInput::placeholder{
 }
 
 
-/* v4.0 - aplicar también a fecha alta cliente */
+/* v4.1 - aplicar también a fecha alta cliente */
 input[type="date"]{
   width:100%;
   min-width:0;
@@ -790,7 +790,7 @@ input[data-k*="Estado"]::after{
 }
 
 
-/* v4.0 - textos de cajas un poco mayores */
+/* v4.1 - textos de cajas un poco mayores */
 .workCard label,
 .workBox label,
 .workBody label{
@@ -807,7 +807,7 @@ input[data-k*="Estado"]::after{
   font-size:clamp(16px, 3.75vw, calc(17px * var(--fontScale))) !important;
 }
 
-/* v4.0 - Estado de frenos por porcentaje */
+/* v4.1 - Estado de frenos por porcentaje */
 input.estado-ok{
   background:linear-gradient(90deg, rgba(34,197,94,.32), rgba(34,197,94,.14)) !important;
   border-color:rgba(34,197,94,.80) !important;
@@ -849,7 +849,7 @@ input.estado-bad{
 }
 
 
-/* v4.0 - Trabajo auxiliar estable */
+/* v4.1 - Trabajo auxiliar estable */
 .auxWorkActions{ margin:14px 0 6px; }
 .auxWorkActions .auxBtn{
   width:100%;
@@ -863,23 +863,19 @@ input.estado-bad{
 }
 
 
-/* v4.0 - Corrección teclado virtual móvil: inputs siempre nativos */
-input,
-textarea,
-select,
-[contenteditable="true"]{
-  touch-action:auto !important;
-  -webkit-user-select:text;
-  user-select:text;
+/* v4.1 iOS keyboard FIX */
+html, body {
+  touch-action: auto !important;
+  -webkit-user-select: text;
 }
 
-input,
-textarea{
-  font-size:max(16px, 1em) !important;
+input, textarea, select {
+  touch-action: auto !important;
+  font-size: 16px !important;
 }
 
-input[type="date"]{
-  font-size:max(16px, clamp(16px, 3.9vw, calc(18px * var(--fontScale)))) !important;
+input:focus, textarea:focus {
+  scroll-margin-top: 140px;
 }
 
 </style>
@@ -890,7 +886,7 @@ input[type="date"]{
 <header id="appHeader">
   <div class="titleblock">
     <h1>Revisiones</h1>
-    <div class="ver">v4.0</div>
+    <div class="ver">v4.1</div>
   </div>
 
   <div class="logoBox" id="logoBox" title="Pulsa para cambiar el logo">
@@ -1109,7 +1105,7 @@ input[type="date"]{
 &lt;html lang=&quot;es-ES&quot;&gt;
 &lt;head&gt;
     &lt;meta charset=&quot;UTF-8&quot;&gt;
-    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1, viewport-fit=cover&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0, maximum-scale=1.0, , viewport-fit=cover&quot;&gt;
     &lt;meta name=&quot;apple-mobile-web-app-capable&quot; content=&quot;yes&quot;&gt;
     &lt;title&gt;iNote Pro v1.9.1&lt;/title&gt;
 &lt;style&gt;
@@ -2793,14 +2789,6 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
     let startX = 0, startY = 0;
     let moved = false;
 
-    const isEditableTarget = (target) => {
-      try{
-        return !!(target && target.closest && target.closest('input, textarea, select, option, label, [contenteditable="true"]'));
-      }catch(_){
-        return false;
-      }
-    };
-
     const run = () => {
       const now = Date.now();
       if(now - last < 350) return; // debounce: touchend + click / pointerup
@@ -2822,8 +2810,8 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
       el.addEventListener('touchstart', (e) => {
         const t = e.touches && e.touches[0];
         if(t) markStart(t.clientX, t.clientY);
-        if(!isEditableTarget(e.target)){ try{ e.preventDefault(); }catch(_){} }
-        if(stopPropagation && !isEditableTarget(e.target)){
+        try{ e.preventDefault(); }catch(_){}
+        if(stopPropagation){
           try{ e.stopPropagation(); }catch(_){}
         }
       }, {passive:false});
@@ -2843,10 +2831,10 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
     el.addEventListener('touchend', (e) => {
       if(moved) return; // era scroll
 
-      if(preventDefault && !isEditableTarget(e.target)){
+      if(preventDefault){
         try{ e.preventDefault(); }catch(_){}
       }
-      if(stopPropagation && !isEditableTarget(e.target)){
+      if(stopPropagation){
         try{ e.stopPropagation(); }catch(_){}
       }
       run();
@@ -2856,11 +2844,11 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
     el.addEventListener('pointerdown', (e) => {
       if(e.isPrimary === false) return;
       markStart(e.clientX, e.clientY);
-      if(preventDefault && !isEditableTarget(e.target)){
+      if(preventDefault){
         // En iOS a veces ayuda a evitar selección/gestos raros
         try{ e.preventDefault(); }catch(_){}
       }
-      if(stopPropagation && !isEditableTarget(e.target)){
+      if(stopPropagation){
         try{ e.stopPropagation(); }catch(_){}
       }
     }, {passive:false});
@@ -2873,7 +2861,7 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
     el.addEventListener('pointerup', (e) => {
       if(e.isPrimary === false) return;
       if(moved) return;
-      if(stopPropagation && !isEditableTarget(e.target)){
+      if(stopPropagation){
         try{ e.stopPropagation(); }catch(_){}
       }
       run();
@@ -2881,10 +2869,10 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
 
     // Click fallback
     el.addEventListener('click', (e) => {
-      if(preventDefault && !isEditableTarget(e.target)){
+      if(preventDefault){
         try{ e.preventDefault(); }catch(_){}
       }
-      if(stopPropagation && !isEditableTarget(e.target)){
+      if(stopPropagation){
         try{ e.stopPropagation(); }catch(_){}
       }
       run();
@@ -4543,6 +4531,19 @@ document.addEventListener('blur', function(e){
 
 
 
+
+
+<script>
+/* v4.1 iOS keyboard FIX */
+document.addEventListener('touchend', function(e) {
+  const target = e.target.closest('input, textarea, select');
+  if (target) {
+    setTimeout(() => {
+      target.focus();
+    }, 50);
+  }
+}, { passive: true });
+</script>
 
 </body>
 </html>
