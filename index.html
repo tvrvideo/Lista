@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Language" content="es-ES">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Revisiones v4.2</title>
+<title>Revisiones v4.2.1</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0E4C92">
 <meta name="apple-mobile-web-app-title" content="Talleres Lista">
@@ -909,14 +909,21 @@ input.estado-bad{
   flex-wrap:wrap;
 }
 .deleteVehicleActions button{ min-width:120px; }
-.deleteVehicleInlineBox{
-  margin-top:18px;
-  padding-top:14px;
-  border-top:1px solid var(--line);
-}
-.deleteVehicleInlineBox .danger{
+/* v4.2.1 - Botón pequeño para borrar fechas en secciones concretas */
+.clearDateBtn{
   width:100%;
-  min-height:54px;
+  margin-top:6px;
+  min-height:36px;
+  padding:7px 8px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.09);
+  color:var(--text);
+  font-size:calc(12px * var(--fontScale));
+  font-weight:900;
+}
+.clearDateBtn:active{
+  transform:translateY(1px);
 }
 
 /* v4.1.2 iOS18 FIX */
@@ -938,7 +945,7 @@ input, textarea, select {
 <header id="appHeader">
   <div class="titleblock">
     <h1>Revisiones</h1>
-    <div class="ver">v4.2</div>
+    <div class="ver">v4.2.1</div>
   </div>
 
   <div class="logoBox" id="logoBox" title="Pulsa para cambiar el logo">
@@ -1068,11 +1075,6 @@ input, textarea, select {
           <label>Teléfono</label>
           <input id="dPhone" inputmode="tel" autocomplete="tel">
         </div>
-      </div>
-
-      <div class="deleteVehicleInlineBox">
-        <button class="danger" id="btnDeleteVehicleInline" type="button" data-action="delete-current-vehicle" onclick="window.__talleresAskDeleteVehicle && window.__talleresAskDeleteVehicle(event)">Eliminar este vehículo</button>
-        <p class="hint">Antes de borrar se guarda una copia interna de seguridad.</p>
       </div>
 
       <div class="sectionTitle">Trabajos</div>
@@ -2726,6 +2728,10 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
   const DEFAULT_WORKS = ['Aceite','Filtros','Neumáticos','Frenos','ITV','Aceite caja cambios','Distribución','Correas Accesorios','Batería'];
 
   const $ = (id) => document.getElementById(id);
+  const cssEscape = (val) => {
+    try{ return CSS && CSS.escape ? CSS.escape(String(val || '')) : String(val || '').replace(/"/g, '\\"'); }
+    catch(e){ return String(val || '').replace(/"/g, '\\"'); }
+  };
 
   const header = $('appHeader');
   const home = $('home');
@@ -3693,6 +3699,7 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
       const isNeumaticos = name.trim().toLowerCase() === 'neumáticos';
       const isFrenos = name.trim().toLowerCase() === 'frenos';
       const isITV = name.trim().toLowerCase() === 'itv';
+      const isCajaCambios = name.trim().toLowerCase() === 'aceite caja cambios';
       const isDistribucion = name.trim().toLowerCase() === 'distribución';
 const isBateria = name.trim().toLowerCase().includes('bater');
 const isCorreas = name.trim().toLowerCase().includes('correas');
@@ -3745,7 +3752,7 @@ const isCorreas = name.trim().toLowerCase().includes('correas');
           </div>
           <div class="field">
             <label>Próx Cambio</label>
-            <input type="date" lang="es-ES" data-name="${safeName}" data-k="filtroAceiteProx" value="${escAttr(w.filtroAceiteProx || '')}">
+            <input inputmode="numeric" data-name="${safeName}" data-k="filtroAceiteProx" value="${escAttr(w.filtroAceiteProx || '')}" placeholder="0">
           </div>
         </div>
 
@@ -3760,7 +3767,7 @@ const isCorreas = name.trim().toLowerCase().includes('correas');
           </div>
           <div class="field">
             <label>Próx Cambio</label>
-            <input type="date" lang="es-ES" data-name="${safeName}" data-k="filtroAireProx" value="${escAttr(w.filtroAireProx || '')}">
+            <input inputmode="numeric" data-name="${safeName}" data-k="filtroAireProx" value="${escAttr(w.filtroAireProx || '')}" placeholder="0">
           </div>
         </div>
 
@@ -3775,7 +3782,7 @@ const isCorreas = name.trim().toLowerCase().includes('correas');
           </div>
           <div class="field">
             <label>Próx Cambio</label>
-            <input type="date" lang="es-ES" data-name="${safeName}" data-k="filtroGasoilProx" value="${escAttr(w.filtroGasoilProx || '')}">
+            <input inputmode="numeric" data-name="${safeName}" data-k="filtroGasoilProx" value="${escAttr(w.filtroGasoilProx || '')}" placeholder="0">
           </div>
         </div>
 
@@ -3908,10 +3915,12 @@ const isCorreas = name.trim().toLowerCase().includes('correas');
           <div class="field">
             <label>Cambiado</label>
             <input type="date" data-name="${safeName}" data-k="distFechaCambio" value="${escAttr(w.distFechaCambio || '')}">
+            <button class="clearDateBtn" type="button" data-name="${safeName}" data-k="distFechaCambio">Borrar fecha</button>
           </div>
           <div class="field">
             <label>Próx Cambio</label>
             <input type="date" data-name="${safeName}" data-k="distFechaProx" value="${escAttr(w.distFechaProx || '')}">
+            <button class="clearDateBtn" type="button" data-name="${safeName}" data-k="distFechaProx">Borrar fecha</button>
           </div>
         </div>
 
@@ -4050,6 +4059,30 @@ const correasBody = `
         </div>
       `;
 
+      const cajaCambiosBody = `
+        <div class="workTop">
+          <div class="field">
+            <label>Fecha</label>
+            <input type="date" lang="es-ES" data-name="${safeName}" data-k="done" value="${escAttr(w.done || '')}">
+            <button class="clearDateBtn" type="button" data-name="${safeName}" data-k="done">Borrar fecha</button>
+          </div>
+          <div class="field">
+            <label>Próx Fecha</label>
+            <input class="nextInput" type="date" lang="es-ES" data-name="${safeName}" data-k="next" value="${escAttr(w.next || '')}">
+            <button class="clearDateBtn" type="button" data-name="${safeName}" data-k="next">Borrar fecha</button>
+          </div>
+          <div class="field">
+            <label>Kilómetros</label>
+            <input inputmode="numeric" data-name="${safeName}" data-k="km" value="${escAttr(w.km || '')}" placeholder="0">
+          </div>
+        </div>
+
+        <div class="notesBox">
+          <label>Notas</label>
+          <textarea data-name="${safeName}" data-k="notes" placeholder="Buscar">${escText(w.notes || '')}</textarea>
+        </div>
+      `;
+
 const genericBody = `
         <div class="workTop">
           <div class="field">
@@ -4079,7 +4112,7 @@ const genericBody = `
         </div>
         <button class="trashBtn" data-del="${safeName}" type="button" aria-label="Eliminar ${safeName}" title="Eliminar">🗑️</button>
         <div class="workBody">
-          ${isAuxiliar ? auxBody : (isAceite ? aceiteBody : (isFiltros ? filtrosBody : (isNeumaticos ? neumaticosBody : (isFrenos ? frenosBody : (isITV ? itvBody : (isCorreas ? correasBody : (isBateria ? bateriaBody : (isDistribucion ? distribucionBody : genericBody))))))))}
+          ${isAuxiliar ? auxBody : (isAceite ? aceiteBody : (isFiltros ? filtrosBody : (isNeumaticos ? neumaticosBody : (isFrenos ? frenosBody : (isITV ? itvBody : (isCajaCambios ? cajaCambiosBody : (isCorreas ? correasBody : (isBateria ? bateriaBody : (isDistribucion ? distribucionBody : genericBody)))))))))}
         </div>
       `;
 
@@ -4104,6 +4137,22 @@ const genericBody = `
           const k = inp.getAttribute('data-k');
           onChange(n, k, inp.value);
         }, {passive:true});
+      });
+
+      card.querySelectorAll('.clearDateBtn').forEach(btn => {
+        const clearDate = (ev) => {
+          if(ev){
+            try{ ev.preventDefault(); }catch(e){}
+            try{ ev.stopPropagation(); }catch(e){}
+          }
+          const n = btn.getAttribute('data-name');
+          const k = btn.getAttribute('data-k');
+          const target = card.querySelector('input[data-name="' + cssEscape(n) + '"][data-k="' + cssEscape(k) + '"]');
+          if(target) target.value = '';
+          onChange(n, k, '');
+        };
+        btn.addEventListener('click', clearDate, {passive:false});
+        btn.addEventListener('touchend', clearDate, {passive:false});
       });
 
       const delBtn = card.querySelector('.trashBtn');
@@ -4360,8 +4409,6 @@ const genericBody = `
   };
 
   bindDeleteButtonSafe(btnDeleteVehicle);
-  bindDeleteButtonSafe(document.getElementById('btnDeleteVehicleInline'));
-
   document.addEventListener('click', (ev) => {
     const target = ev.target && ev.target.closest ? ev.target.closest('[data-action="delete-current-vehicle"]') : null;
     if(target) askDeleteVehicle(ev);
