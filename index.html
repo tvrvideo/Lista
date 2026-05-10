@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Language" content="es-ES">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Revisiones v4.2.1</title>
+<title>Revisiones v4.2.2</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0E4C92">
 <meta name="apple-mobile-web-app-title" content="Talleres Lista">
@@ -510,6 +510,36 @@ body.theme-default{
   --card:#121b2f;
 }
 
+body.theme-dark{
+  --bg:#070d18;
+  --card:#111a2d;
+  --text:#eaf0ff;
+  --muted:#93a7c7;
+}
+
+body.theme-light{
+  --bg:#f5f7fb;
+  --card:#ffffff;
+  --text:#172033;
+  --muted:#5a6b89;
+  --line:rgba(0,0,0,.14);
+}
+body.theme-light .vehicleCard,
+body.theme-light .workCard{
+  background:rgba(255,255,255,.78);
+}
+body.theme-light input,
+body.theme-light textarea,
+body.theme-light select{
+  background:rgba(0,0,0,.045);
+  color:var(--text);
+}
+body.theme-light .actionBar,
+body.theme-light header{
+  background:rgba(245,247,251,.96);
+}
+
+
 body.theme-green{
   --bg:#0b1a12;
   --card:#102517;
@@ -945,7 +975,7 @@ input, textarea, select {
 <header id="appHeader">
   <div class="titleblock">
     <h1>Revisiones</h1>
-    <div class="ver">v4.2.1</div>
+    <div class="ver">v4.2.2</div>
   </div>
 
   <div class="logoBox" id="logoBox" title="Pulsa para cambiar el logo">
@@ -2671,10 +2701,12 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
         <div class="field">
           <label>Tema</label>
           <select id="themeSelect">
-            <option value="default">Azul</option>
-            <option value="green">Verde claro</option>
+            <option value="default">Azul oscuro</option>
+            <option value="dark">Modo oscuro</option>
+            <option value="light">Modo claro</option>
+            <option value="green">Verde oscuro</option>
             <option value="beige">Beige claro</option>
-            <option value="gray">Gris</option>
+            <option value="gray">Gris oscuro</option>
             <option value="custom">Personalizado</option>
           </select>
           <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
@@ -2685,9 +2717,11 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
         <div class="field">
           <label>Tamaño de texto</label>
           <select id="fontSelect">
+            <option value="0.95">Compacto</option>
             <option value="1">Normal</option>
             <option value="1.1">Medio</option>
             <option value="1.2">Grande</option>
+            <option value="1.3">Muy grande</option>
           </select>
         </div>
       </div>
@@ -2696,8 +2730,11 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
           <label>Color principal</label>
           <select id="primarySelect">
             <option value="ral5010">Azul (RAL 5010)</option>
+            <option value="blueLight">Azul claro</option>
             <option value="green">Verde</option>
+            <option value="orange">Naranja</option>
             <option value="red">Rojo</option>
+            <option value="purple">Morado</option>
             <option value="gray">Gris</option>
             <option value="custom">Personalizado</option>
           </select>
@@ -3470,15 +3507,18 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
 
   const PRESET_PRIMARY = {
     ral5010: '#0E4C92',
+    blueLight: '#2563eb',
     green:  '#198754',
+    orange: '#f59e0b',
     red:    '#c62828',
+    purple: '#7c3aed',
     gray:   '#6b7280'
   };
 
   const applyPrefs = (prefs) => {
     try{
       const theme = (prefs && prefs.theme) ? prefs.theme : 'default';
-      document.body.classList.remove('theme-default','theme-dark','theme-green','theme-beige','theme-gray','theme-custom');
+      document.body.classList.remove('theme-default','theme-dark','theme-light','theme-green','theme-beige','theme-gray','theme-custom');
       if(theme === 'custom'){
         document.body.classList.add('theme-custom');
       }else{
@@ -3796,7 +3836,7 @@ const isCorreas = name.trim().toLowerCase().includes('correas');
             <input data-name="${safeName}" data-k="filtroPolenRef" value="${escAttr(w.filtroPolenRef || '')}" autocomplete="off">
           </div>
           <div class="field">
-            <label>Próx Km</label>
+            <label>Próx Cambio</label>
             <input inputmode="numeric" data-name="${safeName}" data-k="filtroPolenProx" value="${escAttr(w.filtroPolenProx || '')}" placeholder="0">
           </div>
         </div>
