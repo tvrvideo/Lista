@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Language" content="es-ES">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Revisiones v4.2.2</title>
+<title>Revisiones v4.3</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0E4C92">
 <meta name="apple-mobile-web-app-title" content="Talleres Lista">
@@ -956,6 +956,59 @@ input.estado-bad{
   transform:translateY(1px);
 }
 
+/* v4.3 - Sistema visual reforzado */
+:root{
+  --inputBg:rgba(255,255,255,.10);
+  --inputBorder:rgba(255,255,255,.22);
+  --inputShadow:0 0 0 rgba(0,0,0,0);
+  --focusRing:rgba(37,99,235,.24);
+  --radiusScale:1;
+  --buttonScale:1;
+  --shadowStrength:.25;
+}
+.card,.vehicleCard,.workCard{border-color:var(--line);box-shadow:0 10px 24px rgba(0,0,0,var(--shadowStrength));}
+input,textarea,select{
+  background:var(--inputBg) !important;
+  border:1.5px solid var(--inputBorder) !important;
+  color:var(--text) !important;
+  box-shadow:var(--inputShadow);
+  border-radius:calc(14px * var(--radiusScale));
+}
+input:focus,textarea:focus,select:focus{
+  border-color:var(--primary) !important;
+  box-shadow:0 0 0 3px var(--focusRing) !important;
+}
+body.theme-dark{--bg:#070d18;--card:#111a2d;--text:#eaf0ff;--muted:#93a7c7;--line:rgba(255,255,255,.14);--inputBg:rgba(255,255,255,.10);--inputBorder:rgba(255,255,255,.24);}
+body.theme-light{--bg:#f5f7fb;--card:#ffffff;--text:#172033;--muted:#55657f;--line:rgba(0,0,0,.16);--inputBg:#eef2f8;--inputBorder:rgba(23,32,51,.28);--inputShadow:0 1px 0 rgba(0,0,0,.06);}
+body.theme-beige{--bg:#f1eadc;--card:#fffaf0;--text:#202020;--muted:#5f5a50;--line:rgba(70,55,30,.22);--inputBg:#e7dcc8;--inputBorder:rgba(74,58,34,.34);--inputShadow:0 1px 0 rgba(74,58,34,.09);}
+body.theme-beige2{--bg:#d9ccb5;--card:#efe3cf;--text:#1e1a15;--muted:#51483a;--line:rgba(58,44,24,.28);--inputBg:#d2c2a8;--inputBorder:rgba(58,44,24,.42);--inputShadow:0 1px 0 rgba(58,44,24,.12);}
+body.theme-graphite{--bg:#141414;--card:#202020;--text:#f2f2f2;--muted:#b0b0b0;--line:rgba(255,255,255,.16);--inputBg:#2b2b2b;--inputBorder:rgba(255,255,255,.26);}
+body.theme-steel{--bg:#101923;--card:#172433;--text:#eef5ff;--muted:#a3b4c8;--line:rgba(180,205,230,.18);--inputBg:#1e3145;--inputBorder:rgba(150,190,230,.30);}
+body.theme-amoled{--bg:#000;--card:#070707;--text:#fff;--muted:#b7b7b7;--line:rgba(255,255,255,.20);--inputBg:#121212;--inputBorder:rgba(255,255,255,.32);--shadowStrength:.08;}
+body.theme-workshop{--bg:#111;--card:#1b1b1b;--text:#fff;--muted:#d6d6d6;--line:rgba(255,255,255,.28);--inputBg:#262626;--inputBorder:rgba(255,255,255,.42);--shadowStrength:.34;}
+body.contrast-high input,body.contrast-high textarea,body.contrast-high select{border-width:2px !important;border-color:color-mix(in srgb,var(--primary) 55%,var(--text)) !important;}
+body.text-light{--text:#f7fbff;--muted:#d1d8e5;}
+body.text-dark{--text:#101828;--muted:#475467;}
+body.radius-square{--radiusScale:.55;}
+body.radius-normal{--radiusScale:1;}
+body.radius-rounded{--radiusScale:1.55;}
+body.buttons-compact{--buttonScale:.88;}
+body.buttons-normal{--buttonScale:1;}
+body.buttons-large{--buttonScale:1.16;}
+body.shadow-min{--shadowStrength:.08;}
+body.shadow-normal{--shadowStrength:.25;}
+body.shadow-strong{--shadowStrength:.42;}
+body.density-compact main{padding-left:12px;padding-right:12px;}
+body.density-spacious main{padding-left:20px;padding-right:20px;}
+body.density-compact .card{padding:12px;margin-bottom:10px;}
+body.density-spacious .card{padding:20px;margin-bottom:18px;}
+body.density-compact .workCard{margin-top:10px;}
+body.density-spacious .workCard{margin-top:18px;}
+button{min-height:calc(44px * var(--buttonScale));}
+body.theme-light .workHead,body.theme-beige .workHead,body.theme-beige2 .workHead{color:#fff;}
+body.theme-light .notesBox textarea,body.theme-beige .notesBox textarea,body.theme-beige2 .notesBox textarea{background:#eee3b8 !important;border-color:rgba(112,92,18,.55) !important;}
+body.theme-light .logoBox,body.theme-beige .logoBox,body.theme-beige2 .logoBox{background:rgba(255,255,255,.7);border-color:rgba(0,0,0,.18);}
+
 /* v4.1.2 iOS18 FIX */
 input, textarea, select {
   font-size: 16px !important;
@@ -975,7 +1028,7 @@ input, textarea, select {
 <header id="appHeader">
   <div class="titleblock">
     <h1>Revisiones</h1>
-    <div class="ver">v4.2.2</div>
+    <div class="ver">v4.3</div>
   </div>
 
   <div class="logoBox" id="logoBox" title="Pulsa para cambiar el logo">
@@ -2696,7 +2749,7 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
   
       <hr style="margin:20px 0; opacity:.2;">
       <h3 style="margin-top:0;">Personalización</h3>
-      
+
       <div class="row">
         <div class="field">
           <label>Tema</label>
@@ -2706,14 +2759,18 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
             <option value="light">Modo claro</option>
             <option value="green">Verde oscuro</option>
             <option value="beige">Beige claro</option>
+            <option value="beige2">Beige cálido</option>
             <option value="gray">Gris oscuro</option>
+            <option value="graphite">Grafito</option>
+            <option value="steel">Azul acero</option>
+            <option value="amoled">Negro AMOLED</option>
+            <option value="workshop">Modo taller</option>
             <option value="custom">Personalizado</option>
           </select>
           <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
             <input type="color" id="themePicker" value="#0b1220" style="width:56px; height:44px; padding:0; border-radius:12px; opacity:.55; display:none;">
           </div>
         </div>
-        
         <div class="field">
           <label>Tamaño de texto</label>
           <select id="fontSelect">
@@ -2725,6 +2782,7 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
           </select>
         </div>
       </div>
+
       <div class="row" style="margin-top:12px;">
         <div class="field">
           <label>Color principal</label>
@@ -2740,14 +2798,68 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
           </select>
           <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
             <input type="color" id="primaryPicker" value="#0E4C92" style="width:56px; height:44px; padding:0; border-radius:12px;">
-
-      <div class="row" style="margin-top:12px;">
-        <button class="primary" id="btnSetDefaults" type="button">Restaurar</button>
-      </div>
-</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Color de texto</label>
+          <select id="textModeSelect">
+            <option value="auto">Automático</option>
+            <option value="light">Texto claro</option>
+            <option value="dark">Texto oscuro</option>
+          </select>
         </div>
       </div>
 
+      <div class="row" style="margin-top:12px;">
+        <div class="field">
+          <label>Contraste</label>
+          <select id="contrastSelect">
+            <option value="normal">Normal</option>
+            <option value="high">Alto contraste</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Tamaño botones</label>
+          <select id="buttonSizeSelect">
+            <option value="compact">Compacto</option>
+            <option value="normal">Normal</option>
+            <option value="large">Grande</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <div class="field">
+          <label>Densidad interfaz</label>
+          <select id="densitySelect">
+            <option value="compact">Compacta</option>
+            <option value="normal">Normal</option>
+            <option value="spacious">Espaciosa</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Esquinas</label>
+          <select id="radiusSelect">
+            <option value="square">Más cuadradas</option>
+            <option value="normal">Normal</option>
+            <option value="rounded">Más redondeadas</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <div class="field">
+          <label>Sombras</label>
+          <select id="shadowSelect">
+            <option value="min">Mínimas</option>
+            <option value="normal">Normal</option>
+            <option value="strong">Fuertes</option>
+          </select>
+        </div>
+        <div class="field" style="display:flex; align-items:flex-end;">
+          <button class="primary" id="btnSetDefaults" type="button">Restaurar</button>
+        </div>
+      </div>
 </section>
 
 
@@ -3420,6 +3532,12 @@ const daysUntil = (isoDate) => {
 const fontSelect = document.getElementById('fontSelect');
   const primarySelect = document.getElementById('primarySelect');
   const primaryPicker = document.getElementById('primaryPicker');
+  const textModeSelect = document.getElementById('textModeSelect');
+  const contrastSelect = document.getElementById('contrastSelect');
+  const buttonSizeSelect = document.getElementById('buttonSizeSelect');
+  const densitySelect = document.getElementById('densitySelect');
+  const radiusSelect = document.getElementById('radiusSelect');
+  const shadowSelect = document.getElementById('shadowSelect');
 
     const btnSetDefaults = document.getElementById('btnSetDefaults');
 const PREF_KEY = 'talleres_lista_prefs_v1_6';
@@ -3518,7 +3636,7 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
   const applyPrefs = (prefs) => {
     try{
       const theme = (prefs && prefs.theme) ? prefs.theme : 'default';
-      document.body.classList.remove('theme-default','theme-dark','theme-light','theme-green','theme-beige','theme-gray','theme-custom');
+      document.body.classList.remove('theme-default','theme-dark','theme-light','theme-green','theme-beige','theme-beige2','theme-gray','theme-graphite','theme-steel','theme-amoled','theme-workshop','theme-custom');
       if(theme === 'custom'){
         document.body.classList.add('theme-custom');
       }else{
@@ -3564,7 +3682,29 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
         primaryPicker.style.opacity = (primarySelect && primarySelect.value === 'custom') ? '1' : '.55';
       }
 
-      
+      const textMode = (prefs && prefs.textMode) ? String(prefs.textMode) : 'auto';
+      const contrast = (prefs && prefs.contrast) ? String(prefs.contrast) : 'normal';
+      const buttonSize = (prefs && prefs.buttonSize) ? String(prefs.buttonSize) : 'normal';
+      const density = (prefs && prefs.density) ? String(prefs.density) : 'normal';
+      const radius = (prefs && prefs.radius) ? String(prefs.radius) : 'normal';
+      const shadow = (prefs && prefs.shadow) ? String(prefs.shadow) : 'normal';
+
+      document.body.classList.remove('text-auto','text-light','text-dark','contrast-high','buttons-compact','buttons-normal','buttons-large','density-compact','density-normal','density-spacious','radius-square','radius-normal','radius-rounded','shadow-min','shadow-normal','shadow-strong');
+      document.body.classList.add('text-' + textMode);
+      if(contrast === 'high') document.body.classList.add('contrast-high');
+      document.body.classList.add('buttons-' + buttonSize);
+      document.body.classList.add('density-' + density);
+      document.body.classList.add('radius-' + radius);
+      document.body.classList.add('shadow-' + shadow);
+
+      if(textModeSelect) textModeSelect.value = textMode;
+      if(contrastSelect) contrastSelect.value = contrast;
+      if(buttonSizeSelect) buttonSizeSelect.value = buttonSize;
+      if(densitySelect) densitySelect.value = density;
+      if(radiusSelect) radiusSelect.value = radius;
+      if(shadowSelect) shadowSelect.value = shadow;
+
+
   if(themePicker){
     themePicker.addEventListener('input', () => {
       if(themeSelect && themeSelect.value !== 'custom') return;
@@ -3600,7 +3740,13 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
     themeHex: themePicker ? themePicker.value : '#0b1220',
     fontScale: fontSelect ? fontSelect.value : (getComputedStyle(document.documentElement).getPropertyValue('--fontScale').trim() || '1.15'),
     primaryMode: primarySelect ? primarySelect.value : 'ral5010',
-    primaryHex: primaryPicker ? primaryPicker.value : PRESET_PRIMARY.ral5010
+    primaryHex: primaryPicker ? primaryPicker.value : PRESET_PRIMARY.ral5010,
+    textMode: textModeSelect ? textModeSelect.value : 'auto',
+    contrast: contrastSelect ? contrastSelect.value : 'normal',
+    buttonSize: buttonSizeSelect ? buttonSizeSelect.value : 'normal',
+    density: densitySelect ? densitySelect.value : 'normal',
+    radius: radiusSelect ? radiusSelect.value : 'normal',
+    shadow: shadowSelect ? shadowSelect.value : 'normal'
   });
 
   const loadPrefs = () => {
@@ -3608,7 +3754,13 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
       theme:'default',
       fontScale:(getComputedStyle(document.documentElement).getPropertyValue('--fontScale').trim() || '1.15'),
       primaryMode:'ral5010',
-      primaryHex: PRESET_PRIMARY.ral5010
+      primaryHex: PRESET_PRIMARY.ral5010,
+      textMode:'auto',
+      contrast:'normal',
+      buttonSize:'normal',
+      density:'normal',
+      radius:'normal',
+      shadow:'normal'
     };
     // migrar a la key nueva
     savePrefs(prefs);
@@ -3650,6 +3802,14 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
     }, {passive:true});
   }
 
+  [textModeSelect, contrastSelect, buttonSizeSelect, densitySelect, radiusSelect, shadowSelect].filter(Boolean).forEach(sel => {
+    sel.addEventListener('change', () => {
+      const p = buildPrefsFromUI();
+      savePrefs(p);
+      applyPrefs(p);
+    }, {passive:true});
+  });
+
 
   // Botón: Restaurar (Azul / Texto normal / Azul RAL 5010)
   if(btnSetDefaults){
@@ -3669,6 +3829,12 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
       }
       if(primarySelect) primarySelect.value = 'ral5010';
       if(primaryPicker) primaryPicker.value = (PRESET_PRIMARY.ral5010 || '#0E4C92');
+      if(textModeSelect) textModeSelect.value = 'auto';
+      if(contrastSelect) contrastSelect.value = 'normal';
+      if(buttonSizeSelect) buttonSizeSelect.value = 'normal';
+      if(densitySelect) densitySelect.value = 'normal';
+      if(radiusSelect) radiusSelect.value = 'normal';
+      if(shadowSelect) shadowSelect.value = 'normal';
 
       // guardar/aplicar como si el usuario cambiara manualmente
       const p = buildPrefsFromUI();
