@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Language" content="es-ES">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Revisiones v4.3</title>
+<title>Revisiones v4.3.5</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0E4C92">
 <meta name="apple-mobile-web-app-title" content="Talleres Lista">
@@ -1028,7 +1028,7 @@ input, textarea, select {
 <header id="appHeader">
   <div class="titleblock">
     <h1>Revisiones</h1>
-    <div class="ver">v4.3</div>
+    <div class="ver">v4.3.5</div>
   </div>
 
   <div class="logoBox" id="logoBox" title="Pulsa para cambiar el logo">
@@ -3923,6 +3923,7 @@ const isCorreas = name.trim().toLowerCase().includes('correas');
           <div class="field">
             <label>Fecha</label>
             <input type="date" lang="es-ES" data-name="${safeName}" data-k="done" value="${escAttr(w.done || '')}">
+            <button class="clearDateBtn" type="button" data-name="${safeName}" data-k="done">Borrar fecha</button>
           </div>
         </div>
         <div class="workGrid3">
@@ -3937,6 +3938,7 @@ const isCorreas = name.trim().toLowerCase().includes('correas');
           <div class="field">
             <label>Próx Fecha</label>
             <input class="nextInput" type="date" lang="es-ES" data-name="${safeName}" data-k="next" value="${escAttr(w.next || '')}">
+            <button class="clearDateBtn" type="button" data-name="${safeName}" data-k="next">Borrar fecha</button>
           </div>
         </div>
 
@@ -4102,6 +4104,7 @@ const isCorreas = name.trim().toLowerCase().includes('correas');
           <div class="field">
             <label>Próxima revisión ITV</label>
             <input class="nextInput" type="date" lang="es-ES" data-name="${safeName}" data-k="itvProxima" value="${escAttr(w.itvProxima || w.next || '')}">
+            <button class="clearDateBtn" type="button" data-name="${safeName}" data-k="itvProxima">Borrar fecha</button>
           </div>
         </div>
 
@@ -4294,10 +4297,12 @@ const genericBody = `
           <div class="field">
             <label>Fecha</label>
             <input type="date" lang="es-ES" data-name="${safeName}" data-k="done" value="${escAttr(w.done || '')}">
+            <button class="clearDateBtn" type="button" data-name="${safeName}" data-k="done">Borrar fecha</button>
           </div>
           <div class="field">
             <label>Próx Fecha</label>
             <input class="nextInput" type="date" lang="es-ES" data-name="${safeName}" data-k="next" value="${escAttr(w.next || '')}">
+            <button class="clearDateBtn" type="button" data-name="${safeName}" data-k="next">Borrar fecha</button>
           </div>
           <div class="field">
             <label>Kilómetros</label>
@@ -5235,6 +5240,57 @@ document.addEventListener('blur', function(e){
     }
   }, true);
 })();
+
+
+
+
+
+/* v4.3.5 - Reset universal botones Borrar fecha */
+document.addEventListener('click', function(ev){
+  const btn = ev.target.closest && ev.target.closest('.clearDateBtn');
+  if(!btn) return;
+
+  try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+
+  try{
+    const workName = btn.getAttribute('data-name') || '';
+    const key = btn.getAttribute('data-k') || '';
+    if(!workName || !key) return;
+
+    let input = document.querySelector(
+      'input[data-name="' + cssEscape(workName) + '"][data-k="' + cssEscape(key) + '"]'
+    );
+
+    if(!input){
+      const field = btn.closest('.field');
+      if(field) input = field.querySelector('input[type="date"][data-k], input.nextInput[data-k]');
+    }
+
+    if(input){
+      input.value = '';
+      input.dispatchEvent(new Event('input', {bubbles:true}));
+      input.dispatchEvent(new Event('change', {bubbles:true}));
+    }
+
+    if(current && current.works){
+      const w = current.works[workName];
+      if(w){
+        w[key] = '';
+
+        const low = String(key).toLowerCase();
+        if(low.includes('prox') || low.includes('proxima') || low === 'next' || low.includes('fin')){
+          if(Object.prototype.hasOwnProperty.call(w, 'next')) w.next = '';
+        }
+      }
+    }
+
+    saveDB();
+    renderDetail();
+  }catch(err){
+    try{ console.error(err); }catch(e){}
+  }
+}, true);
+
 </script>
 
 
