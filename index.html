@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Language" content="es-ES">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Revisiones v4.3.9</title>
+<title>Revisiones v4.4</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0E4C92">
 <meta name="apple-mobile-web-app-title" content="Talleres Lista">
@@ -1062,7 +1062,7 @@ input, textarea, select {
 }
 
 
-/* v4.3.9 - Quitar doble borde en cajas nombre de Filtros/Neumáticos/Frenos */
+/* v4.4 · Aux estable - Quitar doble borde en cajas nombre de Filtros/Neumáticos/Frenos */
 .filterNameBox input,
 .filterNameBox input.filterNameInput,
 input.filterNameInput{
@@ -1079,7 +1079,7 @@ input.filterNameInput{
 
 
 
-/* v4.3.9 - Tema Beige claro premium completo */
+/* v4.4 · Aux estable - Tema Beige claro premium completo */
 body.theme-beige{
   --bg:#f3eadc;
   --card:#fffaf0;
@@ -1266,7 +1266,7 @@ body.theme-beige2 .notesBox textarea,
 body.theme-beige2 .workBody textarea{ background:#ead99b !important; color:#1e1a15 !important; border-color:rgba(120,90,15,.62) !important; }
 
 
-/* v4.3.9 - Papelera desactivada: cajas fijas y app estable */
+/* v4.4 · Aux estable - Papelera desactivada: cajas fijas y app estable */
 .trashBtn{
   display:none !important;
 }
@@ -1275,7 +1275,7 @@ body.theme-beige2 .workBody textarea{ background:#ead99b !important; color:#1e1a
 }
 
 
-/* v4.3.9 - Restaurar modo oscuro / beige claro */
+/* v4.4 · Aux estable - Restaurar modo oscuro / beige claro */
 .themeRestoreActions{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
@@ -1306,6 +1306,131 @@ body.theme-light #btnRestoreDarkTheme{
   color:#202020;
 }
 
+
+
+
+.auxTitleInput::selection{
+  background:rgba(255,255,255,.25);
+}
+
+
+/* v4.3.15 - Aux título integrado en barra azul */
+.workCard .workHead input.auxTitleInput,
+body.theme-beige .workCard .workHead input.auxTitleInput,
+body.theme-light .workCard .workHead input.auxTitleInput,
+body.theme-beige2 .workCard .workHead input.auxTitleInput{
+  -webkit-appearance:none !important;
+  appearance:none !important;
+  background:transparent !important;
+  background-color:transparent !important;
+  background-image:none !important;
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+  font-weight:900 !important;
+  font-size:calc(18px * var(--fontScale)) !important;
+  padding:0 !important;
+  margin:0 !important;
+  min-height:38px !important;
+  height:38px !important;
+  line-height:38px !important;
+  border-radius:0 !important;
+}
+
+.workCard .workHead input.auxTitleInput:focus,
+body.theme-beige .workCard .workHead input.auxTitleInput:focus{
+  background:transparent !important;
+  background-color:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+
+
+/* v4.3.28 - Quitar Aux: mismo botón que verde, solo color rojo */
+.auxWorkActions2{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:10px !important;
+}
+.auxWorkActions .auxRemoveBtn{
+  width:100% !important;
+  background:linear-gradient(90deg, rgba(198,40,40,.98), rgba(198,40,40,.72)) !important;
+  border:1px solid rgba(198,40,40,.95) !important;
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+  box-shadow:0 12px 28px rgba(198,40,40,.18) !important;
+  pointer-events:auto !important;
+  touch-action:manipulation !important;
+}
+
+
+/* v4.3.29 - Quitar Aux fijo separado del botón verde */
+.auxRemoveStandaloneWrap{
+  margin-top:10px !important;
+  position:relative !important;
+  z-index:20 !important;
+}
+.auxRemoveStandalone{
+  display:block !important;
+  width:100% !important;
+  min-height:54px !important;
+  border-radius:18px !important;
+  border:1px solid rgba(198,40,40,.95) !important;
+  background:linear-gradient(90deg, #c62828, #e45a5a) !important;
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+  font-weight:900 !important;
+  font-size:calc(17px * var(--fontScale)) !important;
+  pointer-events:auto !important;
+  touch-action:manipulation !important;
+  -webkit-tap-highlight-color:transparent !important;
+  cursor:pointer !important;
+}
+.auxRemoveStandalone:active{
+  transform:scale(.98);
+}
+
+
+/* v4.4 · Aux estable - usa el mismo borrado fiable del Gestor Aux */
+.auxInlineDeleteWrap{
+  margin-top:12px;
+}
+.auxInlineDelete{
+  width:100% !important;
+  min-height:52px !important;
+  border-radius:16px !important;
+  border:1px solid rgba(198,40,40,.95) !important;
+  background:linear-gradient(90deg, #c62828, #e45a5a) !important;
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+  font-weight:900 !important;
+  font-size:calc(16px * var(--fontScale)) !important;
+  cursor:pointer !important;
+  touch-action:manipulation !important;
+  -webkit-tap-highlight-color:transparent !important;
+}
+.auxInlineDelete:active{ transform:scale(.985); }
+.auxInlineDelete.confirming{
+  background:linear-gradient(90deg, #8b0000, #c62828) !important;
+  border-color:rgba(255,255,255,.55) !important;
+  box-shadow:0 0 0 3px rgba(198,40,40,.18), 0 12px 28px rgba(198,40,40,.22) !important;
+}
+
+
+/* v4.4.1 - Fix restaurar copia iPhone/Safari */
+#restorePicker{
+  display:block !important;
+  position:fixed !important;
+  left:-9999px !important;
+  top:auto !important;
+  width:1px !important;
+  height:1px !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+
 </style>
 </head>
 
@@ -1314,7 +1439,7 @@ body.theme-light #btnRestoreDarkTheme{
 <header id="appHeader">
   <div class="titleblock">
     <h1>Revisiones</h1>
-    <div class="ver">v4.3.9</div>
+    <div class="ver">v4.4</div>
   </div>
 
   <div class="logoBox" id="logoBox" title="Pulsa para cambiar el logo">
@@ -1450,7 +1575,7 @@ body.theme-light #btnRestoreDarkTheme{
       <div id="detailWorks"></div>
 
       <div class="auxWorkActions">
-        <button class="primary auxBtn" id="btnAddWork" type="button">+ Trabajo auxiliar</button>
+        <button class="primary auxBtn" id="btnAddWork" type="button">+ Crear Aux</button>
       </div>
 
       <div class="sectionTitle">Notas generales</div>
@@ -1523,7 +1648,7 @@ body.theme-light #btnRestoreDarkTheme{
       <div id="addWorks"></div>
 
       <div class="auxWorkActions">
-        <button class="primary auxBtn" id="btnAddWorkAdd" type="button">+ Trabajo auxiliar</button>
+        <button class="primary auxBtn" id="btnAddWorkAdd" type="button">+ Crear Aux</button>
       </div>
 
       <div class="sectionTitle">Notas generales</div>
@@ -3246,6 +3371,7 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
   const addWorks = $('addWorks');
   const aGeneralNotes = $('aGeneralNotes');
   const btnAddWorkAdd = $('btnAddWorkAdd');
+  const btnRemoveAuxWorkAdd = $('btnRemoveAuxWorkAdd');
 
   const dCreated = $('dCreated');
   const dPlate = $('dPlate');
@@ -3260,6 +3386,9 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
   const detailWorks = $('detailWorks');
   const dGeneralNotes = $('dGeneralNotes');
   const btnAddWork = $('btnAddWork');
+  const btnRemoveAuxWork = $('btnRemoveAuxWork');
+  const detailAuxManager = $('detailAuxManager');
+  const addAuxManager = $('addAuxManager');
   const btnDeleteVehicle = $('btnDeleteVehicle');
 
   const btnExport = $('btnExport');
@@ -3275,6 +3404,17 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
   // - Mantiene debounce para evitar doble disparo (touchend + click)
   const onTap = (el, fn, opts = {}) => {
     if(!el) return;
+
+    const shouldIgnoreNestedInteractive = (e) => {
+      try{
+        const t = e && e.target;
+        if(!t || t === el) return false;
+        const interactive = t.closest && t.closest('input, textarea, select, button, .auxTitleInput, .noParentTap');
+        return !!interactive && interactive !== el;
+      }catch(_){
+        return false;
+      }
+    };
 
     // Por defecto, comportamiento "botón" (fiable en iOS)
     const preventDefault = (opts.preventDefault !== undefined) ? !!opts.preventDefault : true;
@@ -3306,6 +3446,7 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
     // Para botones, hacemos preventDefault ya en touchstart (mejora fiabilidad en WebView iOS)
     if(preventDefault){
       el.addEventListener('touchstart', (e) => {
+        if(shouldIgnoreNestedInteractive(e)) return;
         const t = e.touches && e.touches[0];
         if(t) markStart(t.clientX, t.clientY);
         try{ e.preventDefault(); }catch(_){}
@@ -3315,6 +3456,7 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
       }, {passive:false});
     }else{
       el.addEventListener('touchstart', (e) => {
+        if(shouldIgnoreNestedInteractive(e)) return;
         const t = e.touches && e.touches[0];
         if(t) markStart(t.clientX, t.clientY);
       }, {passive:true});
@@ -3327,6 +3469,7 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
     }, {passive:true});
 
     el.addEventListener('touchend', (e) => {
+      if(shouldIgnoreNestedInteractive(e)) return;
       if(moved) return; // era scroll
 
       if(preventDefault){
@@ -3340,6 +3483,7 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
 
     // Pointer (Android/desktop + iOS modernos)
     el.addEventListener('pointerdown', (e) => {
+      if(shouldIgnoreNestedInteractive(e)) return;
       if(e.isPrimary === false) return;
       markStart(e.clientX, e.clientY);
       if(preventDefault){
@@ -3357,6 +3501,7 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
     }, {passive:true});
 
     el.addEventListener('pointerup', (e) => {
+      if(shouldIgnoreNestedInteractive(e)) return;
       if(e.isPrimary === false) return;
       if(moved) return;
       if(stopPropagation){
@@ -3367,6 +3512,7 @@ document.getElementById(&#x27;btnExportMenu&#x27;).addEventListener(&#x27;click&
 
     // Click fallback
     el.addEventListener('click', (e) => {
+      if(shouldIgnoreNestedInteractive(e)) return;
       if(preventDefault){
         try{ e.preventDefault(); }catch(_){}
       }
@@ -4225,9 +4371,10 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
       const status = (duNext !== null && duNext < 0) ? 'overdue' : (duNext !== null && duNext <= 30 ? 'soon' : '');
 
       const safeName = escAttr(name);
-      const titleName = escText(name);
+      const auxRenderMode = (container === detailWorks) ? 'detail' : ((container === addWorks) ? 'add' : '');
       const isAceite = name.trim().toLowerCase() === 'aceite';
       const isAuxiliar = name.trim().toLowerCase().startsWith('aux ');
+      const titleName = escText(isAuxiliar && w.title ? w.title : name);
 
       const card = document.createElement('div');
       card.dataset.name = name;
@@ -4565,37 +4712,25 @@ const correasBody = `
       const auxBody = `
         <div class="workGrid3">
           <div class="field">
-            <label>Aux 1</label>
-            <input data-name="${safeName}" data-k="aux1" value="${escAttr(w.aux1 || '')}" autocomplete="off">
+            <label>Fecha</label>
+            <input type="date" lang="es-ES" data-name="${safeName}" data-k="aux1" value="${escAttr(w.aux1 || '')}" autocomplete="off">
           </div>
           <div class="field">
-            <label>Aux 2</label>
-            <input data-name="${safeName}" data-k="aux2" value="${escAttr(w.aux2 || '')}" autocomplete="off">
+            <label>Cambiado Km</label>
+            <input inputmode="numeric" data-name="${safeName}" data-k="aux2" value="${escAttr(w.aux2 || '')}" autocomplete="off">
           </div>
           <div class="field">
-            <label>Aux 3</label>
-            <input data-name="${safeName}" data-k="aux3" value="${escAttr(w.aux3 || '')}" autocomplete="off">
+            <label>Próx. Cambio Km</label>
+            <input inputmode="numeric" data-name="${safeName}" data-k="aux3" value="${escAttr(w.aux3 || '')}" autocomplete="off">
           </div>
         </div>
 
-        <div class="workGrid3">
-          <div class="field">
-            <label>Aux 4</label>
-            <input data-name="${safeName}" data-k="aux4" value="${escAttr(w.aux4 || '')}" autocomplete="off">
-          </div>
-          <div class="field">
-            <label>Aux 5</label>
-            <input data-name="${safeName}" data-k="aux5" value="${escAttr(w.aux5 || '')}" autocomplete="off">
-          </div>
-          <div class="field">
-            <label>Aux 6</label>
-            <input data-name="${safeName}" data-k="aux6" value="${escAttr(w.aux6 || '')}" autocomplete="off">
-          </div>
-        </div>
-
-        <div class="notesBox">
+        <div class="notesBox auxNotesBox">
           <label>Notas</label>
           <textarea data-name="${safeName}" data-k="notes" placeholder="Notas">${escText(w.notes || '')}</textarea>
+        </div>
+        <div class="auxInlineDeleteWrap">
+          <button class="auxDeleteBtn auxInlineDelete noParentTap" type="button" data-aux-mode="${escAttr(auxRenderMode)}" data-aux-key="${safeName}">Eliminar esta caja Aux</button>
         </div>
       `;
 
@@ -4649,7 +4784,11 @@ const genericBody = `
 
       card.innerHTML = `
         <div class="workHead" role="button" tabindex="0" aria-expanded="false">
-          <div class="workTitle">${titleName}</div>
+          ${isAuxiliar ? `
+            <input class="auxTitleInput noParentTap" data-name="${safeName}" data-k="title" value="${escAttr(w.title || name)}" aria-label="Nombre auxiliar">
+          ` : `
+            <div class="workTitle">${titleName}</div>
+          `}
           <div class="workArrow">⌄</div>
         </div>
         <div class="workBody">
@@ -4659,6 +4798,103 @@ const genericBody = `
 
       const ni = card.querySelector('.nextInput');
       if(ni && status) ni.classList.add(status);
+
+      if(isAuxiliar){
+        const auxDeleteBtn = card.querySelector('.auxDeleteBtn');
+        if(auxDeleteBtn){
+          let auxDeleteArmedUntil = 0;
+          let auxDeleteLastEventAt = 0;
+          let auxDeleteResetTimer = null;
+
+          const resetAuxDeleteButton = () => {
+            auxDeleteArmedUntil = 0;
+            try{ auxDeleteBtn.classList.remove('confirming'); }catch(e){}
+            try{ auxDeleteBtn.textContent = 'Eliminar esta caja Aux'; }catch(e){}
+          };
+
+          const reallyDeleteAux = () => {
+            // Borrar directamente del objeto que está pintando esta lista
+            delete worksObj[name];
+
+            try{ saveDB(); }catch(e){}
+            try{ renderHomeAlerts(); }catch(e){}
+
+            // Eliminar visualmente la tarjeta al instante
+            try{ card.remove(); }catch(e){}
+
+            // Repintar el contenedor para que el botón auxiliar y notas queden en su sitio
+            try{
+              container.innerHTML = '';
+              renderWorksCards(container, worksObj, onChange);
+            }catch(e){}
+          };
+
+          const deleteAuxTwoStep = (ev) => {
+            if(ev){
+              try{ ev.preventDefault(); }catch(e){}
+              try{ ev.stopPropagation(); }catch(e){}
+              try{ ev.stopImmediatePropagation(); }catch(e){}
+            }
+
+            const now = Date.now();
+            // Evita que touchend + pointerup + click del mismo toque cuenten como dos pulsaciones.
+            if(now - auxDeleteLastEventAt < 450) return;
+            auxDeleteLastEventAt = now;
+
+            if(auxDeleteArmedUntil && now <= auxDeleteArmedUntil){
+              if(auxDeleteResetTimer) clearTimeout(auxDeleteResetTimer);
+              reallyDeleteAux();
+              return;
+            }
+
+            auxDeleteArmedUntil = now + 3500;
+            try{ auxDeleteBtn.classList.add('confirming'); }catch(e){}
+            try{ auxDeleteBtn.textContent = 'Pulsa otra vez para eliminar'; }catch(e){}
+
+            if(auxDeleteResetTimer) clearTimeout(auxDeleteResetTimer);
+            auxDeleteResetTimer = setTimeout(resetAuxDeleteButton, 3500);
+          };
+
+          auxDeleteBtn.addEventListener('click', deleteAuxTwoStep, {capture:true, passive:false});
+          auxDeleteBtn.addEventListener('touchend', deleteAuxTwoStep, {capture:true, passive:false});
+          auxDeleteBtn.addEventListener('pointerup', deleteAuxTwoStep, {capture:true, passive:false});
+        }
+      }
+
+      
+      const auxTitleInput = card.querySelector('.auxTitleInput');
+      if(auxTitleInput){
+        const saveAuxTitle = () => {
+          const newTitle = (auxTitleInput.value || '').trim() || name;
+          if(!worksObj[name]) worksObj[name] = {done:'', next:'', km:'', notes:''};
+          worksObj[name].title = newTitle;
+          try{ onChange(name, 'title', newTitle); }catch(e){}
+          if(auxRenderMode === 'detail'){
+            try{ saveDB(); }catch(e){}
+            try{ renderHomeAlerts(); }catch(e){}
+          }
+        };
+
+        ['keydown','keyup','keypress','touchstart','touchend','pointerdown','pointerup','click'].forEach((evtName)=>{
+          auxTitleInput.addEventListener(evtName, (ev)=>{
+            try{ ev.stopPropagation(); }catch(e){}
+            if(evtName === 'keydown' && ev.key === 'Enter'){
+              try{ ev.preventDefault(); }catch(e){}
+              saveAuxTitle();
+              try{ auxTitleInput.blur(); }catch(e){}
+            }
+          }, true);
+        });
+
+        // Guardado reforzado del nombre Aux: iPhone/Safari a veces no dispara igual
+        // todos los eventos si el input está dentro de una cabecera táctil.
+        ['input','change','blur','focusout','compositionend'].forEach((evtName)=>{
+          auxTitleInput.addEventListener(evtName, (ev)=>{
+            try{ ev.stopPropagation(); }catch(e){}
+            saveAuxTitle();
+          }, {capture:true, passive:true});
+        });
+      }
 
       const head = card.querySelector('.workHead');
       const toggle = () => {
@@ -4705,10 +4941,144 @@ container.appendChild(card);
     let n = 1;
     while(worksObj['Aux ' + n]) n++;
     worksObj['Aux ' + n] = {
+      title:'Aux ' + n,
       done:'', next:'', km:'', notes:'',
-      aux1:'', aux2:'', aux3:'', aux4:'', aux5:'', aux6:''
+      aux1:'', aux2:'', aux3:''
     };
   };
+
+  const getAuxKeysFromWorks = (worksObj) => {
+    if(!worksObj || typeof worksObj !== 'object') return [];
+    return Object.keys(worksObj)
+      .filter(key => /^Aux\s+\d+$/.test(key))
+      .sort((a,b) => {
+        const na = Number((/^Aux\s+(\d+)$/.exec(a) || [0,0])[1]);
+        const nb = Number((/^Aux\s+(\d+)$/.exec(b) || [0,0])[1]);
+        return na - nb;
+      });
+  };
+
+  const deleteAuxKeyFromWorks = (worksObj, key) => {
+    if(!worksObj || !key || !/^Aux\s+\d+$/.test(key) || !worksObj[key]) return false;
+    delete worksObj[key];
+    return true;
+  };
+
+  const renderAuxManager = (box, worksObj, mode) => {
+    if(!box) return;
+    const auxKeys = getAuxKeysFromWorks(worksObj);
+    if(auxKeys.length === 0){
+      box.innerHTML = '<div class="auxManagerTitle">Gestionar Aux</div><p class="auxManagerHint">No hay Aux creados.</p>';
+      return;
+    }
+
+    const esc = (val) => String(val == null ? '' : val)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    box.innerHTML = `
+      <div class="auxManagerTitle">Gestionar Aux</div>
+      <p class="auxManagerHint">También puedes eliminar cada Aux desde su propia caja.</p>
+      ${auxKeys.map(key => {
+        const w = worksObj[key] || {};
+        const visible = (w.title || key || '').trim();
+        return `
+          <div class="auxManagerRow">
+            <div class="auxManagerName">${esc(visible)}</div>
+            <button class="auxMgrDelete" type="button" data-aux-mode="${esc(mode)}" data-aux-key="${esc(key)}">Eliminar</button>
+          </div>`;
+      }).join('')}
+      <button class="auxMgrClearAll" type="button" data-aux-mode="${esc(mode)}">Limpiar todos los Aux</button>
+    `;
+  };
+
+  const renderDetailWorksAfterAuxChange = (v) => {
+    if(!v || !v.works) return;
+    renderWorksCards(detailWorks, v.works, (name, k, val) => {
+      if(!v.works[name]) v.works[name] = {done:'', next:'', km:'', notes:''};
+      v.works[name][k] = val;
+      markUpdated(v);
+      saveDB();
+    }, v.hiddenWorks || []);
+  };
+
+  const renderAddWorksAfterAuxChange = () => {
+    renderWorksCards(addWorks, addWorksObj, (name, k, val) => {
+      if(!addWorksObj[name]) addWorksObj[name] = {done:'', next:'', km:'', notes:''};
+      addWorksObj[name][k] = val;
+    }, addHiddenWorks);
+  };
+
+  const deleteAuxFromManager = (mode, key) => {
+    let visibleName = key || 'esta caja Aux';
+    try{
+      const sourceWorks = (mode === 'detail')
+        ? ((getCurrentVehicle() && getCurrentVehicle().works) || null)
+        : addWorksObj;
+      if(sourceWorks && sourceWorks[key] && sourceWorks[key].title){
+        visibleName = sourceWorks[key].title;
+      }
+    }catch(e){}
+
+    if(!confirm('¿Seguro que quieres eliminar "' + visibleName + '"?')) return;
+
+    if(mode === 'detail'){
+      const v = getCurrentVehicle();
+      if(!v || !v.works) return;
+      if(deleteAuxKeyFromWorks(v.works, key)){
+        markUpdated(v);
+        saveDB();
+        renderHomeAlerts();
+        renderDetailWorksAfterAuxChange(v);
+      }
+      return;
+    }
+
+    if(mode === 'add'){
+      if(deleteAuxKeyFromWorks(addWorksObj, key)){
+        renderAddWorksAfterAuxChange();
+      }
+    }
+  };
+
+  const clearAuxFromManager = (mode) => {
+    if(mode === 'detail'){
+      const v = getCurrentVehicle();
+      if(!v || !v.works) return;
+      getAuxKeysFromWorks(v.works).forEach(key => delete v.works[key]);
+      markUpdated(v);
+      saveDB();
+      renderHomeAlerts();
+      renderDetailWorksAfterAuxChange(v);
+      return;
+    }
+
+    if(mode === 'add'){
+      getAuxKeysFromWorks(addWorksObj).forEach(key => delete addWorksObj[key]);
+      renderAddWorksAfterAuxChange();
+    }
+  };
+
+  document.addEventListener('click', (ev) => {
+    const del = ev.target && ev.target.closest ? ev.target.closest('.auxMgrDelete') : null;
+    const clear = ev.target && ev.target.closest ? ev.target.closest('.auxMgrClearAll') : null;
+    if(!del && !clear) return;
+
+    try{ ev.preventDefault(); }catch(e){}
+    try{ ev.stopPropagation(); }catch(e){}
+    try{ ev.stopImmediatePropagation(); }catch(e){}
+
+    if(del){
+      deleteAuxFromManager(del.getAttribute('data-aux-mode'), del.getAttribute('data-aux-key'));
+      return;
+    }
+
+    if(clear){
+      clearAuxFromManager(clear.getAttribute('data-aux-mode'));
+    }
+  }, {capture:true, passive:false});
 
   const renderList = () => {
     vehicleList.innerHTML = '';
@@ -4802,12 +5172,7 @@ container.appendChild(card);
     dPhone.value = v.phone || '';
     if(dGeneralNotes) dGeneralNotes.value = v.generalNotes || '';
 
-    renderWorksCards(detailWorks, v.works, (name, k, val) => {
-      if(!v.works[name]) v.works[name] = {done:'', next:'', km:'', notes:''};
-      v.works[name][k] = val;
-      markUpdated(v);
-      saveDB();
-    }, v.hiddenWorks || []);
+    renderDetailWorksAfterAuxChange(v);
 
     showView(detailView);
   };
@@ -4843,12 +5208,7 @@ container.appendChild(card);
     markUpdated(v);
     saveDB();
     renderHomeAlerts();
-    renderWorksCards(detailWorks, v.works, (name, k, val) => {
-      if(!v.works[name]) v.works[name] = {done:'', next:'', km:'', notes:''};
-      v.works[name][k] = val;
-      markUpdated(v);
-      saveDB();
-    }, v.hiddenWorks || []);
+    renderDetailWorksAfterAuxChange(v);
   });
 
   const performDeleteCurrentVehicle = () => {
@@ -5026,18 +5386,12 @@ container.appendChild(card);
     if(aGeneralNotes) aGeneralNotes.value = '';
     addWorksObj = emptyWorksFromList(DEFAULT_WORKS);
     addHiddenWorks = [];
-    renderWorksCards(addWorks, addWorksObj, (name, k, val) => {
-      if(!addWorksObj[name]) addWorksObj[name] = {done:'', next:'', km:'', notes:''};
-      addWorksObj[name][k] = val;
-    }, addHiddenWorks);
+    renderAddWorksAfterAuxChange();
   };
 
   onTap(btnAddWorkAdd, () => {
     addCustomWorkTo(addWorksObj);
-    renderWorksCards(addWorks, addWorksObj, (name, k, val) => {
-      if(!addWorksObj[name]) addWorksObj[name] = {done:'', next:'', km:'', notes:''};
-      addWorksObj[name][k] = val;
-    }, addHiddenWorks);
+    renderAddWorksAfterAuxChange();
   });
 
   const saveVehicle = () => {
@@ -5139,17 +5493,34 @@ container.appendChild(card);
   };
 
   const restoreBackup = async (file) => {
-    const text = await file.text();
+    if(backupStatus) backupStatus.textContent = 'Leyendo copia...';
+
+    let text = '';
+    try {
+      text = await file.text();
+    } catch(e) {
+      if(backupStatus) backupStatus.textContent = 'No se pudo leer el archivo.';
+      alert('No se pudo leer el archivo.');
+      return;
+    }
+
     let payload;
-    try { payload = JSON.parse(text); } catch(e){ alert('El archivo no es un JSON válido.'); return; }
+    try {
+      payload = JSON.parse(text);
+    } catch(e){
+      if(backupStatus) backupStatus.textContent = 'El archivo no es un JSON válido.';
+      alert('El archivo no es un JSON válido.');
+      return;
+    }
 
     const newDB = (payload && payload.data && Array.isArray(payload.data.vehicles)) ? payload.data
                : (payload && Array.isArray(payload.vehicles) ? payload : null);
 
-    if(!newDB){ alert('El archivo no tiene el formato esperado.'); return; }
-    const currentCount = Array.isArray(db.vehicles) ? db.vehicles.length : 0;
-    const incomingCount = Array.isArray(newDB.vehicles) ? newDB.vehicles.length : 0;
-    if(!confirm('Se fusionará esta copia con los datos actuales.\n\nVehículos actuales: ' + currentCount + '\nVehículos en la copia: ' + incomingCount + '\n\nNo se borrarán vehículos locales. ¿Continuar?')) return;
+    if(!newDB){
+      if(backupStatus) backupStatus.textContent = 'El archivo no tiene el formato esperado.';
+      alert('El archivo no tiene el formato esperado.');
+      return;
+    }
 
     try{
       localStorage.setItem('talleres_lista_pre_importacion_' + Date.now(), JSON.stringify(db));
@@ -5160,6 +5531,8 @@ container.appendChild(card);
       result = mergeVehicles(newDB.vehicles || []);
       saveDB();
     } catch(e){
+      console.error('Restore merge error:', e);
+      if(backupStatus) backupStatus.textContent = 'No se pudo fusionar la copia.';
       alert('No se pudo fusionar la copia en este dispositivo.');
       return;
     }
@@ -5177,9 +5550,11 @@ container.appendChild(card);
 
     renderList();
     renderHomeAlerts();
-    const msg = 'Copia fusionada ✅\nAñadidos: ' + result.added + '\nActualizados: ' + result.updated + '\nConservados: ' + result.kept + '\nTotal actual: ' + db.vehicles.length;
+
+    const msg = 'Copia restaurada/fusionada ✅\nAñadidos: ' + result.added + '\nActualizados: ' + result.updated + '\nConservados: ' + result.kept + '\nTotal actual: ' + db.vehicles.length;
     if(backupStatus) backupStatus.textContent = msg.replace(/\n/g, ' · ');
-    alert(msg);
+
+    try { alert(msg); } catch(e) {}
     showView(listView);
   };
 
@@ -5201,7 +5576,16 @@ container.appendChild(card);
   onTap(saveVehicleTop, saveVehicle);
 
   onTap(btnExport, exportBackup);
-  onTap(btnRestore, () => { restorePicker.value=''; restorePicker.click(); });
+  onTap(btnRestore, () => {
+    try {
+      restorePicker.value='';
+      restorePicker.click();
+      if(backupStatus) backupStatus.textContent = 'Selecciona el archivo .json de copia de seguridad.';
+    } catch(e) {
+      if(backupStatus) backupStatus.textContent = 'No se pudo abrir el selector de archivo.';
+      alert('No se pudo abrir el selector de archivo.');
+    }
+  });
   restorePicker.addEventListener('change', async () => {
     const f = restorePicker.files && restorePicker.files[0];
     if(!f) return;
