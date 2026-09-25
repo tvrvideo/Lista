@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Language" content="es-ES">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Revisiones v4.4</title>
+<title>Revisiones v4.4.1</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0E4C92">
 <meta name="apple-mobile-web-app-title" content="Talleres Lista">
@@ -1348,6 +1348,33 @@ body.theme-beige .workCard .workHead input.auxTitleInput:focus{
 }
 
 
+/* v4.4.1 - Lápiz izquierdo para editar; resto de la barra abre el trabajo */
+.workHead .workRenameDot{
+  flex:0 0 30px; width:30px; height:30px; min-width:30px; min-height:30px; padding:0; margin:4px 5px 4px 0;
+  border:1px solid rgba(255,255,255,.72); border-radius:8px;
+  background:rgba(255,255,255,.92); position:relative; -webkit-tap-highlight-color:transparent;
+  color:#174f87; font-size:17px; font-weight:900; line-height:1;
+  display:flex; align-items:center; justify-content:center; box-shadow:0 1px 2px rgba(0,0,0,.12);
+}
+.workHead .workRenameDot:active{transform:scale(.94);background:#fff;}
+.workHead .workRenameDot::after{
+  content:"✎"; display:block; line-height:1; transform:translateY(-1px);
+}
+.workHead .workTitleEdit{
+  flex:1 1 auto; min-width:0; display:block; color:#fff !important; font-weight:900 !important;
+  font-size:calc(18px * var(--fontScale)) !important; line-height:38px; height:38px; white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis; cursor:pointer; user-select:none; -webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent; outline:none !important;
+}
+.workHead .workTitleEdit[contenteditable="true"]{ cursor:text; user-select:text; -webkit-user-select:text; }
+.workHead .workTitleEdit[contenteditable="true"]:focus{ outline:none !important; background:transparent !important; }
+.workHead .workDuplicateBtn{
+  flex:0 0 38px; width:38px; min-width:38px; height:38px; min-height:38px !important; padding:0 !important; margin:0;
+  border-radius:10px; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.24); color:#fff;
+  font-size:24px; font-weight:900; line-height:1; display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent;
+}
+.workHead .workDuplicateBtn:active{transform:scale(.94);background:rgba(255,255,255,.28);}
+
 /* v4.3.28 - Quitar Aux: mismo botón que verde, solo color rojo */
 .auxWorkActions2{
   display:grid !important;
@@ -1431,6 +1458,17 @@ body.theme-beige .workCard .workHead input.auxTitleInput:focus{
   pointer-events:none !important;
 }
 
+
+/* v4.4.1 - Eliminar trabajos duplicados */
+.copyWorkDeleteWrap{margin-top:14px;}
+.copyWorkDelete{
+  display:block;width:100%;min-height:50px;padding:11px 14px;border-radius:12px;
+  border:1px solid rgba(198,40,40,.95);background:linear-gradient(90deg,rgba(198,40,40,.98),rgba(198,40,40,.76));
+  color:#fff;-webkit-text-fill-color:#fff;font-weight:900;font-size:15px;
+  box-shadow:0 8px 20px rgba(198,40,40,.18);touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+.copyWorkDelete.confirming{background:#8f1515;}
+
 </style>
 </head>
 
@@ -1439,7 +1477,7 @@ body.theme-beige .workCard .workHead input.auxTitleInput:focus{
 <header id="appHeader">
   <div class="titleblock">
     <h1>Revisiones</h1>
-    <div class="ver">v4.4</div>
+    <div class="ver">v4.4.1</div>
   </div>
 
   <div class="logoBox" id="logoBox" title="Pulsa para cambiar el logo">
@@ -3708,7 +3746,7 @@ const daysUntil = (isoDate) => {
 
   const emptyWorksFromList = (names) => {
     const w = {};
-    names.forEach(name => w[name] = { done:'', next:'', km:'', notes:'' });
+    names.forEach(name => w[name] = { done:'', next:'', km:'', notes:'', title:name, kind:name });
     return w;
   };
 
@@ -3864,6 +3902,8 @@ const daysUntil = (isoDate) => {
         DEFAULT_WORKS.forEach(name => {
           if(v.works.__hidden__.includes(name)) return;
           if(!v.works[name] || typeof v.works[name] !== 'object') v.works[name] = { done:'', next:'', km:'', notes:'' };
+          if(typeof v.works[name].title !== 'string' || !v.works[name].title.trim()) v.works[name].title = name;
+          if(typeof v.works[name].kind !== 'string' || !v.works[name].kind.trim()) v.works[name].kind = name;
         });
 
         Object.keys(v.works).forEach(name => {
@@ -3872,6 +3912,8 @@ const daysUntil = (isoDate) => {
           if(typeof w.next !== 'string') w.next = (w.next == null ? '' : String(w.next));
           if(typeof w.km !== 'string') w.km = (w.km == null ? '' : String(w.km));
           if(typeof w.notes !== 'string') w.notes = (w.notes == null ? '' : String(w.notes));
+          if(typeof w.title !== 'string' || !w.title.trim()) w.title = name;
+          if(typeof w.kind !== 'string' || !w.kind.trim()) w.kind = name;
           if(name.trim && name.trim().toLowerCase() === 'aceite'){
             if(typeof w.type !== 'string') w.type = (w.type == null ? '' : String(w.type));
             if(typeof w.liters !== 'string') w.liters = (w.liters == null ? '' : String(w.liters));
@@ -4349,7 +4391,10 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
     const hiddenWorks = Array.isArray(worksObj.__hidden__) ? worksObj.__hidden__ : [];
     DEFAULT_WORKS.forEach(n => {
       if(!worksObj[n] && !hiddenWorks.includes(n)){
-        worksObj[n] = {done:'', next:'', km:'', notes:''};
+        worksObj[n] = {done:'', next:'', km:'', notes:'', title:n, kind:n};
+      } else if(worksObj[n] && typeof worksObj[n] === 'object'){
+        if(typeof worksObj[n].title !== 'string' || !worksObj[n].title.trim()) worksObj[n].title = n;
+        if(typeof worksObj[n].kind !== 'string' || !worksObj[n].kind.trim()) worksObj[n].kind = n;
       }
     });
     const existingNames = Object.keys(worksObj).filter(n => n !== '__hidden__');
@@ -4361,32 +4406,41 @@ const PREF_KEY = 'talleres_lista_prefs_v1_6';
     existingNames.forEach(n => {
       if(oldFilterNames.includes(n)) return;
       if(hiddenWorks.includes(n)) return;
-      if(!renderNames.includes(n)) renderNames.push(n);
+      if(renderNames.includes(n)) return;
+      const after = worksObj[n] && worksObj[n]._after;
+      if(after && renderNames.includes(after)){
+        let pos = renderNames.indexOf(after) + 1;
+        while(pos < renderNames.length && worksObj[renderNames[pos]] && worksObj[renderNames[pos]]._after === after) pos++;
+        renderNames.splice(pos, 0, n);
+      }else{
+        renderNames.push(n);
+      }
     });
 
     renderNames.forEach((name) => {
       if(Array.isArray(hiddenWorks) && hiddenWorks.includes(name)) return;
-      const w = worksObj[name] || {done:'', next:'', km:'', notes:''};
+      const w = worksObj[name] || {done:'', next:'', km:'', notes:'', title:name, kind:name};
       const duNext = daysUntil(w.next || '');
       const status = (duNext !== null && duNext < 0) ? 'overdue' : (duNext !== null && duNext <= 30 ? 'soon' : '');
 
       const safeName = escAttr(name);
       const auxRenderMode = (container === detailWorks) ? 'detail' : ((container === addWorks) ? 'add' : '');
-      const isAceite = name.trim().toLowerCase() === 'aceite';
+      const workKind = String(w.kind || name).trim().toLowerCase();
+      const isAceite = workKind === 'aceite';
       const isAuxiliar = name.trim().toLowerCase().startsWith('aux ');
-      const titleName = escText(isAuxiliar && w.title ? w.title : name);
+      const titleName = escText(w.title || name);
 
       const card = document.createElement('div');
       card.dataset.name = name;
       card.className = 'workCard' + (status ? (' ' + status) : '') + (isAuxiliar ? ' auxWorkBox' : '');
-      const isFiltros = name.trim().toLowerCase() === 'filtros';
-      const isNeumaticos = name.trim().toLowerCase() === 'neumáticos';
-      const isFrenos = name.trim().toLowerCase() === 'frenos';
-      const isITV = name.trim().toLowerCase() === 'itv';
-      const isCajaCambios = name.trim().toLowerCase() === 'aceite caja cambios';
-      const isDistribucion = name.trim().toLowerCase() === 'distribución';
-const isBateria = name.trim().toLowerCase().includes('bater');
-const isCorreas = name.trim().toLowerCase().includes('correas');
+      const isFiltros = workKind === 'filtros';
+      const isNeumaticos = workKind === 'neumáticos';
+      const isFrenos = workKind === 'frenos';
+      const isITV = workKind === 'itv';
+      const isCajaCambios = workKind === 'aceite caja cambios';
+      const isDistribucion = workKind === 'distribución';
+const isBateria = workKind.includes('bater');
+const isCorreas = workKind.includes('correas');
 
       const aceiteBody = `
         <div class="workGrid3 aceiteTipoGrid">
@@ -4783,21 +4837,43 @@ const genericBody = `
       `;
 
       card.innerHTML = `
-        <div class="workHead" role="button" tabindex="0" aria-expanded="false">
-          ${isAuxiliar ? `
-            <input class="auxTitleInput noParentTap" data-name="${safeName}" data-k="title" value="${escAttr(w.title || name)}" aria-label="Nombre auxiliar">
-          ` : `
-            <div class="workTitle">${titleName}</div>
-          `}
-          <div class="workArrow">⌄</div>
+        <div class="workHead" aria-expanded="false">
+          <button class="workRenameDot" type="button" data-work-name="${safeName}" aria-label="Cambiar nombre"></button>
+          <span class="workTitleEdit" data-name="${safeName}" spellcheck="false">${escText(w.title || name)}</span>
+          <button class="workDuplicateBtn" type="button" data-work-name="${safeName}" aria-label="Duplicar trabajo">+</button>
+          <div class="workArrow" aria-hidden="true">⌄</div>
         </div>
         <div class="workBody">
           ${isAuxiliar ? auxBody : (isAceite ? aceiteBody : (isFiltros ? filtrosBody : (isNeumaticos ? neumaticosBody : (isFrenos ? frenosBody : (isITV ? itvBody : (isCajaCambios ? cajaCambiosBody : (isCorreas ? correasBody : (isBateria ? bateriaBody : (isDistribucion ? distribucionBody : genericBody)))))))))}
+          ${(w._isCopy || w._after || /^Trabajo \d+$/.test(name)) ? `<div class="copyWorkDeleteWrap"><button class="copyWorkDelete noParentTap" type="button" data-work-name="${safeName}">Eliminar este trabajo</button></div>` : ''}
         </div>
       `;
 
       const ni = card.querySelector('.nextInput');
       if(ni && status) ni.classList.add(status);
+
+      const copyDeleteBtn = card.querySelector('.copyWorkDelete');
+      if(copyDeleteBtn){
+        let armedUntil=0, lastEventAt=0, resetTimer=null;
+        const reset=()=>{ armedUntil=0; copyDeleteBtn.classList.remove('confirming'); copyDeleteBtn.textContent='Eliminar este trabajo'; };
+        const removeCopy=()=>{
+          delete worksObj[name];
+          // Si alguna copia dependía de esta, conservarla a continuación del trabajo padre original.
+          Object.keys(worksObj).forEach(k=>{ if(worksObj[k] && worksObj[k]._after===name) worksObj[k]._after=w._after || ''; });
+          try{ saveDB(); }catch(e){} try{ renderHomeAlerts(); }catch(e){}
+          container.innerHTML=''; renderWorksCards(container,worksObj,onChange);
+        };
+        const del=(ev)=>{
+          if(ev){ try{ev.preventDefault()}catch(e){} try{ev.stopPropagation()}catch(e){} try{ev.stopImmediatePropagation()}catch(e){} }
+          const now=Date.now(); if(now-lastEventAt<450) return; lastEventAt=now;
+          if(armedUntil && now<=armedUntil){ if(resetTimer) clearTimeout(resetTimer); removeCopy(); return; }
+          armedUntil=now+3500; copyDeleteBtn.classList.add('confirming'); copyDeleteBtn.textContent='Pulsa otra vez para eliminar';
+          if(resetTimer) clearTimeout(resetTimer); resetTimer=setTimeout(reset,3500);
+        };
+        copyDeleteBtn.addEventListener('click',del,{capture:true,passive:false});
+        copyDeleteBtn.addEventListener('touchend',del,{capture:true,passive:false});
+        copyDeleteBtn.addEventListener('pointerup',del,{capture:true,passive:false});
+      }
 
       if(isAuxiliar){
         const auxDeleteBtn = card.querySelector('.auxDeleteBtn');
@@ -4862,52 +4938,6 @@ const genericBody = `
       }
 
       
-      const auxTitleInput = card.querySelector('.auxTitleInput');
-      if(auxTitleInput){
-        const saveAuxTitle = () => {
-          const newTitle = (auxTitleInput.value || '').trim() || name;
-          if(!worksObj[name]) worksObj[name] = {done:'', next:'', km:'', notes:''};
-          worksObj[name].title = newTitle;
-          try{ onChange(name, 'title', newTitle); }catch(e){}
-          if(auxRenderMode === 'detail'){
-            try{ saveDB(); }catch(e){}
-            try{ renderHomeAlerts(); }catch(e){}
-          }
-        };
-
-        ['keydown','keyup','keypress','touchstart','touchend','pointerdown','pointerup','click'].forEach((evtName)=>{
-          auxTitleInput.addEventListener(evtName, (ev)=>{
-            try{ ev.stopPropagation(); }catch(e){}
-            if(evtName === 'keydown' && ev.key === 'Enter'){
-              try{ ev.preventDefault(); }catch(e){}
-              saveAuxTitle();
-              try{ auxTitleInput.blur(); }catch(e){}
-            }
-          }, true);
-        });
-
-        // Guardado reforzado del nombre Aux: iPhone/Safari a veces no dispara igual
-        // todos los eventos si el input está dentro de una cabecera táctil.
-        ['input','change','blur','focusout','compositionend'].forEach((evtName)=>{
-          auxTitleInput.addEventListener(evtName, (ev)=>{
-            try{ ev.stopPropagation(); }catch(e){}
-            saveAuxTitle();
-          }, {capture:true, passive:true});
-        });
-      }
-
-      const head = card.querySelector('.workHead');
-      const toggle = () => {
-        const isOpen = card.classList.toggle('open');
-        if(head) head.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-      };
-      if(head){
-        onTap(head, toggle, {preventDefault:false, stopPropagation:true});
-        head.addEventListener('keydown', (ev) => {
-          if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); toggle(); }
-        });
-      }
-
       card.querySelectorAll('input, textarea').forEach(inp => {
         inp.addEventListener('input', () => {
           const n = inp.getAttribute('data-name');
@@ -4934,6 +4964,116 @@ const genericBody = `
 container.appendChild(card);
     });
   };
+
+  // v4.4.1: un único gestor táctil del encabezado.
+  if(!window.__workHeaderEventsV441b){
+    window.__workHeaderEventsV441b = true;
+    let lastTouchAt = 0;
+    let touchStartX=0, touchStartY=0, touchMoved=false;
+
+    const workFromElement = (el) => {
+      const card = el && el.closest ? el.closest('.workCard') : null;
+      if(!card) return null;
+      const container = card.parentElement;
+      if(!container) return null;
+      return {card, container, name:card.dataset.name};
+    };
+
+    const getWorksObj = (container) => (container === detailWorks)
+      ? ((getCurrentVehicle() && getCurrentVehicle().works) || {}) : addWorksObj;
+
+    const saveWorksChange = (container) => {
+      if(container === detailWorks){
+        const v=getCurrentVehicle();
+        if(v){ markUpdated(v); saveDB(); renderHomeAlerts(); }
+      }
+    };
+
+    const finishTitleEdit = (titleEl) => {
+      if(!titleEl || titleEl.getAttribute('contenteditable') !== 'true') return;
+      const info=workFromElement(titleEl); if(!info) return;
+      const worksObj=getWorksObj(info.container);
+      const old=String((worksObj[info.name] && worksObj[info.name].title) || info.name).trim() || info.name;
+      let value=String(titleEl.textContent || '').trim();
+      if(!value) value=old;
+      if(!worksObj[info.name]) worksObj[info.name]={done:'',next:'',km:'',notes:'',title:old,kind:info.name};
+      worksObj[info.name].title=value;
+      titleEl.textContent=value;
+      titleEl.removeAttribute('contenteditable');
+      saveWorksChange(info.container);
+    };
+
+    const beginTitleEdit = (dot) => {
+      const info=workFromElement(dot); if(!info) return;
+      const title=info.card.querySelector('.workTitleEdit'); if(!title) return;
+      if(title.getAttribute('contenteditable')==='true'){ finishTitleEdit(title); try{dot.focus()}catch(e){} return; }
+      title.setAttribute('contenteditable','true');
+      title.focus();
+      try{
+        const range=document.createRange(); range.selectNodeContents(title); range.collapse(false);
+        const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      }catch(e){}
+    };
+
+    const duplicateWorkAt = (btn) => {
+      const info=workFromElement(btn); if(!info) return;
+      const worksObj=getWorksObj(info.container);
+      const source=worksObj[info.name] || {};
+      const sourceTitle=String(source.title || info.name).trim() || info.name;
+      const hiddenWorks=Array.isArray(worksObj.__hidden__) ? worksObj.__hidden__ : [];
+      let n=1,newKey=''; do{ newKey='Trabajo '+n++; }while(worksObj[newKey] || hiddenWorks.includes(newKey));
+      const kind=String(source.kind || info.name), low=kind.toLowerCase();
+      const blank={done:'',next:'',km:'',notes:'',title:'Copia de '+sourceTitle,kind:kind,_after:info.name,_isCopy:true};
+      if(low==='aceite') Object.assign(blank,{type:'',liters:'',nextKm:''});
+      if(low==='filtros'){
+        ['filtroAceiteNombre','filtroAireNombre','filtroGasoilNombre','filtroPolenNombre','filtroHabitaculoNombre'].forEach(k=>blank[k]=source[k]||'');
+        ['filtroAceiteRef','filtroAceiteProx','filtroAireRef','filtroAireProx','filtroGasoilRef','filtroGasoilProx','filtroPolenRef','filtroPolenProx','filtroHabitaculoRef','filtroHabitaculoProx'].forEach(k=>blank[k]='');
+      }
+      if(low==='neumáticos'){ blank.neuMedida=''; blank.neuVehiculoNombre=source.neuVehiculoNombre||'Vehículo'; blank.neuVehiculoDel=''; blank.neuVehiculoTras=''; }
+      if(low==='batería') ['batRef','batFecha','batFin'].forEach(k=>blank[k]='');
+      if(low.includes('correas')) ['correaRef1','correaRef2','correaRef3'].forEach(k=>blank[k]='');
+      if(info.name.trim().toLowerCase().startsWith('aux ')){ blank.aux1='';blank.aux2='';blank.aux3=''; }
+      worksObj[newKey]=blank;
+      saveWorksChange(info.container);
+      const changeFn = info.container===detailWorks
+        ? ((name,k,val)=>{ if(!worksObj[name]) worksObj[name]={}; worksObj[name][k]=val; const v=getCurrentVehicle(); if(v){markUpdated(v);saveDB();renderHomeAlerts();} })
+        : ((name,k,val)=>{ if(!addWorksObj[name]) addWorksObj[name]={}; addWorksObj[name][k]=val; });
+      renderWorksCards(info.container,worksObj,changeFn);
+    };
+
+    const handleHeader = (ev) => {
+      const target=ev.target;
+      const head=target && target.closest ? target.closest('.workHead') : null;
+      if(!head) return;
+      if(ev.type==='touchend') lastTouchAt=Date.now();
+      if(ev.type==='click' && Date.now()-lastTouchAt<500) return;
+      // Un desplazamiento vertical/horizontal es scroll, nunca una pulsación de barra.
+      if(ev.type==='touchend' && touchMoved){ touchMoved=false; return; }
+      const dot=target.closest('.workRenameDot');
+      const plus=target.closest('.workDuplicateBtn');
+      if(dot){ ev.preventDefault(); ev.stopPropagation(); beginTitleEdit(dot); return; }
+      if(plus){ ev.preventDefault(); ev.stopPropagation(); duplicateWorkAt(plus); return; }
+      const editing=head.querySelector('.workTitleEdit[contenteditable="true"]');
+      if(editing){ finishTitleEdit(editing); }
+      ev.preventDefault(); ev.stopPropagation();
+      const card=head.closest('.workCard');
+      if(card){ const open=card.classList.toggle('open'); head.setAttribute('aria-expanded',open?'true':'false'); }
+    };
+
+    document.addEventListener('touchstart',e=>{
+      const h=e.target && e.target.closest ? e.target.closest('.workHead') : null; if(!h) return;
+      const t=e.touches && e.touches[0]; if(!t) return; touchStartX=t.clientX; touchStartY=t.clientY; touchMoved=false;
+    },{capture:true,passive:true});
+    document.addEventListener('touchmove',e=>{
+      if(touchMoved) return; const h=e.target && e.target.closest ? e.target.closest('.workHead') : null; if(!h) return;
+      const t=e.touches && e.touches[0]; if(!t) return;
+      if(Math.abs(t.clientX-touchStartX)>10 || Math.abs(t.clientY-touchStartY)>10) touchMoved=true;
+    },{capture:true,passive:true});
+    document.addEventListener('touchend',handleHeader,{capture:true,passive:false});
+    document.addEventListener('click',handleHeader,{capture:true,passive:false});
+    document.addEventListener('blur',e=>{ if(e.target && e.target.classList && e.target.classList.contains('workTitleEdit')) finishTitleEdit(e.target); },true);
+    document.addEventListener('keydown',e=>{ const t=e.target; if(!t || !t.classList || !t.classList.contains('workTitleEdit')) return; if(e.key==='Enter'){e.preventDefault();t.blur();} },true);
+  }
 
   const addCustomWorkTo = (vehicleOrWorksObj) => {
     const worksObj = vehicleOrWorksObj.works ? vehicleOrWorksObj.works : vehicleOrWorksObj;
